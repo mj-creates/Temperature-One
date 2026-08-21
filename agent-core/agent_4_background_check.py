@@ -160,6 +160,13 @@ class Agent4BackgroundCheck:
         """
         return synthesize_student_state(raw_payload)
 
+    def process_student(self, reg_number: str, name: Optional[str] = None, goal: Optional[str] = None) -> str:
+        """
+        Pipeline hand-off receiver method for upstream agents (e.g., Nexus Agent 1).
+        Inspects the student record in DBMS and outputs validated Student State JSON.
+        """
+        return self.inspect_student_id(reg_number)
+
     def run(self, input_target: Any) -> str:
         """
         Unified inspection runner for Agent 4.

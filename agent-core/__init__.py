@@ -20,8 +20,10 @@ from .synthesizer import (
 )
 from .prompts import SYSTEM_PROMPT, get_agent4_prompt, build_evaluation_prompt
 from .agent_4_background_check import Agent4BackgroundCheck, run_agent_4
+from .nexus import NexusAgent
 
 __all__ = [
+    "NexusAgent",
     "Agent4BackgroundCheck",
     "run_agent_4",
     "StudentState",
