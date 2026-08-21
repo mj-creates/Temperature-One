@@ -204,11 +204,28 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
         );
     """)
 
+    # 5. Faculty Waiver Requests Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Waiver_Requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            reg_no TEXT NOT NULL,
+            course_id TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            waiver_type TEXT NOT NULL,
+            status TEXT DEFAULT 'PENDING',
+            approver_id TEXT,
+            comments TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
     # Create Indexes for fast lookup
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_subjects_semester ON Subjects(Semester);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_students_semester ON Students(Semester);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_student_subjects_regno ON Student_Subjects(RegNo);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_student_subjects_subjectid ON Student_Subjects(SubjectID);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_waivers_regno ON Waiver_Requests(reg_no);")
+
 
 
 def populate_degree_rules(cursor: sqlite3.Cursor) -> None:

@@ -13,6 +13,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.routes.students import router as students_router
 from backend.routes.subjects import router as subjects_router
 from backend.routes.agents import router as agents_router
+from backend.routes.graph import router as graph_router
+from backend.routes.analysis import router as analysis_router
+from backend.routes.waivers import router as waivers_router
 
 app = FastAPI(
     title="Academic Advising & Curriculum API",
@@ -47,6 +50,9 @@ app.add_middleware(
 app.include_router(students_router)
 app.include_router(subjects_router)
 app.include_router(agents_router)
+app.include_router(graph_router)
+app.include_router(analysis_router)
+app.include_router(waivers_router)
 
 
 @app.get("/health", tags=["System Health"])
