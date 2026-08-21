@@ -1,11 +1,11 @@
 # Proactive Academic Intervention Report: At-Risk Batch Digest
-**Generated:** 2026-08-21T10:13:33.303165+00:00 | **Scan Criteria:** CGPA < 6.00 | **Batch ID:** `batch_at_risk_20260821_101333`
+**Generated:** 2026-08-21T10:21:46.304015+00:00 | **Scan Criteria:** CGPA < 6.00 | **Batch ID:** `batch_at_risk_20260821_102146`
 
 ## Executive Summary
-- **Total Student Population Scanned:** 50
-- **At-Risk Students Identified (CGPA < 6.0):** 11 (22.0%)
+- **Total Student Population Scanned:** 51
+- **At-Risk Students Identified (CGPA < 6.0):** 11 (21.6%)
 - **Actionable Survival Plans Generated:** 11
-- **Pipeline Execution Time:** 0.31s
+- **Pipeline Execution Time:** 0.34s
 
 ---
 

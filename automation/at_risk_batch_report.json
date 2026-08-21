@@ -1,15 +1,15 @@
 {
   "report_metadata": {
-    "batch_id": "batch_at_risk_20260821_101333",
-    "generated_at": "2026-08-21T10:13:33.303165+00:00",
-    "duration_seconds": 0.31,
+    "batch_id": "batch_at_risk_20260821_102146",
+    "generated_at": "2026-08-21T10:21:46.304015+00:00",
+    "duration_seconds": 0.34,
     "gpa_threshold": 6.0,
     "database_target": "C:\\Users\\spjee\\Desktop\\Temperature-One\\backend\\university.db"
   },
   "summary_metrics": {
-    "total_students_scanned": 50,
+    "total_students_scanned": 51,
     "total_at_risk_identified": 11,
-    "at_risk_percentage": 22.0,
+    "at_risk_percentage": 21.6,
     "successful_plans_generated": 11,
     "failed_plans_count": 0
   },
@@ -64,7 +64,7 @@
       "pipeline_context": {
         "student_id": "REG1025",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist",
-        "session_timestamp": "2026-08-21T10:13:33.307214+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.309243+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -217,7 +217,7 @@
       "pipeline_context": {
         "student_id": "REG1038",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for DevOps Engineer",
-        "session_timestamp": "2026-08-21T10:13:33.307415+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.309488+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -370,7 +370,7 @@
       "pipeline_context": {
         "student_id": "REG1028",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer",
-        "session_timestamp": "2026-08-21T10:13:33.307551+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.309633+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -523,7 +523,7 @@
       "pipeline_context": {
         "student_id": "REG1023",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
-        "session_timestamp": "2026-08-21T10:13:33.307665+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.309764+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -676,7 +676,7 @@
       "pipeline_context": {
         "student_id": "REG1019",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
-        "session_timestamp": "2026-08-21T10:13:33.307758+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.309870+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -829,7 +829,7 @@
       "pipeline_context": {
         "student_id": "REG1035",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer",
-        "session_timestamp": "2026-08-21T10:13:33.307865+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.310095+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -982,7 +982,7 @@
       "pipeline_context": {
         "student_id": "REG1026",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
-        "session_timestamp": "2026-08-21T10:13:33.307954+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.310271+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -1135,7 +1135,7 @@
       "pipeline_context": {
         "student_id": "REG1042",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
-        "session_timestamp": "2026-08-21T10:13:33.308063+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.310406+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -1288,7 +1288,7 @@
       "pipeline_context": {
         "student_id": "REG1018",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
-        "session_timestamp": "2026-08-21T10:13:33.308148+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.310520+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -1441,7 +1441,7 @@
       "pipeline_context": {
         "student_id": "REG1011",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
-        "session_timestamp": "2026-08-21T10:13:33.308234+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.310631+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
@@ -1594,7 +1594,7 @@
       "pipeline_context": {
         "student_id": "REG1034",
         "user_query": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
-        "session_timestamp": "2026-08-21T10:13:33.308316+00:00",
+        "session_timestamp": "2026-08-21T10:21:46.310773+00:00",
         "nexus": {
           "status": "success",
           "agent": "Nexus",
