@@ -1,0 +1,1701 @@
+{
+  "report_metadata": {
+    "batch_id": "batch_at_risk_20260821_101333",
+    "generated_at": "2026-08-21T10:13:33.303165+00:00",
+    "duration_seconds": 0.31,
+    "gpa_threshold": 6.0,
+    "database_target": "C:\\Users\\spjee\\Desktop\\Temperature-One\\backend\\university.db"
+  },
+  "summary_metrics": {
+    "total_students_scanned": 50,
+    "total_at_risk_identified": 11,
+    "at_risk_percentage": 22.0,
+    "successful_plans_generated": 11,
+    "failed_plans_count": 0
+  },
+  "survival_plans": [
+    {
+      "student_id": "REG1025",
+      "student_name": "Ananya Patel",
+      "current_semester": 4,
+      "current_cgpa": 5.21,
+      "career_goal": "Robotics & Embedded Systems Specialist",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 21,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1025 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1025",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist",
+        "session_timestamp": "2026-08-21T10:13:33.307214+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1025",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist",
+          "greeting": "Hello REG1025! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1025",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1025 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1025",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1025",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1025 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Robotics & Embedded Systems Specialist. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1038",
+      "student_name": "Varun Reddy",
+      "current_semester": 4,
+      "current_cgpa": 5.34,
+      "career_goal": "DevOps Engineer",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 19,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for DevOps Engineer pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for DevOps Engineer roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1038 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for DevOps Engineer. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1038",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for DevOps Engineer",
+        "session_timestamp": "2026-08-21T10:13:33.307415+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1038",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for DevOps Engineer",
+          "greeting": "Hello REG1038! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1038",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1038 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1038",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for DevOps Engineer",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for DevOps Engineer with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1038",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for DevOps Engineer",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for DevOps Engineer pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for DevOps Engineer roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1038 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for DevOps Engineer. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1028",
+      "student_name": "Nathan Rodriguez",
+      "current_semester": 1,
+      "current_cgpa": 5.47,
+      "career_goal": "Systems Software Engineer",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 21,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1028 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1028",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer",
+        "session_timestamp": "2026-08-21T10:13:33.307551+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1028",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer",
+          "greeting": "Hello REG1028! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1028",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1028 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1028",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1028",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1028 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Systems Software Engineer. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1023",
+      "student_name": "Maya Brown",
+      "current_semester": 4,
+      "current_cgpa": 5.54,
+      "career_goal": "Cloud Architect",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 19,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1023 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1023",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+        "session_timestamp": "2026-08-21T10:13:33.307665+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1023",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "greeting": "Hello REG1023! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1023",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1023 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1023",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Cloud Architect with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1023",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1023 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1019",
+      "student_name": "Sophia Choudhury",
+      "current_semester": 2,
+      "current_cgpa": 5.58,
+      "career_goal": "Cloud Architect",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 20,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1019 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1019",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+        "session_timestamp": "2026-08-21T10:13:33.307758+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1019",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "greeting": "Hello REG1019! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1019",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1019 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1019",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Cloud Architect with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1019",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1019 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1035",
+      "student_name": "William Davis",
+      "current_semester": 4,
+      "current_cgpa": 5.62,
+      "career_goal": "Machine Learning Engineer",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 19,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1035 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1035",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer",
+        "session_timestamp": "2026-08-21T10:13:33.307865+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1035",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer",
+          "greeting": "Hello REG1035! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1035",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1035 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1035",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1035",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1035 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Machine Learning Engineer. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1026",
+      "student_name": "Benjamin Rodriguez",
+      "current_semester": 2,
+      "current_cgpa": 5.63,
+      "career_goal": "AI Researcher",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 21,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for AI Researcher pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for AI Researcher roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1026 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for AI Researcher. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1026",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+        "session_timestamp": "2026-08-21T10:13:33.307954+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1026",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "greeting": "Hello REG1026! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1026",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1026 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1026",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for AI Researcher with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1026",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for AI Researcher pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for AI Researcher roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1026 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for AI Researcher. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1042",
+      "student_name": "Benjamin Verma",
+      "current_semester": 2,
+      "current_cgpa": 5.7,
+      "career_goal": "Cloud Architect",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 21,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1042 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1042",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+        "session_timestamp": "2026-08-21T10:13:33.308063+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1042",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "greeting": "Hello REG1042! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1042",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1042 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1042",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Cloud Architect with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1042",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1042 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1018",
+      "student_name": "Riya Reddy",
+      "current_semester": 1,
+      "current_cgpa": 5.79,
+      "career_goal": "Cloud Architect",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 19,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1018 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1018",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+        "session_timestamp": "2026-08-21T10:13:33.308148+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1018",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "greeting": "Hello REG1018! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1018",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1018 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1018",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for Cloud Architect with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1018",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for Cloud Architect",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for Cloud Architect pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for Cloud Architect roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1018 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for Cloud Architect. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1011",
+      "student_name": "Rahul Kapoor",
+      "current_semester": 1,
+      "current_cgpa": 5.81,
+      "career_goal": "AI Researcher",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 19,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for AI Researcher pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for AI Researcher roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1011 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for AI Researcher. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1011",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+        "session_timestamp": "2026-08-21T10:13:33.308234+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1011",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "greeting": "Hello REG1011! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1011",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1011 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1011",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for AI Researcher with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1011",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for AI Researcher pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for AI Researcher roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1011 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for AI Researcher. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    },
+    {
+      "student_id": "REG1034",
+      "student_name": "Elena Chen",
+      "current_semester": 2,
+      "current_cgpa": 5.93,
+      "career_goal": "AI Researcher",
+      "intervention_status": "success",
+      "academic_standing": "AT_RISK",
+      "enrolled_credits": 20,
+      "recovery_pathway": [
+        {
+          "step_number": 1,
+          "step_label": "Semester 2 (Upcoming)",
+          "nodes_to_complete": [
+            "Sub_2_1",
+            "Sub_2_3",
+            "Sub_2_4",
+            "Sub_2_9"
+          ],
+          "step_total_credits_or_effort": 15.0
+        },
+        {
+          "step_number": 2,
+          "step_label": "Semester 3",
+          "nodes_to_complete": [
+            "Sub_3_1",
+            "Sub_3_3",
+            "Sub_3_5"
+          ],
+          "step_total_credits_or_effort": 12.0
+        },
+        {
+          "step_number": 3,
+          "step_label": "Semester 4",
+          "nodes_to_complete": [
+            "Sub_4_1",
+            "Sub_4_2"
+          ],
+          "step_total_credits_or_effort": 8.0
+        }
+      ],
+      "bottlenecks": [
+        "Sub_2_1",
+        "Sub_3_3"
+      ],
+      "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for AI Researcher pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for AI Researcher roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+      "executive_summary": "Student REG1034 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for AI Researcher. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining.",
+      "pipeline_context": {
+        "student_id": "REG1034",
+        "user_query": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+        "session_timestamp": "2026-08-21T10:13:33.308316+00:00",
+        "nexus": {
+          "status": "success",
+          "agent": "Nexus",
+          "student_id": "REG1034",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "greeting": "Hello REG1034! Welcome to your academic advising session.",
+          "intent": "DEGREE_AND_CAREER_PLANNING"
+        },
+        "state": {
+          "status": "success",
+          "agent": "State",
+          "student_id": "REG1034",
+          "account_status": "ACTIVE",
+          "current_semester": 2,
+          "academic_state": {
+            "current_gpa": 8.45,
+            "credits_earned": 20,
+            "academic_standing": "GOOD_STANDING"
+          },
+          "completed_nodes": [
+            "Sub_1_1",
+            "Sub_1_2",
+            "Sub_1_7",
+            "Sub_1_10"
+          ],
+          "engagement_state": {
+            "attendance_percentage": 92.5,
+            "last_activity_date": "2026-08-21",
+            "behavioral_flags": []
+          },
+          "synthesis_summary": "Student REG1034 is in GOOD_STANDING with 20 credits earned and a CGPA of 8.45."
+        },
+        "codex": {
+          "status": "success",
+          "agent": "Codex",
+          "total_graduation_credits_required": 160,
+          "max_credits_per_semester": 20,
+          "degree_requirements": {
+            "mandatory_subjects_per_term": 6,
+            "target_term_credits": 20
+          },
+          "policy_constraints": {
+            "probation_credit_cap_enforced": false,
+            "prerequisite_waiver_allowed": false
+          },
+          "citation": "[Source: University_Academic_Catalog_Section_4_Degree_Progression]"
+        },
+        "matrix": {
+          "status": "success",
+          "agent": "Matrix",
+          "student_id": "REG1034",
+          "target_milestone": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "path_status": "VALID",
+          "total_steps_required": 3,
+          "path_sequence": [
+            {
+              "step_number": 1,
+              "step_label": "Semester 2 (Upcoming)",
+              "nodes_to_complete": [
+                "Sub_2_1",
+                "Sub_2_3",
+                "Sub_2_4",
+                "Sub_2_9"
+              ],
+              "step_total_credits_or_effort": 15.0
+            },
+            {
+              "step_number": 2,
+              "step_label": "Semester 3",
+              "nodes_to_complete": [
+                "Sub_3_1",
+                "Sub_3_3",
+                "Sub_3_5"
+              ],
+              "step_total_credits_or_effort": 12.0
+            },
+            {
+              "step_number": 3,
+              "step_label": "Semester 4",
+              "nodes_to_complete": [
+                "Sub_4_1",
+                "Sub_4_2"
+              ],
+              "step_total_credits_or_effort": 8.0
+            }
+          ],
+          "bottlenecks": [
+            "Sub_2_1",
+            "Sub_3_3"
+          ],
+          "matrix_analysis": "The computed 3-step trajectory establishes the shortest conflict-free topological sequence to reach target milestones for Emergency Academic Recovery & Backlog Clearance for AI Researcher with critical gateway at Sub_2_1. Credit allocation is balanced under the 20-credit cap with zero cyclic dependencies."
+        },
+        "vector": {
+          "status": "success",
+          "agent": "Vector",
+          "student_id": "REG1034",
+          "advising_goal": "Emergency Academic Recovery & Backlog Clearance for AI Researcher",
+          "strategic_momentum_plan": "**Strategic Momentum Plan:**\n*   **Actionable Project:** Build an end-to-end distributed system applying Data Structures (Sub_2_1) and Relational Databases (Sub_2_9) tailored for high-throughput Emergency Academic Recovery & Backlog Clearance for AI Researcher pipelines.\n*   **Internship/Career Target:** Target summer internship applications on LinkedIn and Internshala for Junior Emergency Academic Recovery & Backlog Clearance for AI Researcher roles aligning with Semester 3 coursework.\n*   **Next-Level Milestone:** Complete Cloud Practitioner / Solutions Architect certification before entering Semester 4 to solidify cloud-native deployment competency.",
+          "executive_summary": "Student REG1034 is on a validated path to graduate in Emergency Academic Recovery & Backlog Clearance for AI Researcher. Academic standing is confirmed as GOOD_STANDING with 3 structured academic terms remaining."
+        }
+      }
+    }
+  ]
+}
