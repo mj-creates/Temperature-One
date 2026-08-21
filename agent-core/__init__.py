@@ -40,11 +40,13 @@ from .agent_4_background_check import Agent4BackgroundCheck, run_agent_4
 from .nexus import NexusAgent
 from .matrix_graph import GraphNode, PrerequisiteGraph
 from .agent_matrix import MatrixAgent, run_matrix
+from .agent_3_vector import Agent3Vector
 
 __all__ = [
     # Agents
     "NexusAgent",
     "MatrixAgent",
+    "Agent3Vector",
     "Agent4BackgroundCheck",
     "run_agent_4",
     "run_matrix",
