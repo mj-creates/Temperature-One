@@ -17,6 +17,7 @@ from backend.routes.graph import router as graph_router
 from backend.routes.analysis import router as analysis_router
 from backend.routes.waivers import router as waivers_router
 from backend.routes.rag import router as rag_router
+from backend.routes.substitutes import router as substitutes_router
 
 app = FastAPI(
     title="Academic Advising & Curriculum API",
@@ -55,6 +56,7 @@ app.include_router(graph_router)
 app.include_router(analysis_router)
 app.include_router(waivers_router)
 app.include_router(rag_router)
+app.include_router(substitutes_router, prefix="/api/v1/substitutes", tags=["Substitutes"])
 
 
 @app.get("/health", tags=["System Health"])
