@@ -5,7 +5,7 @@ Extracts courses from SQLite database and establishes standard academic prerequi
 
 import sqlite3
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 try:
     from .matrix_graph import GraphNode, PrerequisiteGraph
