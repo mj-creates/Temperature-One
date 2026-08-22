@@ -23,10 +23,11 @@ import sqlite3
 
 from backend.database.database import get_db_connection
 from backend.database.crud import get_student_by_regno
-from backend.schemas import (
+from backend.domain_schemas import (
     OrchestratorRequest,
     OrchestratorResponse,
 )
+
 
 logger = logging.getLogger("advising_orchestrator")
 router = APIRouter(prefix="/api/orchestrator", tags=["Multi-Agent Orchestrator"])
