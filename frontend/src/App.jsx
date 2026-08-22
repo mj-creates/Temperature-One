@@ -40,22 +40,15 @@ export default function App() {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
-    setChatMessages(prev => [...prev, { sender: 'Student', text: chatInput }]);
-    const currentInput = chatInput;
-    setChatInput('');
+    // Keep chatInput to display in the dialogue box response!
 
     if (!goalSet) {
       setGoalSet(true);
       setTimeout(() => {
-        setChatMessages(prev => [
-          ...prev, 
-          { sender: 'Nexus Advisor', text: `Understood! Goal registered: "${currentInput}". Initializing the Omega Multi-Agent Pipeline to map your prerequisite graph...` }
-        ]);
-        
         setTimeout(() => {
           setView('dashboard');
         }, 3000);
-      }, 1000);
+      }, 500);
     }
   };
 
@@ -187,11 +180,11 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW: AGENT CHAT */}
+        {/* VIEW: AGENT DIALOGUE */}
         {view === 'agent_chat' && (
-          <div className="pixel-box flex flex-col h-[600px] animate-[fadeIn_0.3s_ease-out]">
+          <div className="pixel-box animate-[fadeIn_0.3s_ease-out] w-full max-w-4xl mx-auto">
             <div className="window-header bg-blue-600">
-              <span>NEXUS_COMMLINK.EXE</span>
+              <span>NEXUS_ENCOUNTER.EXE</span>
               <div className="flex gap-2">
                 <div className="w-3 h-3 bg-white"></div>
                 <div className="w-3 h-3 border-2 border-white"></div>
@@ -199,35 +192,46 @@ export default function App() {
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col bg-gray-50 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:100%_4px]">
-              {chatMessages.map((msg, idx) => (
-                <div key={idx} className={msg.sender === 'Student' ? 'chat-bubble-student' : 'chat-bubble-agent'}>
-                  <div className="title-text text-[10px] opacity-70 mb-1">
-                    {msg.sender.toUpperCase()}
-                  </div>
-                  <div>{msg.text}</div>
-                </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
+            <div className="p-6 md:p-10 flex flex-col items-center bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wNSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]">
+              
+              {/* Agent Avatar Box */}
+              <div className="w-32 h-32 md:w-40 md:h-40 mb-8 border-4 border-black bg-blue-50 shadow-[8px_8px_0_rgba(0,0,0,0.2)] overflow-hidden relative">
+                <img src="/assets/nexus.png" alt="Nexus Agent" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
+              </div>
 
-            <form onSubmit={handleSendChat} className="p-4 bg-white border-t-4 border-black flex gap-4">
-              <input 
-                type="text"
-                className="pixel-input flex-1"
-                placeholder={goalSet ? "System processing..." : "e.g. Software Engineer at Google"}
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                disabled={goalSet}
-              />
-              <button 
-                type="submit" 
-                className="pixel-btn pixel-btn-primary"
-                disabled={goalSet}
-              >
-                SEND
-              </button>
-            </form>
+              {/* RPG Dialogue Box */}
+              <div className="w-full border-4 border-black p-6 md:p-8 mb-8 bg-white shadow-[8px_8px_0_rgba(0,0,0,0.15)] relative">
+                <div className="absolute -top-5 left-4 bg-blue-600 text-white px-4 py-1 border-4 border-black title-text text-lg">
+                  NEXUS
+                </div>
+                <div className="text-2xl md:text-3xl leading-relaxed mt-2 min-h-[100px] flex items-center">
+                  {goalSet 
+                    ? `Understood, ${name}! Goal registered: "${chatInput}". Initializing the Omega Multi-Agent Pipeline to map your prerequisite graph...`
+                    : `Hello ${name}! I am Nexus, your primary AI Advisor. To build your multi-agent academic pipeline, I need to know: what is your ultimate career goal?`
+                  }
+                </div>
+              </div>
+
+              {/* Input Form */}
+              {!goalSet && (
+                <form onSubmit={handleSendChat} className="w-full flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <div className="absolute -top-3 left-4 bg-white px-2 title-text text-sm text-gray-500 z-10">YOUR GOAL</div>
+                    <input 
+                      type="text"
+                      className="pixel-input w-full text-2xl py-4 relative z-0"
+                      placeholder="e.g. Software Engineer at Google"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <button type="submit" className="pixel-btn pixel-btn-primary text-2xl px-8">
+                    ENTER
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         )}
 
