@@ -38,10 +38,9 @@ jobs:
         echo "Pip environment:"
         pip freeze
         echo "Running 14+ unit tests with verbose logging..."
-        cd agent-core
         python -c "import sys; print('PYTHONPATH:', sys.path)"
         # Use python to run tests directly so we can catch import errors natively if discover fails
-        python -m unittest discover -v -p "test_*.py" || (echo "UNITTEST FAILED" && exit 1)
+        python -m unittest discover -s agent_core -v -p "test_*.py" || (echo "UNITTEST FAILED" && exit 1)
 
     - name: Verify Archivist (Agent 06) Execution
       env:

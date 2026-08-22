@@ -19,7 +19,7 @@ import sqlite3
 # Ensure project root and agent-core directory are on sys.path
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = BACKEND_DIR.parent
-AGENT_CORE_DIR = PROJECT_ROOT / "agent-core"
+AGENT_CORE_DIR = PROJECT_ROOT / "agent_core"
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -28,7 +28,7 @@ if str(AGENT_CORE_DIR) not in sys.path:
 
 from backend.database.database import get_db_connection
 from backend.database.crud import get_student_by_regno
-from backend.schemas import (
+from backend.domain_schemas import (
     AgentBackgroundCheckResponse,
     AdvisingSessionRequest,
     AdvisingSessionResponse,

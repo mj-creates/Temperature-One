@@ -8,7 +8,7 @@ An intelligent multi-agent Academic Advising and Curriculum Management System.
 
 ```text
 Temperature-One/
-├── agent-core/             # Multi-agent logic, state synthesizers, schemas, prompts
+├── agent_core/             # Multi-agent logic, state synthesizers, schemas, prompts
 │   ├── agent_4_background_check.py # Agent 4 (The Background Check / State Synthesizer)
 │   ├── nexus.py            # Agent 1 (Front Desk / Supervisor Agent)
 │   ├── nexus_prompt.md     # System prompt for Nexus (Agent 01)
@@ -18,7 +18,7 @@ Temperature-One/
 │   ├── synthesizer.py      # Zero-hallucination state synthesis engine
 │   ├── main.py             # Agent 4 CLI runner & scenario verification
 │   ├── test_agent_4.py     # Unit test suite for Agent 4
-│   └── README.md           # Agent-core documentation
+│   └── README.md           # agent_core documentation
 ├── backend/                # FastAPI backend & SQLite database layer
 │   ├── database/           # DB connection helpers and module entrypoint
 │   ├── init_db.py          # SQLite database schema, rules & mock data initializer
@@ -55,16 +55,16 @@ uvicorn backend.main:app --reload
 ### 2. Agent Core Execution
 ```bash
 # Run Agent 1 (Nexus Front Desk)
-python agent-core/nexus.py
+python agent_core/nexus.py
 
 # Run Agent 4 (The Background Check) demo
-python agent-core/main.py
+python agent_core/main.py
 
 # Query a specific student ID
-python agent-core/main.py REG1001
+python agent_core/main.py REG1001
 
 # Run Agent 4 Unit Tests
-python -m unittest agent-core/test_agent_4.py
+python -m unittest agent_core/test_agent_4.py
 ```
 
 ### 3. Frontend Setup

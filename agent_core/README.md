@@ -106,12 +106,12 @@ print(path_json)
 ### CLI Execution
 ```bash
 # Run multi-agent demonstration harness
-python agent-core/main.py
+python agent_core/main.py
 
 # Run Matrix pathfinder for a specific course
-python agent-core/matrix.py Sub_4_2 REG1001
+python agent_core/matrix.py Sub_4_2 REG1001
 
 # Run unit tests
-python -m unittest agent-core/test_matrix.py
-python -m unittest agent-core/test_agent_4.py
+python -m unittest agent_core/test_matrix.py
+python -m unittest agent_core/test_agent_4.py
 ```

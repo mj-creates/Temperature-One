@@ -15,7 +15,7 @@ import sqlite3
 
 from backend.database.database import get_db_connection
 from backend.database.crud import get_all_subjects, get_degree_requirements
-from backend.schemas import (
+from backend.domain_schemas import (
     SubjectsBySemesterResponse,
     DegreeRequirementsResponse,
     SubjectItem,

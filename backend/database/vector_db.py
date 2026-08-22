@@ -38,6 +38,11 @@ class PolicyVectorDB:
                 "id": "policy_003",
                 "text": "Database Management Systems & SQL requires Object-Oriented Programming with Java as a prerequisite.",
                 "metadata": {"source": "CS_Curriculum_Section_3.1", "type": "prerequisite", "subject": "Database Management Systems & SQL"}
+            },
+            {
+                "id": "policy_004",
+                "text": "Machine Learning Systems & Algorithms requires Probability and Applied Statistics and Linear Algebra & Vector Spaces as prerequisites.",
+                "metadata": {"source": "CS_Curriculum_Section_4.1", "type": "prerequisite", "subject": "Machine Learning Systems & Algorithms"}
             }
         ]
 
@@ -65,6 +70,8 @@ class PolicyVectorDB:
                 if "credit limit" in query_lower and "credit limit" in item["text"].lower():
                     return {"text": item["text"], "metadata": item["metadata"]}
                 if "database" in query_lower and "database" in item["text"].lower():
+                    return {"text": item["text"], "metadata": item["metadata"]}
+                if "machine learning" in query_lower and "machine learning" in item["text"].lower():
                     return {"text": item["text"], "metadata": item["metadata"]}
             return None
 
