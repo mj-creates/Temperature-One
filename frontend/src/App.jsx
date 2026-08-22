@@ -1,5 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
-import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X } from 'lucide-react';
+import {
+  ReactFlow,
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  Handle,
+  Position
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 
 // Custom hook for typewriter effect
 const Typewriter = ({ text, delay = 30 }) => {
@@ -22,8 +33,72 @@ const Typewriter = ({ text, delay = 30 }) => {
   return <span>{currentText}</span>;
 };
 
+// --- REACT FLOW NODE (PIXEL GODMODE STYLE) ---
+const GodmodeCourseNode = ({ data, selected }) => {
+  const isCompleted = data.status === 'COMPLETED';
+  const isEnrolled = data.status === 'ENROLLED';
+  const isBottleneck = data.is_bottleneck;
+
+  let bgClass = 'bg-white';
+  let badgeText = 'AVAILABLE';
+  let badgeColor = 'bg-gray-200 text-gray-600';
+  
+  if (isCompleted) {
+    bgClass = 'bg-green-300';
+    badgeText = 'COMPLETED';
+    badgeColor = 'bg-green-600 text-white';
+  } else if (isEnrolled) {
+    bgClass = 'bg-blue-300';
+    badgeText = 'ENROLLED';
+    badgeColor = 'bg-blue-600 text-white';
+  } else if (isBottleneck) {
+    bgClass = 'bg-red-200';
+    badgeText = 'BOTTLENECK';
+    badgeColor = 'bg-red-600 text-white';
+  }
+
+  return (
+    <div className={`border-[4px] border-black ${bgClass} p-4 shadow-[8px_8px_0_#000] w-64 transition-transform ${selected ? 'scale-105 border-yellow-400' : ''}`}>
+      <Handle type="target" position={Position.Left} className="w-4 h-4 bg-black rounded-none border-2 border-white -ml-2" />
+      
+      <div className="flex justify-between items-start mb-2">
+        <div className="title-text text-xs bg-black text-white inline-block px-2 py-1">{data.subject_id}</div>
+        <div className={`title-text text-[10px] px-2 py-1 border-2 border-black ${badgeColor}`}>{badgeText}</div>
+      </div>
+      
+      <div className="font-bold text-xl text-black mb-3 leading-tight mt-2">{data.label}</div>
+      
+      <div className="flex justify-between items-center text-sm font-bold border-t-[4px] border-black pt-2">
+        <span>SEM {data.semester}</span>
+        <span>{data.credits} CR</span>
+      </div>
+      
+      <Handle type="source" position={Position.Right} className="w-4 h-4 bg-black rounded-none border-2 border-white -mr-2" />
+    </div>
+  );
+};
+const nodeTypes = { customCourseNode: GodmodeCourseNode };
+
+
+// --- MOCK FALLBACK GRAPH DATA ---
+const initialNodes = [
+  { id: 'cs101', type: 'customCourseNode', position: { x: 50, y: 150 }, data: { subject_id: 'CS101', label: 'Intro to Programming', credits: 4, semester: 1, status: 'COMPLETED' } },
+  { id: 'cs102', type: 'customCourseNode', position: { x: 400, y: 150 }, data: { subject_id: 'CS102', label: 'Data Structures I', credits: 4, semester: 2, status: 'COMPLETED' } },
+  { id: 'math201', type: 'customCourseNode', position: { x: 400, y: 350 }, data: { subject_id: 'MATH201', label: 'Discrete Math', credits: 3, semester: 2, status: 'COMPLETED' } },
+  { id: 'cs201', type: 'customCourseNode', position: { x: 750, y: 150 }, data: { subject_id: 'CS201', label: 'Data Structures II', credits: 4, semester: 3, status: 'ENROLLED' } },
+  { id: 'cs301', type: 'customCourseNode', position: { x: 1100, y: 150 }, data: { subject_id: 'CS301', label: 'Machine Learning', credits: 4, semester: 4, status: 'AVAILABLE', is_bottleneck: true } },
+  { id: 'cs401', type: 'customCourseNode', position: { x: 1450, y: 150 }, data: { subject_id: 'CS401', label: 'Capstone Project', credits: 6, semester: 5, status: 'AVAILABLE' } },
+];
+const initialEdges = [
+  { id: 'e1-2', source: 'cs101', target: 'cs102', style: { strokeWidth: 4, stroke: '#000' }, animated: true },
+  { id: 'e2-4', source: 'cs102', target: 'cs201', style: { strokeWidth: 4, stroke: '#000' }, animated: true },
+  { id: 'em-4', source: 'math201', target: 'cs201', style: { strokeWidth: 4, stroke: '#000' } },
+  { id: 'e4-5', source: 'cs201', target: 'cs301', style: { strokeWidth: 4, stroke: '#000' } },
+  { id: 'e5-6', source: 'cs301', target: 'cs401', style: { strokeWidth: 4, stroke: '#000' }, animated: true },
+];
+
 export default function App() {
-  const [view, setView] = useState('login'); // login, details, agent_chat, dashboard
+  const [view, setView] = useState('login'); // login, details, agent_chat, dashboard, knowledge_graph
   const [regNo, setRegNo] = useState('');
   const [name, setName] = useState('');
   
@@ -38,6 +113,10 @@ export default function App() {
   const [goalSet, setGoalSet] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [pipelineStep, setPipelineStep] = useState(-1);
+
+  // React Flow State
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -92,6 +171,54 @@ export default function App() {
     }
   }, [view]);
 
+  const openKnowledgeGraph = async () => {
+    setView('knowledge_graph');
+    
+    // Try to fetch from backend, fallback to mock if backend is down
+    try {
+      const res = await fetch(`http://localhost:8000/api/graph/curriculum?student_id=${regNo}`);
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Format nodes to fit the layout if they don't have positions
+        let semCounters = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
+        const formattedNodes = data.nodes.map(n => {
+          const sem = n.semester || n.data?.semester || 1;
+          const idx = semCounters[sem]++;
+          return {
+            id: n.id,
+            type: 'customCourseNode',
+            position: n.position || { x: (sem-1)*350 + 50, y: idx*200 + 100 },
+            data: {
+              subject_id: n.id,
+              label: n.label || n.data?.label || n.id,
+              credits: n.credits || n.data?.credits || 3,
+              semester: sem,
+              status: n.data?.status || 'AVAILABLE',
+              is_bottleneck: n.data?.is_bottleneck
+            }
+          };
+        });
+        
+        // Add thick strokes to edges for pixel art style
+        const formattedEdges = data.edges.map(e => ({
+          ...e,
+          style: { strokeWidth: 4, stroke: '#000' }
+        }));
+        
+        setNodes(formattedNodes);
+        setEdges(formattedEdges);
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend unavailable, using hardcoded fallback graph");
+    }
+    
+    // Fallback
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  };
+
   const chatEndRef = useRef(null);
   useEffect(() => {
     if (chatEndRef.current) {
@@ -103,9 +230,13 @@ export default function App() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 crt godmode-bg relative overflow-hidden">
       
       {/* Decorative Floating Pixels */}
-      <div className="absolute top-20 left-20 w-4 h-4 bg-blue-400 animate-bounce shadow-[2px_2px_0_#000]"></div>
-      <div className="absolute bottom-40 right-20 w-6 h-6 bg-yellow-400 animate-pulse shadow-[3px_3px_0_#000]"></div>
-      <div className="absolute top-40 right-40 w-3 h-3 bg-red-400 animate-ping"></div>
+      {view !== 'knowledge_graph' && (
+        <>
+          <div className="absolute top-20 left-20 w-4 h-4 bg-blue-400 animate-bounce shadow-[2px_2px_0_#000]"></div>
+          <div className="absolute bottom-40 right-20 w-6 h-6 bg-yellow-400 animate-pulse shadow-[3px_3px_0_#000]"></div>
+          <div className="absolute top-40 right-40 w-3 h-3 bg-red-400 animate-ping"></div>
+        </>
+      )}
 
       {/* HEADER */}
       <header className="absolute top-0 w-full p-4 flex justify-between items-center bg-white border-b-[6px] border-black z-10 shadow-[0_8px_0_rgba(0,0,0,0.15)]">
@@ -113,14 +244,41 @@ export default function App() {
           <Brain size={32} className="text-blue-600 animate-pulse" />
           <span className="title-text text-2xl text-black drop-shadow-[2px_2px_0_#3b82f6]">OMEGA ADVISOR</span>
         </div>
-        {name && (
+        {name && view !== 'login' && (
           <div className="title-text text-sm md:text-base flex items-center gap-2 bg-yellow-300 px-4 py-2 border-4 border-black shadow-[4px_4px_0_#000] transform hover:-rotate-2 transition-transform cursor-default">
             <User size={18}/> {name} <span className="text-gray-600">[{regNo}]</span>
           </div>
         )}
       </header>
 
-      <div className="mt-20 w-full max-w-5xl relative z-10">
+      {/* VIEW: KNOWLEDGE GRAPH FULL SCREEN */}
+      {view === 'knowledge_graph' && (
+        <div className="fixed inset-0 pt-24 bg-blue-50 z-0">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            fitView
+            className="bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wNSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]"
+          >
+            <Background color="#000" gap={40} size={2} />
+            <Controls className="border-4 border-black shadow-[4px_4px_0_#000] bg-white rounded-none" />
+            <MiniMap className="border-4 border-black shadow-[4px_4px_0_#000] rounded-none bg-blue-100" nodeColor="#000" />
+          </ReactFlow>
+          
+          {/* Back button overlay */}
+          <button 
+            onClick={() => setView('dashboard')}
+            className="absolute top-28 left-8 z-50 pixel-btn bg-black text-white text-xl flex items-center gap-2 py-4 px-6 border-[4px] border-white shadow-[6px_6px_0_#000] hover:shadow-[2px_2px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
+          >
+            <X size={24}/> CLOSE GRAPH
+          </button>
+        </div>
+      )}
+
+      <div className={`mt-20 w-full max-w-5xl relative z-10 ${view === 'knowledge_graph' ? 'hidden' : ''}`}>
         
         {/* VIEW: LOGIN */}
         {view === 'login' && (
@@ -374,7 +532,7 @@ export default function App() {
                   </div>
                   
                   <div className="mt-20 text-center animate-[slideUp_0.5s_ease-out_2s_both]">
-                    <button className="pixel-btn bg-black text-white text-2xl md:text-3xl flex items-center gap-4 mx-auto py-6 px-10 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
+                    <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-2xl md:text-3xl flex items-center gap-4 mx-auto py-6 px-10 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
                       <MapIcon size={28}/> VIEW FULL KNOWLEDGE GRAPH
                     </button>
                   </div>
