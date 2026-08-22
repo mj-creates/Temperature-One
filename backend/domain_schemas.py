@@ -18,8 +18,6 @@ class StudentSummary(BaseModel):
     student_name: str = Field(..., description="Full name of the student", examples=["Aarav Sharma"])
     branch: str = Field(..., description="Academic branch or department", examples=["CSE"])
     semester: int = Field(..., ge=1, le=8, description="Current semester of study (1 to 4)", examples=[2])
-    credits_obtained: int = Field(..., description="Credits obtained so far", examples=[40])
-    credits_required: int = Field(default=160, description="Total credits required for graduation", examples=[160])
     cgpa: float = Field(..., ge=0.0, le=10.0, description="Cumulative Grade Point Average", examples=[8.45])
     goal: str = Field(..., description="Target career track or academic specialization", examples=["Data Scientist"])
 
@@ -43,8 +41,6 @@ class StudentDetail(BaseModel):
     student_name: str = Field(..., description="Full name of the student", examples=["Aarav Sharma"])
     branch: str = Field(..., description="Academic branch or department", examples=["CSE"])
     semester: int = Field(..., description="Current enrolled semester", examples=[2])
-    credits_obtained: int = Field(..., description="Credits obtained so far", examples=[40])
-    credits_required: int = Field(default=160, description="Total credits required for graduation", examples=[160])
     cgpa: float = Field(..., description="Current CGPA", examples=[8.45])
     goal: str = Field(..., description="Declared career goal", examples=["AI Researcher"])
     total_registered_credits: int = Field(..., description="Sum of credits for enrolled subjects", examples=[20])

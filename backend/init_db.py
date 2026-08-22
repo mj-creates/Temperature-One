@@ -230,8 +230,7 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
             StudentName TEXT NOT NULL,
             Branch TEXT NOT NULL,
             Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 4),
-            CreditsObtained INTEGER NOT NULL,
-            CreditsRequired INTEGER NOT NULL,
+            
             CGPA REAL NOT NULL CHECK(CGPA BETWEEN 0.0 AND 10.0),
             Goal TEXT NOT NULL
         );
@@ -416,23 +415,20 @@ def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str,
         base_gpa = random.gauss(7.8, 1.1)
         cgpa = max(4.50, min(9.95, round(base_gpa, 2)))
         
-        credits_required = 160
-        credits_obtained = (semester - 1) * 20 + random.randint(0, 10)
+        
 
         students.append({
             "reg_no": reg_no,
             "name": name,
             "branch": branch,
             "semester": semester,
-            "credits_obtained": credits_obtained,
-            "credits_required": credits_required,
             "cgpa": cgpa,
             "goal": goal
         })
 
     cursor.executemany("""
-        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CreditsObtained, CreditsRequired, CGPA, Goal)
-        VALUES (:reg_no, :name, :branch, :semester, :credits_obtained, :credits_required, :cgpa, :goal);
+        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CGPA, Goal)
+        VALUES (:reg_no, :name, :branch, :semester, :cgpa, :goal);
     """, students)
 
     return students
