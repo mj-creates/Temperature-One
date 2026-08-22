@@ -34,7 +34,7 @@ jobs:
     - name: Run Agent Core Unit Tests
       run: |
         echo "Running 14+ unit tests..."
-        python -m unittest discover -s agent-core -p "test_*.py"
+        PYTHONPATH=$PWD python -m unittest discover -v -s agent-core -p "test_*.py"
 
     - name: Verify Archivist (Agent 06) Execution
       run: |
