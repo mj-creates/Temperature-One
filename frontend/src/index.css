@@ -144,3 +144,12 @@ body {
 .path-line { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: drawLine 2s ease-out forwards; }
 .agent-card { opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out; }
 .agent-card.visible { opacity: 1; transform: translateY(0); }
+
+/* Godmode Animations & Effects */
+.crt::before { content: ' '; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
+.crt::after { content: ' '; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; opacity: 0; z-index: 999; pointer-events: none; animation: flicker 0.15s infinite; background: rgba(0,0,0,0.02); }
+@keyframes flicker { 0% { opacity: 0.02; } 50% { opacity: 0.05; } 100% { opacity: 0.02; } }
+.godmode-bg { background: repeating-linear-gradient(45deg, var(--bg-light) 0, var(--bg-light) 20px, #e2e8f0 20px, #e2e8f0 40px); background-size: 56px 56px; animation: moveBg 4s linear infinite; }
+@keyframes moveBg { 100% { background-position: 56px 0; } }
+.typewriter { overflow: hidden; white-space: nowrap; animation: typing 1s steps(40, end); }
+@keyframes typing { from { width: 0 } to { width: 100% } }
