@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from database.vector_db import vector_db
+from backend.database.vector_db import vector_db
 
 router = APIRouter()
 

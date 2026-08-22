@@ -278,6 +278,26 @@ class WaiverResponse(BaseModel):
     created_at: str = Field(..., description="Timestamp of submission")
 
 
+# ---------------------------------------------------------------------------
+# Unified Multi-Agent Orchestrator Schemas
+# ---------------------------------------------------------------------------
+
+class OrchestratorRequest(BaseModel):
+    """Input payload to trigger the unified 5-agent advising pipeline."""
+    student_id: str = Field(..., description="Student registration identifier (e.g. REG1001)", examples=["REG1001"])
+    user_query: str = Field(..., description="Target career goal or academic advising query", examples=["I want to specialize in AI and Cloud Architecture"])
+
+
+class OrchestratorResponse(BaseModel):
+    """Aggregated advising output produced across the 5-agent pipeline with circuit breaker status."""
+    student_id: str = Field(..., description="Target student registration number")
+    recommended_plan: Any = Field(..., description="Recommended 6-course schedule or strategic pathway summary")
+    conflict_warnings: List[str] = Field(default_factory=list, description="Conflict warnings or violations detected (if any)")
+    policy_citations: List[str] = Field(default_factory=list, description="Traceable university policy citations retrieved by Graph-RAG")
+    system_health: Dict[str, str] = Field(..., description="Circuit breaker health status across all 5 agents")
+
+
+
 
 
 
