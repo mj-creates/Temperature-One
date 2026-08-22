@@ -2,6 +2,15 @@
 Codex (Agent 05) - Graph-RAG Policy Engine
 """
 import re
+import sys
+from pathlib import Path
+
+# Ensure backend can be imported
+CURRENT_DIR = Path(__file__).resolve().parent
+if str(CURRENT_DIR.parent) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR.parent))
+
+from backend.database.vector_db import vector_db
 
 class Agent5Codex:
     """
@@ -11,64 +20,37 @@ class Agent5Codex:
     """
     
     def __init__(self):
-        # Mock Graph-RAG Knowledge Base (Vector/Graph Context Window)
-        self.knowledge_base = {
-            "operating systems": {
-                "Target Subject": "Operating Systems Architecture",
-                "Required Prerequisites": ["Computer Architecture & Microprocessors", "Data Structures and Algorithms"],
-                "Credit Value": 4,
-                "Special Rules": "NONE",
-                "Graph Citation": "[Source: CS_Curriculum_Section_3.2_Node_OS]"
-            },
-            "database management systems": {
-                "Target Subject": "Database Management Systems & SQL",
-                "Required Prerequisites": ["Object-Oriented Programming with Java"],
-                "Credit Value": 4,
-                "Special Rules": "NONE",
-                "Graph Citation": "[Source: CS_Curriculum_Section_3.1_Node_DBMS]"
-            },
-            "maximum credit limit": {
-                "Target Subject": "Semester Credit Limit",
-                "Required Prerequisites": "NONE",
-                "Credit Value": 22,
-                "Special Rules": "Students on academic probation are strictly limited to 15 credits. Override requires Dean approval.",
-                "Graph Citation": "[Source: Univ_Policy_Handbook_Page_14_Credit_Limits]"
-            }
-        }
+        self.vector_db = vector_db
 
     def query_policy(self, query_string: str) -> str:
         """
         Ingests a targeted query string.
-        Retrieves matching rules from the Graph-RAG context.
+        Retrieves matching rules from the Graph-RAG context via semantic search.
         Outputs strictly the required schema or NO_DATA_FOUND.
         """
-        query_lower = query_string.lower()
+        # 1 & 2. INGEST & RETRIEVE (Live Vector Search)
+        matched_context = self.vector_db.query_policy(query_string)
         
-        # 1 & 2. INGEST & RETRIEVE
-        matched_context = None
-        for key in self.knowledge_base:
-            if key in query_lower:
-                matched_context = self.knowledge_base[key]
-                break
-                
         # Zero Hallucination Constraint: If not found, return strictly "NO_DATA_FOUND"
         if not matched_context:
             return "NO_DATA_FOUND"
             
         # 3 & 4. EXTRACT & FORMAT
-        prereqs = matched_context["Required Prerequisites"]
-        if isinstance(prereqs, list):
-            prereqs_str = ", ".join(prereqs)
-        else:
-            prereqs_str = str(prereqs)
-            
+        metadata = matched_context["metadata"]
+        text = matched_context["text"]
+        
+        # Parse fields based on metadata (Simulated extraction for the strict format)
+        target = metadata.get("subject", "University Policy")
+        
+        # In a real pipeline, we'd use an LLM here to format the `text` strictly, 
+        # but here we output it mapped to the required schema.
         output = (
             "**Policy Constraints:**\n"
-            f"- **Target Subject:** {matched_context['Target Subject']}\n"
-            f"- **Required Prerequisites:** {prereqs_str}\n"
-            f"- **Credit Value:** {matched_context['Credit Value']}\n"
-            f"- **Special Rules:** {matched_context['Special Rules']}\n"
-            f"- **Graph Citation:** {matched_context['Graph Citation']}"
+            f"- **Target Subject:** {target}\n"
+            f"- **Required Prerequisites:** See Policy Details\n"
+            f"- **Credit Value:** See Policy Details\n"
+            f"- **Special Rules:** {text}\n"
+            f"- **Graph Citation:** [{metadata.get('source', 'Unknown_Source')}]"
         )
         
         return output
