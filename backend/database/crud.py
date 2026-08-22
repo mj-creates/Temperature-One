@@ -15,7 +15,7 @@ def get_students(
     """
     Fetches student summary records with optional semester and career goal filtering.
     """
-    query = "SELECT RegNo, StudentName, Semester, CGPA, Goal FROM Students WHERE 1=1"
+    query = "SELECT RegNo, StudentName, Branch, Semester, CreditsObtained, CreditsRequired, CGPA, Goal FROM Students WHERE 1=1"
     params: List[Any] = []
 
     if semester is not None:
@@ -36,7 +36,10 @@ def get_students(
         {
             "reg_no": row["RegNo"],
             "student_name": row["StudentName"],
+            "branch": row["Branch"],
             "semester": row["Semester"],
+            "credits_obtained": row["CreditsObtained"],
+            "credits_required": row["CreditsRequired"],
             "cgpa": float(row["CGPA"]),
             "goal": row["Goal"],
         }
@@ -52,7 +55,7 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
 
     # 1. Fetch Student metadata (case-insensitive lookup)
     cursor.execute(
-        "SELECT RegNo, StudentName, Semester, CGPA, Goal FROM Students WHERE RegNo = ? COLLATE NOCASE;",
+        "SELECT RegNo, StudentName, Branch, Semester, CreditsObtained, CreditsRequired, CGPA, Goal FROM Students WHERE RegNo = ? COLLATE NOCASE;",
         (reg_no.strip(),)
     )
     student_row = cursor.fetchone()
@@ -90,7 +93,10 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
     return {
         "reg_no": student_row["RegNo"],
         "student_name": student_row["StudentName"],
+        "branch": student_row["Branch"],
         "semester": student_row["Semester"],
+        "credits_obtained": student_row["CreditsObtained"],
+        "credits_required": student_row["CreditsRequired"],
         "cgpa": float(student_row["CGPA"]),
         "goal": student_row["Goal"],
         "total_registered_credits": total_credits,
@@ -102,7 +108,10 @@ def create_student(
     conn: sqlite3.Connection,
     reg_no: str,
     student_name: str,
+    branch: str,
     semester: int,
+    credits_obtained: int,
+    credits_required: int,
     cgpa: float,
     goal: str,
     enrolled_subject_ids: Optional[List[str]] = None
@@ -114,12 +123,12 @@ def create_student(
     clean_reg = reg_no.strip().upper()
     
     cursor.execute("""
-        INSERT INTO Students (RegNo, StudentName, Semester, CGPA, Goal)
-        VALUES (?, ?, ?, ?, ?);
-    """, (clean_reg, student_name.strip(), semester, cgpa, goal.strip()))
+        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CreditsObtained, CreditsRequired, CGPA, Goal)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    """, (clean_reg, student_name.strip(), branch.strip(), semester, credits_obtained, credits_required, cgpa, goal.strip()))
 
     if not enrolled_subject_ids:
-        cursor.execute("SELECT SubjectID FROM Subjects WHERE Semester = ? LIMIT 6;", (semester,))
+        cursor.execute("SELECT SubjectID FROM Subjects WHERE Semester = ? AND Branch = ? LIMIT 6;", (semester, branch.strip()))
         rows = cursor.fetchall()
         enrolled_subject_ids = [r[0] for r in rows]
 
