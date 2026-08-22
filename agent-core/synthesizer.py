@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union, Tuple
 
 try:
-    from .schemas import (
+    from .agent_schemas import (
         AcademicState,
         EngagementState,
         StudentState,
@@ -20,7 +20,7 @@ try:
     )
     from .sanitizer import sanitize_dbms_record
 except ImportError:
-    from schemas import (
+    from agent_schemas import (
         AcademicState,
         EngagementState,
         StudentState,

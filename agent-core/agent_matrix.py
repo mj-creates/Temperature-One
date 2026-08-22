@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Union
 
 try:
-    from .schemas import (
+    from .agent_schemas import (
         MatrixPathResponse,
         MatrixErrorResponse,
         STATUS_VALID,
@@ -29,7 +29,7 @@ try:
     from .matrix_pathfinder import compute_matrix_path, format_matrix_error
     from .prompts import MATRIX_SYSTEM_PROMPT, get_matrix_prompt
 except ImportError:
-    from schemas import (
+    from agent_schemas import (
         MatrixPathResponse,
         MatrixErrorResponse,
         STATUS_VALID,

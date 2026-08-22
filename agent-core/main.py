@@ -15,7 +15,7 @@ CURRENT_DIR = Path(__file__).resolve().parent
 if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
-from schemas import (
+from agent_schemas import (
     STUDENT_NOT_FOUND,
     DATABASE_CONNECTION_ERROR,
     INVALID_DBMS_PAYLOAD,

@@ -2,7 +2,7 @@
 Agent Core Package - Anti Gravity Autonomous Pipeline
 """
 
-from .schemas import (
+from .agent_schemas import (
     AcademicState,
     EngagementState,
     StudentState,

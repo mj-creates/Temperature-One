@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union, Tuple
 
 try:
-    from .schemas import (
+    from .agent_schemas import (
         StudentState,
         Agent4ErrorResponse,
         STUDENT_NOT_FOUND,
@@ -20,7 +20,7 @@ try:
     from .synthesizer import synthesize_student_state, format_error_response
     from .prompts import SYSTEM_PROMPT, get_agent4_prompt, build_evaluation_prompt
 except ImportError:
-    from schemas import (
+    from agent_schemas import (
         StudentState,
         Agent4ErrorResponse,
         STUDENT_NOT_FOUND,

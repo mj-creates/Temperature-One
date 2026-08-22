@@ -32,16 +32,22 @@ jobs:
         python backend/init_db.py
 
     - name: Run Agent Core Unit Tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         echo "Running 14+ unit tests..."
-        PYTHONPATH=$PWD python -m unittest discover -v -s agent-core -p "test_*.py"
+        python -m unittest discover -v -s agent-core -p "test_*.py"
 
     - name: Verify Archivist (Agent 06) Execution
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         echo "Verifying headless data sync pipeline..."
         python automation/agent_06_archivist.py
 
     - name: Verify End-to-End Orchestrator Pipeline
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         echo "Verifying Multi-Agent Integration..."
         python automation/orchestrator.py

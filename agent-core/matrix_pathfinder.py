@@ -9,7 +9,7 @@ from collections import defaultdict, deque
 from typing import Dict, List, Set, Tuple, Optional, Any, Union
 
 try:
-    from .schemas import (
+    from .agent_schemas import (
         PathStep,
         MatrixPathResponse,
         MatrixErrorResponse,
@@ -22,7 +22,7 @@ try:
     )
     from .matrix_graph import GraphNode, PrerequisiteGraph
 except ImportError:
-    from schemas import (
+    from agent_schemas import (
         PathStep,
         MatrixPathResponse,
         MatrixErrorResponse,
