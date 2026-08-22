@@ -98,9 +98,13 @@ const initialEdges = [
 ];
 
 export default function App() {
-  const [view, setView] = useState('login'); // login, details, agent_chat, dashboard, knowledge_graph
+  const [view, setView] = useState('landing'); // landing, login, details, agent_chat, dashboard, knowledge_graph
   const [regNo, setRegNo] = useState('');
   const [name, setName] = useState('');
+  
+  // Landing Page Typewriter
+  const [typewriterText, setTypewriterText] = useState('');
+  const fullTitle = 'OMEGA';
   
   const studentDetails = {
     cgpa: 8.4,
@@ -117,6 +121,21 @@ export default function App() {
   // React Flow State
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  useEffect(() => {
+    if (view === 'landing') {
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index <= fullTitle.length) {
+          setTypewriterText(fullTitle.substring(0, index));
+          index++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 220);
+      return () => clearInterval(interval);
+    }
+  }, [view]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -174,13 +193,10 @@ export default function App() {
   const openKnowledgeGraph = async () => {
     setView('knowledge_graph');
     
-    // Try to fetch from backend, fallback to mock if backend is down
     try {
       const res = await fetch(`http://localhost:8000/api/graph/curriculum?student_id=${regNo}`);
       if (res.ok) {
         const data = await res.json();
-        
-        // Format nodes to fit the layout if they don't have positions
         let semCounters = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
         const formattedNodes = data.nodes.map(n => {
           const sem = n.semester || n.data?.semester || 1;
@@ -200,7 +216,6 @@ export default function App() {
           };
         });
         
-        // Add thick strokes to edges for pixel art style
         const formattedEdges = data.edges.map(e => ({
           ...e,
           style: { strokeWidth: 4, stroke: '#000' }
@@ -214,7 +229,6 @@ export default function App() {
       console.warn("Backend unavailable, using hardcoded fallback graph");
     }
     
-    // Fallback
     setNodes(initialNodes);
     setEdges(initialEdges);
   };
@@ -238,18 +252,20 @@ export default function App() {
         </>
       )}
 
-      {/* HEADER */}
-      <header className="absolute top-0 w-full p-4 flex justify-between items-center bg-white border-b-[6px] border-black z-10 shadow-[0_8px_0_rgba(0,0,0,0.15)]">
-        <div className="flex items-center gap-3">
-          <Brain size={32} className="text-blue-600 animate-pulse" />
-          <span className="title-text text-2xl text-black drop-shadow-[2px_2px_0_#3b82f6]">OMEGA ADVISOR</span>
-        </div>
-        {name && view !== 'login' && (
-          <div className="title-text text-sm md:text-base flex items-center gap-2 bg-yellow-300 px-4 py-2 border-4 border-black shadow-[4px_4px_0_#000] transform hover:-rotate-2 transition-transform cursor-default">
-            <User size={18}/> {name} <span className="text-gray-600">[{regNo}]</span>
+      {/* HEADER (Hidden on Landing) */}
+      {view !== 'landing' && (
+        <header className="absolute top-0 w-full p-4 flex justify-between items-center bg-white border-b-[6px] border-black z-10 shadow-[0_8px_0_rgba(0,0,0,0.15)]">
+          <div className="flex items-center gap-3">
+            <Brain size={32} className="text-blue-600 animate-pulse" />
+            <span className="title-text text-2xl text-black drop-shadow-[2px_2px_0_#3b82f6]">OMEGA ADVISOR</span>
           </div>
-        )}
-      </header>
+          {name && view !== 'login' && (
+            <div className="title-text text-sm md:text-base flex items-center gap-2 bg-yellow-300 px-4 py-2 border-4 border-black shadow-[4px_4px_0_#000] transform hover:-rotate-2 transition-transform cursor-default">
+              <User size={18}/> {name} <span className="text-gray-600">[{regNo}]</span>
+            </div>
+          )}
+        </header>
+      )}
 
       {/* VIEW: KNOWLEDGE GRAPH FULL SCREEN */}
       {view === 'knowledge_graph' && (
@@ -268,7 +284,6 @@ export default function App() {
             <MiniMap className="border-4 border-black shadow-[4px_4px_0_#000] rounded-none bg-blue-100" nodeColor="#000" />
           </ReactFlow>
           
-          {/* Back button overlay */}
           <button 
             onClick={() => setView('dashboard')}
             className="absolute top-28 left-8 z-50 pixel-btn bg-black text-white text-xl flex items-center gap-2 py-4 px-6 border-[4px] border-white shadow-[6px_6px_0_#000] hover:shadow-[2px_2px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
@@ -280,6 +295,44 @@ export default function App() {
 
       <div className={`mt-20 w-full max-w-5xl relative z-10 ${view === 'knowledge_graph' ? 'hidden' : ''}`}>
         
+        {/* VIEW: LANDING PAGE */}
+        {view === 'landing' && (
+          <div className="flex flex-col items-center justify-center min-h-[75vh] animate-[slideUp_0.6s_ease-out_forwards]">
+            
+            {/* Cinematic Floating Mascots */}
+            <div className="flex flex-wrap justify-center gap-6 md:gap-10 mb-12">
+              {[
+                { name: 'NEXUS', src: '/assets/nexus.png', delay: '0s', bg: 'bg-blue-100', border: 'border-blue-600' },
+                { name: 'MATRIX', src: '/assets/matrix.png', delay: '0.2s', bg: 'bg-yellow-100', border: 'border-yellow-500' },
+                { name: 'VECTOR', src: '/assets/vector.png', delay: '0.4s', bg: 'bg-purple-100', border: 'border-purple-600' },
+                { name: 'SENTINEL', src: '/assets/sentinel.png', delay: '0.6s', bg: 'bg-red-100', border: 'border-red-600' }
+              ].map((m, i) => (
+                <div key={i} className={`w-28 h-28 md:w-40 md:h-40 border-[6px] ${m.border} ${m.bg} shadow-[12px_12px_0_#000] relative animate-[bounce_3s_infinite]`} style={{ animationDelay: m.delay }}>
+                  <img src={m.src} alt={m.name} className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
+                </div>
+              ))}
+            </div>
+
+            {/* OMEGA Typewriter Title */}
+            <h1 className="title-text text-7xl md:text-9xl text-black drop-shadow-[8px_8px_0_#3b82f6] mb-8 tracking-widest relative inline-block bg-white px-10 py-6 border-[8px] border-black shadow-[16px_16px_0_#000] transform -rotate-2">
+              <Sparkles className="absolute -top-8 -left-8 text-yellow-400 animate-pulse w-16 h-16" />
+              {typewriterText}
+              <span className="animate-pulse inline-block w-10 h-16 bg-black ml-4 align-bottom"></span>
+            </h1>
+
+            <h2 className="title-text text-xl md:text-3xl text-gray-800 mb-16 bg-yellow-300 px-8 py-3 border-[6px] border-black shadow-[8px_8px_0_#000] transform rotate-1">
+              AUTONOMOUS MULTI-AGENT ACADEMIC INTELLIGENCE
+            </h2>
+
+            <button 
+              onClick={() => setView('login')}
+              className="pixel-btn bg-black text-white text-3xl md:text-4xl flex items-center gap-6 px-16 py-8 border-[6px] border-white shadow-[12px_12px_0_#3b82f6] hover:shadow-[6px_6px_0_#3b82f6] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all group"
+            >
+              INITIALIZE SYSTEM <ArrowRight size={40} className="group-hover:translate-x-4 transition-transform" />
+            </button>
+          </div>
+        )}
+
         {/* VIEW: LOGIN */}
         {view === 'login' && (
           <div className="pixel-box animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] mx-auto max-w-2xl bg-white border-[6px] shadow-[12px_12px_0_rgba(0,0,0,0.2)]">
