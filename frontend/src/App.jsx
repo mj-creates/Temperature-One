@@ -33,17 +33,22 @@ const Typewriter = ({ text, delay = 30 }) => {
   return <span>{currentText}</span>;
 };
 
-// --- REACT FLOW NODE (PIXEL GODMODE STYLE) ---
+// --- REACT FLOW NODE (TREASURE MAP STYLE) ---
 const GodmodeCourseNode = ({ data, selected }) => {
   const isCompleted = data.status === 'COMPLETED';
   const isEnrolled = data.status === 'ENROLLED';
   const isBottleneck = data.is_bottleneck;
+  const isTreasure = data.status === 'TREASURE';
 
   let bgClass = 'bg-white';
   let badgeText = 'AVAILABLE';
   let badgeColor = 'bg-gray-200 text-gray-600';
   
-  if (isCompleted) {
+  if (isTreasure) {
+    bgClass = 'bg-yellow-300';
+    badgeText = 'ULTIMATE GOAL';
+    badgeColor = 'bg-yellow-600 text-white';
+  } else if (isCompleted) {
     bgClass = 'bg-green-300';
     badgeText = 'COMPLETED';
     badgeColor = 'bg-green-600 text-white';
@@ -58,44 +63,28 @@ const GodmodeCourseNode = ({ data, selected }) => {
   }
 
   return (
-    <div className={`border-[4px] border-black ${bgClass} p-4 shadow-[8px_8px_0_#000] w-64 transition-transform ${selected ? 'scale-105 border-yellow-400' : ''}`}>
-      <Handle type="target" position={Position.Left} className="w-4 h-4 bg-black rounded-none border-2 border-white -ml-2" />
+    <div className={`border-[6px] border-[#451a03] ${bgClass} p-4 shadow-[8px_8px_0_#78350f] w-64 transition-transform ${selected ? 'scale-110 border-yellow-500' : ''}`}>
+      <Handle type="target" position={Position.Left} className="w-4 h-4 bg-[#451a03] rounded-none border-2 border-[#fcd34d] -ml-2" />
       
       <div className="flex justify-between items-start mb-2">
-        <div className="title-text text-xs bg-black text-white inline-block px-2 py-1">{data.subject_id}</div>
-        <div className={`title-text text-[10px] px-2 py-1 border-2 border-black ${badgeColor}`}>{badgeText}</div>
+        <div className="title-text text-xs bg-[#451a03] text-white inline-block px-2 py-1">{data.subject_id}</div>
+        <div className={`title-text text-[10px] px-2 py-1 border-[3px] border-[#451a03] ${badgeColor} shadow-[2px_2px_0_#451a03]`}>{badgeText}</div>
       </div>
       
-      <div className="font-bold text-xl text-black mb-3 leading-tight mt-2">{data.label}</div>
+      <div className="font-bold text-xl text-[#451a03] mb-3 leading-tight mt-2">{data.label}</div>
       
-      <div className="flex justify-between items-center text-sm font-bold border-t-[4px] border-black pt-2">
-        <span>SEM {data.semester}</span>
-        <span>{data.credits} CR</span>
-      </div>
+      {!isTreasure && (
+        <div className="flex justify-between items-center text-sm font-bold border-t-[4px] border-[#451a03] pt-2 text-[#78350f]">
+          <span>SEM {data.semester}</span>
+          <span>{data.credits} CR</span>
+        </div>
+      )}
       
-      <Handle type="source" position={Position.Right} className="w-4 h-4 bg-black rounded-none border-2 border-white -mr-2" />
+      <Handle type="source" position={Position.Right} className="w-4 h-4 bg-[#451a03] rounded-none border-2 border-[#fcd34d] -mr-2" />
     </div>
   );
 };
 const nodeTypes = { customCourseNode: GodmodeCourseNode };
-
-
-// --- MOCK FALLBACK GRAPH DATA ---
-const initialNodes = [
-  { id: 'cs101', type: 'customCourseNode', position: { x: 50, y: 150 }, data: { subject_id: 'CS101', label: 'Intro to Programming', credits: 4, semester: 1, status: 'COMPLETED' } },
-  { id: 'cs102', type: 'customCourseNode', position: { x: 400, y: 150 }, data: { subject_id: 'CS102', label: 'Data Structures I', credits: 4, semester: 2, status: 'COMPLETED' } },
-  { id: 'math201', type: 'customCourseNode', position: { x: 400, y: 350 }, data: { subject_id: 'MATH201', label: 'Discrete Math', credits: 3, semester: 2, status: 'COMPLETED' } },
-  { id: 'cs201', type: 'customCourseNode', position: { x: 750, y: 150 }, data: { subject_id: 'CS201', label: 'Data Structures II', credits: 4, semester: 3, status: 'ENROLLED' } },
-  { id: 'cs301', type: 'customCourseNode', position: { x: 1100, y: 150 }, data: { subject_id: 'CS301', label: 'Machine Learning', credits: 4, semester: 4, status: 'AVAILABLE', is_bottleneck: true } },
-  { id: 'cs401', type: 'customCourseNode', position: { x: 1450, y: 150 }, data: { subject_id: 'CS401', label: 'Capstone Project', credits: 6, semester: 5, status: 'AVAILABLE' } },
-];
-const initialEdges = [
-  { id: 'e1-2', source: 'cs101', target: 'cs102', style: { strokeWidth: 4, stroke: '#000' }, animated: true },
-  { id: 'e2-4', source: 'cs102', target: 'cs201', style: { strokeWidth: 4, stroke: '#000' }, animated: true },
-  { id: 'em-4', source: 'math201', target: 'cs201', style: { strokeWidth: 4, stroke: '#000' } },
-  { id: 'e4-5', source: 'cs201', target: 'cs301', style: { strokeWidth: 4, stroke: '#000' } },
-  { id: 'e5-6', source: 'cs301', target: 'cs401', style: { strokeWidth: 4, stroke: '#000' }, animated: true },
-];
 
 export default function App() {
   const [view, setView] = useState('landing'); // landing, login, details, agent_chat, dashboard, knowledge_graph
@@ -151,28 +140,68 @@ export default function App() {
     ]);
   };
 
+  // 1. Goal Validation & Dynamic Subject Generation
+  const validDomains = ['software', 'data', 'ai', 'cyber', 'security', 'machine learning', 'ml', 'cloud', 'systems', 'robotics', 'web', 'app', 'developer', 'engineer', 'frontend', 'backend', 'fullstack', 'game'];
+
+  const getDynamicPath = (goal) => {
+    const g = goal.toLowerCase();
+    if (g.includes('data') || g.includes('ai') || g.includes('ml') || g.includes('machine learning')) {
+      return [
+        { sem: 'SEM 6', name: 'Intro to AI', delay: '0s' },
+        { sem: 'SEM 7', name: 'Deep Learning', delay: '0.4s' },
+        { sem: 'SEM 8', name: 'AI Capstone', delay: '0.8s' }
+      ];
+    }
+    if (g.includes('cyber') || g.includes('security')) {
+      return [
+        { sem: 'SEM 6', name: 'Cryptography', delay: '0s' },
+        { sem: 'SEM 7', name: 'Network Security', delay: '0.4s' },
+        { sem: 'SEM 8', name: 'Cyber Capstone', delay: '0.8s' }
+      ];
+    }
+    if (g.includes('game')) {
+      return [
+        { sem: 'SEM 6', name: 'Computer Graphics', delay: '0s' },
+        { sem: 'SEM 7', name: 'Game Engine Architecture', delay: '0.4s' },
+        { sem: 'SEM 8', name: 'Studio Capstone', delay: '0.8s' }
+      ];
+    }
+    // Default / Software
+    return [
+      { sem: 'SEM 6', name: 'Data Structures II', delay: '0s' },
+      { sem: 'SEM 7', name: 'System Design', delay: '0.4s' },
+      { sem: 'SEM 8', name: 'Software Capstone', delay: '0.8s' }
+    ];
+  };
+
   const handleSendChat = (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
     if (!goalSet) {
-      setGoalSet(true);
       const userGoal = chatInput;
+      setChatHistory(prev => [...prev, { sender: 'YOU', text: userGoal }]);
       
-      setChatHistory(prev => [
-        ...prev,
-        { sender: 'YOU', text: userGoal }
-      ]);
-      
+      const isRelevant = validDomains.some(domain => userGoal.toLowerCase().includes(domain));
+
       setTimeout(() => {
-        setChatHistory(prev => [
-          ...prev,
-          { sender: 'NEXUS', text: `Goal locked in: "${userGoal}". Assembling the swarm to compute optimal pathways...` }
-        ]);
-        
-        setTimeout(() => {
-          setView('dashboard');
-        }, 4000);
+        if (!isRelevant) {
+          setChatHistory(prev => [
+            ...prev,
+            { sender: 'NEXUS', text: `ERROR: I am sorry, but there are no subjects relevant to "${userGoal}" available in this university's curriculum. Please choose an engineering or technology focused career goal.` }
+          ]);
+          setChatInput(''); // reset input
+        } else {
+          setGoalSet(true);
+          setChatHistory(prev => [
+            ...prev,
+            { sender: 'NEXUS', text: `Goal validated: "${userGoal}". All prerequisite subjects are available. Assembling the swarm to compute your optimal pathway...` }
+          ]);
+          
+          setTimeout(() => {
+            setView('dashboard');
+          }, 4500);
+        }
       }, 1000);
     }
   };
@@ -190,47 +219,49 @@ export default function App() {
     }
   }, [view]);
 
-  const openKnowledgeGraph = async () => {
+  // 2. Treasure Map Tree Graph Setup
+  const openKnowledgeGraph = () => {
     setView('knowledge_graph');
     
-    try {
-      const res = await fetch(`http://localhost:8000/api/graph/curriculum?student_id=${regNo}`);
-      if (res.ok) {
-        const data = await res.json();
-        let semCounters = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
-        const formattedNodes = data.nodes.map(n => {
-          const sem = n.semester || n.data?.semester || 1;
-          const idx = semCounters[sem]++;
-          return {
-            id: n.id,
-            type: 'customCourseNode',
-            position: n.position || { x: (sem-1)*350 + 50, y: idx*200 + 100 },
-            data: {
-              subject_id: n.id,
-              label: n.label || n.data?.label || n.id,
-              credits: n.credits || n.data?.credits || 3,
-              semester: sem,
-              status: n.data?.status || 'AVAILABLE',
-              is_bottleneck: n.data?.is_bottleneck
-            }
-          };
-        });
-        
-        const formattedEdges = data.edges.map(e => ({
-          ...e,
-          style: { strokeWidth: 4, stroke: '#000' }
-        }));
-        
-        setNodes(formattedNodes);
-        setEdges(formattedEdges);
-        return;
-      }
-    } catch (err) {
-      console.warn("Backend unavailable, using hardcoded fallback graph");
-    }
-    
-    setNodes(initialNodes);
-    setEdges(initialEdges);
+    // Create a beautiful branching treasure map!
+    const tNodes = [
+      { id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: 'Academic Journey', credits: 0, semester: 1, status: 'COMPLETED' } },
+      
+      // Core Branch
+      { id: 'core1', type: 'customCourseNode', position: { x: 350, y: 300 }, data: { subject_id: 'CS201', label: 'Data Structures', credits: 4, semester: 3, status: 'COMPLETED' } },
+      
+      // Upper Tree Branch (Math / AI)
+      { id: 't1', type: 'customCourseNode', position: { x: 700, y: 100 }, data: { subject_id: 'MATH201', label: 'Discrete Math', credits: 3, semester: 4, status: 'ENROLLED' } },
+      { id: 't2', type: 'customCourseNode', position: { x: 1050, y: 100 }, data: { subject_id: 'AI301', label: 'Machine Learning', credits: 4, semester: 5, status: 'AVAILABLE', is_bottleneck: true } },
+      
+      // Lower Tree Branch (Systems)
+      { id: 'b1', type: 'customCourseNode', position: { x: 700, y: 500 }, data: { subject_id: 'CS302', label: 'Operating Systems', credits: 4, semester: 4, status: 'ENROLLED' } },
+      { id: 'b2', type: 'customCourseNode', position: { x: 1050, y: 500 }, data: { subject_id: 'CS401', label: 'Cloud Architecture', credits: 4, semester: 5, status: 'AVAILABLE' } },
+      
+      // Convergence / Capstone
+      { id: 'cap', type: 'customCourseNode', position: { x: 1400, y: 300 }, data: { subject_id: 'PRJ401', label: 'Project Phase I', credits: 3, semester: 7, status: 'AVAILABLE' } },
+      
+      // The Treasure!
+      { id: 'treasure', type: 'customCourseNode', position: { x: 1750, y: 300 }, data: { subject_id: 'X_MARKS_SPOT', label: chatInput || 'Ultimate Goal', credits: 0, semester: 8, status: 'TREASURE' } }
+    ];
+
+    const tEdges = [
+      { id: 'e-start', source: 'start', target: 'core1', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      
+      { id: 'e-up', source: 'core1', target: 't1', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      { id: 'e-t12', source: 't1', target: 't2', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      
+      { id: 'e-down', source: 'core1', target: 'b1', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      { id: 'e-b12', source: 'b1', target: 'b2', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      
+      { id: 'e-conv1', source: 't2', target: 'cap', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      { id: 'e-conv2', source: 'b2', target: 'cap', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
+      
+      { id: 'e-win', source: 'cap', target: 'treasure', type: 'step', style: { strokeWidth: 8, strokeDasharray: '10,10', stroke: '#eab308' }, animated: true }
+    ];
+
+    setNodes(tNodes);
+    setEdges(tEdges);
   };
 
   const chatEndRef = useRef(null);
@@ -267,9 +298,9 @@ export default function App() {
         </header>
       )}
 
-      {/* VIEW: KNOWLEDGE GRAPH FULL SCREEN */}
+      {/* VIEW: TREASURE MAP KNOWLEDGE GRAPH */}
       {view === 'knowledge_graph' && (
-        <div className="fixed inset-0 pt-24 bg-blue-50 z-0">
+        <div className="fixed inset-0 pt-24 bg-[#fef3c7] z-0">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -277,18 +308,18 @@ export default function App() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             fitView
-            className="bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wNSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]"
+            className="bg-[#fef3c7] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDIwTDIwIDBMMjAgMjBMMCAyMEwyMCAyMHoiIHN0cm9rZT0icmdiYSgxMjAsIDUzLCAxNSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+')]"
           >
-            <Background color="#000" gap={40} size={2} />
-            <Controls className="border-4 border-black shadow-[4px_4px_0_#000] bg-white rounded-none" />
-            <MiniMap className="border-4 border-black shadow-[4px_4px_0_#000] rounded-none bg-blue-100" nodeColor="#000" />
+            <Background color="#78350f" gap={40} size={2} />
+            <Controls className="border-4 border-[#451a03] shadow-[4px_4px_0_#78350f] bg-[#fef3c7] rounded-none" />
+            <MiniMap className="border-4 border-[#451a03] shadow-[4px_4px_0_#78350f] rounded-none bg-[#fde68a]" nodeColor="#78350f" maskColor="rgba(254, 243, 199, 0.6)" />
           </ReactFlow>
           
           <button 
             onClick={() => setView('dashboard')}
-            className="absolute top-28 left-8 z-50 pixel-btn bg-black text-white text-xl flex items-center gap-2 py-4 px-6 border-[4px] border-white shadow-[6px_6px_0_#000] hover:shadow-[2px_2px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
+            className="absolute top-28 left-8 z-50 pixel-btn bg-[#451a03] text-white text-xl flex items-center gap-2 py-4 px-6 border-[4px] border-[#fcd34d] shadow-[6px_6px_0_#78350f] hover:shadow-[2px_2px_0_#78350f] hover:translate-x-1 hover:translate-y-1 transition-all"
           >
-            <X size={24}/> CLOSE GRAPH
+            <X size={24}/> CLOSE TREASURE MAP
           </button>
         </div>
       )}
@@ -562,11 +593,7 @@ export default function App() {
 
                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12 md:gap-0 px-4">
                       
-                      {[
-                        { sem: 'SEM 6', name: 'Data Structures II', delay: '0s' },
-                        { sem: 'SEM 7', name: 'Machine Learning', delay: '0.4s' },
-                        { sem: 'SEM 8', name: 'Capstone Project', delay: '0.8s' }
-                      ].map((node, i) => (
+                      {getDynamicPath(chatInput).map((node, i) => (
                         <div key={i} className="flex flex-col items-center bg-white border-[6px] border-black p-6 w-48 text-center shadow-[8px_8px_0_#000] transform transition-all duration-500 hover:-translate-y-4 hover:shadow-[12px_16px_0_#000] relative group" style={{ animation: `slideUp 0.5s ease-out ${node.delay} both` }}>
                           <div className="absolute -top-6 bg-black text-white px-3 py-1 title-text text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-blue-600 transition-colors">{node.sem}</div>
                           <div className="text-2xl font-bold mt-2">{node.name}</div>
@@ -586,7 +613,7 @@ export default function App() {
                   
                   <div className="mt-20 text-center animate-[slideUp_0.5s_ease-out_2s_both]">
                     <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-2xl md:text-3xl flex items-center gap-4 mx-auto py-6 px-10 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
-                      <MapIcon size={28}/> VIEW FULL KNOWLEDGE GRAPH
+                      <MapIcon size={28}/> OPEN TREASURE MAP
                     </button>
                   </div>
                 </div>
