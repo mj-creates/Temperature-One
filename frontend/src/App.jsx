@@ -160,20 +160,24 @@ export default function App() {
   const validDomains = ['software', 'data', 'ai', 'cyber', 'security', 'machine learning', 'ml', 'cloud', 'systems', 'robotics', 'web', 'app', 'developer', 'engineer', 'frontend', 'backend', 'fullstack', 'game'];
 
   const getDynamicPath = () => {
-    if (pipelineData && pipelineData.pathway && pipelineData.pathway.steps) {
+    if (pipelineData && pipelineData.degree_pathway && pipelineData.degree_pathway.path_sequence) {
        let allCourses = [];
-       pipelineData.pathway.steps.forEach(step => {
-           step.nodes_details.forEach(c => allCourses.push(c));
+       pipelineData.degree_pathway.path_sequence.forEach(step => {
+           step.nodes_details.forEach(c => allCourses.push({ ...c, semester: step.step_number }));
        });
        
        if (allCourses.length >= 3) {
+         // Filter for core computer science or target subjects to make it look cool (ignore basic math/physics if possible)
+         const interesting = allCourses.filter(c => c.name.length > 15 || c.credits >= 4);
+         const source = interesting.length >= 3 ? interesting : allCourses;
+         
          const selected = [
-             allCourses[0],
-             allCourses[Math.floor(allCourses.length/2)],
-             allCourses[allCourses.length - 1]
+             source[0],
+             source[Math.floor(source.length/2)],
+             source[source.length - 1]
          ];
          return selected.map((c, i) => ({
-            sem: `SEM ${c.semester}`,
+            sem: `STEP ${c.semester}`,
             name: c.name,
             delay: `${i * 0.4}s`
          }));
@@ -257,60 +261,82 @@ export default function App() {
   }, [view]);
 
   // 2. Treasure Map Tree Graph Setup from Backend Data!
-  const openKnowledgeGraph = async () => {
+  const openKnowledgeGraph = () => {
     setView('knowledge_graph');
     
     try {
-      const res = await fetch(`http://localhost:8000/api/graph/curriculum?student_id=${regNo}`);
-      if (res.ok) {
-        const data = await res.json();
+      if (pipelineData && pipelineData.degree_pathway && pipelineData.degree_pathway.path_sequence) {
         
         const tNodes = [{ id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: 'Academic Journey', credits: 0, semester: 0, status: 'COMPLETED' } }];
         const tEdges = [];
         
-        // Dynamically place nodes like a branching tree based on semester
-        let semCounters = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0};
+        let stepXOffset = 350;
+        let lastStepNodes = ['start'];
+        let maxSem = 0;
         
-        data.nodes.forEach(n => {
-          const sem = n.semester || n.data?.semester || 1;
-          const idx = semCounters[sem]++;
-          // create a zigzag vertical branch spread
-          const yOffset = (idx % 2 === 0 ? 1 : -1) * (Math.floor(idx/2) * 200);
-          tNodes.push({
-            id: n.id,
-            type: 'customCourseNode',
-            position: { x: sem*350 + 50, y: 300 + yOffset },
-            data: {
-              subject_id: n.id,
-              label: n.label || n.data?.label || n.id,
-              credits: n.credits || n.data?.credits || 3,
-              semester: sem,
-              status: n.data?.status || 'AVAILABLE',
-              is_bottleneck: n.data?.is_bottleneck
+        pipelineData.degree_pathway.path_sequence.forEach((step, stepIndex) => {
+          maxSem = step.step_number;
+          const currentStepNodes = [];
+          
+          step.nodes_details.forEach((node, idx) => {
+            const yOffset = (idx % 2 === 0 ? 1 : -1) * (Math.floor((idx+1)/2) * 160);
+            const nodeId = node.subject_id;
+            currentStepNodes.push(nodeId);
+            
+            tNodes.push({
+              id: nodeId,
+              type: 'customCourseNode',
+              position: { x: (stepIndex + 1) * stepXOffset + 50, y: 300 + yOffset },
+              data: {
+                subject_id: nodeId,
+                label: node.name,
+                credits: node.credits,
+                semester: step.step_number,
+                status: 'AVAILABLE',
+                is_bottleneck: pipelineData.degree_pathway.bottlenecks?.includes(nodeId)
+              }
+            });
+            
+            // Connect to previous step (simple tree connectivity)
+            if (node.prerequisites && node.prerequisites.length > 0) {
+               node.prerequisites.forEach(prereq => {
+                   // if prereq is in graph, link it
+                   tEdges.push({
+                     id: `e-${prereq}-${nodeId}`,
+                     source: prereq,
+                     target: nodeId,
+                     type: 'step',
+                     style: { strokeWidth: 5, strokeDasharray: '8,8', stroke: '#78350f' },
+                     animated: true
+                   });
+               });
+            } else {
+               // Fallback link to random node from last step to ensure tree connectivity
+               const fallbackSource = lastStepNodes[idx % lastStepNodes.length];
+               tEdges.push({
+                 id: `e-${fallbackSource}-${nodeId}`,
+                 source: fallbackSource,
+                 target: nodeId,
+                 type: 'step',
+                 style: { strokeWidth: 5, strokeDasharray: '8,8', stroke: '#78350f' },
+                 animated: true
+               });
             }
           });
-        });
-        
-        data.edges.forEach((e, i) => {
-          tEdges.push({
-            id: e.id || `e-${i}`,
-            source: e.source,
-            target: e.target,
-            type: 'step',
-            style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' },
-            animated: true
-          });
+          
+          if (currentStepNodes.length > 0) {
+            lastStepNodes = currentStepNodes;
+          }
         });
         
         // Find nodes with no outgoing edges to connect to Treasure
-        const sources = new Set(data.edges.map(e => e.source));
-        const maxSem = Math.max(...data.nodes.map(n => n.semester || n.data?.semester || 1));
-        const finalX = (maxSem + 1) * 350 + 50;
+        const sources = new Set(tEdges.map(e => e.source));
+        const finalX = (pipelineData.degree_pathway.path_sequence.length + 1) * stepXOffset + 150;
         
         tNodes.push({ id: 'treasure', type: 'customCourseNode', position: { x: finalX, y: 300 }, data: { subject_id: 'X_MARKS_SPOT', label: chatInput || 'Ultimate Goal', credits: 0, semester: maxSem + 1, status: 'TREASURE' } });
         
-        data.nodes.forEach(n => {
-          if (!sources.has(n.id)) {
+        tNodes.forEach(n => {
+          if (n.id !== 'start' && n.id !== 'treasure' && !sources.has(n.id)) {
             tEdges.push({ id: `e-win-${n.id}`, source: n.id, target: 'treasure', type: 'step', style: { strokeWidth: 8, strokeDasharray: '10,10', stroke: '#eab308' }, animated: true });
           }
         });
@@ -319,8 +345,9 @@ export default function App() {
         setEdges(tEdges);
         return;
       }
+      throw new Error("No pipeline data");
     } catch (err) {
-      console.warn("Backend fetch failed, using fallback...");
+      console.warn("Could not build graph from pipeline, using fallback...", err);
     }
   };
 
