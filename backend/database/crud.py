@@ -98,6 +98,41 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
     }
 
 
+def create_student(
+    conn: sqlite3.Connection,
+    reg_no: str,
+    student_name: str,
+    semester: int,
+    cgpa: float,
+    goal: str,
+    enrolled_subject_ids: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """
+    Inserts a new student record and default subject enrollments into the database.
+    """
+    cursor = conn.cursor()
+    clean_reg = reg_no.strip().upper()
+    
+    cursor.execute("""
+        INSERT INTO Students (RegNo, StudentName, Semester, CGPA, Goal)
+        VALUES (?, ?, ?, ?, ?);
+    """, (clean_reg, student_name.strip(), semester, cgpa, goal.strip()))
+
+    if not enrolled_subject_ids:
+        cursor.execute("SELECT SubjectID FROM Subjects WHERE Semester = ? LIMIT 6;", (semester,))
+        rows = cursor.fetchall()
+        enrolled_subject_ids = [r[0] for r in rows]
+
+    for sid in enrolled_subject_ids:
+        cursor.execute("""
+            INSERT OR IGNORE INTO Student_Subjects (RegNo, SubjectID)
+            VALUES (?, ?);
+        """, (clean_reg, sid))
+
+    conn.commit()
+    return get_student_by_regno(conn, clean_reg)
+
+
 def get_all_subjects(conn: sqlite3.Connection) -> List[Dict[str, Any]]:
     """
     Fetches all catalog subjects across all semesters.
@@ -139,7 +174,6 @@ def get_degree_requirements(conn: sqlite3.Connection) -> Dict[str, Any]:
         for r in rows
     ]
 
-    # Map standard values or defaults
     rules_dict = {r["rule_key"]: r["rule_value"] for r in rules_list}
 
     total_credits = int(rules_dict.get("TOTAL_GRADUATION_CREDITS", 160))

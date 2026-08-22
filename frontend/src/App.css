@@ -1,209 +1,363 @@
 /* Omega Academic Pathway Intelligence Stylesheet */
+/* Cybernetic Pixel-Art & Cozy Holographic Aesthetic */
 
-/* Main Layout */
-.app-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: #0a0d14;
+:root {
+  --bg-primary: #06080e;
+  --bg-secondary: #0c101c;
+  --bg-card: rgba(13, 18, 30, 0.78);
+  --bg-card-hover: rgba(22, 32, 54, 0.92);
+  --border-color: rgba(59, 130, 246, 0.22);
+  --border-focus: #38bdf8;
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
 }
 
-/* Glassmorphism Panel */
+/* Dynamic Animated Background Grid with Pixel-Art Starfield */
+.cyber-background {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 35%),
+    radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 55%),
+    linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  animation: gridScroll 45s linear infinite;
+  min-height: 100vh;
+  position: relative;
+}
+
+@keyframes gridScroll {
+  0% {
+    background-position: center, center, center, 0 0, 0 0;
+  }
+  100% {
+    background-position: center, center, center, 320px 320px, 320px 320px;
+  }
+}
+
+/* Pixel Art Glitter Sparkle Floating Particles */
+.pixel-star {
+  position: absolute;
+  color: #38bdf8;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  pointer-events: none;
+  animation: twinkle 3s ease-in-out infinite alternate;
+  user-select: none;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(0.8) translateY(0px); }
+  50% { opacity: 0.9; transform: scale(1.2) translateY(-4px); filter: drop-shadow(0 0 6px #38bdf8); }
+  100% { opacity: 0.3; transform: scale(0.9) translateY(0px); }
+}
+
+/* Glassmorphic Cyber Panels */
 .glass-panel {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 130, 246, 0.18);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: all 0.25s ease;
+  background: rgba(11, 16, 28, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 14px;
+  box-shadow: 0 12px 38px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel:hover {
-  border-color: rgba(6, 182, 212, 0.35);
+  border-color: rgba(6, 182, 212, 0.45);
+  box-shadow: 0 14px 44px 0 rgba(6, 182, 212, 0.16);
 }
 
-.glass-card-interactive {
-  background: rgba(17, 24, 39, 0.65);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  border-radius: 10px;
+/* Interactive Glitter Button */
+.btn-glitter {
+  position: relative;
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #a855f7 100%);
+  background-size: 200% 200%;
+  color: #ffffff;
+  font-weight: 800;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-glitter:hover {
+  background-position: right center;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 24px rgba(6, 182, 212, 0.6), 0 0 12px rgba(168, 85, 247, 0.5);
+}
+
+.btn-glitter::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: rotate(30deg);
+  transition: 0.6s;
+  opacity: 0;
+}
+
+.btn-glitter:hover::after {
+  opacity: 1;
+  left: 100%;
+}
+
+/* Cozy Card Interactive Hover */
+.glass-card-interactive {
+  background: rgba(14, 20, 36, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .glass-card-interactive:hover {
-  background: rgba(26, 34, 52, 0.85);
-  border-color: rgba(6, 182, 212, 0.45);
+  background: rgba(22, 32, 54, 0.92);
+  border-color: rgba(6, 182, 212, 0.55);
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 12px 30px rgba(6, 182, 212, 0.25), 0 0 15px rgba(168, 85, 247, 0.15);
+}
+
+/* Agent Holographic Avatar Cards */
+.agent-node-card {
+  border: 1.5px solid rgba(59, 130, 246, 0.25);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(14, 20, 34, 0.9) 0%, rgba(10, 14, 24, 0.95) 100%);
+  padding: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.agent-node-card:hover {
+  border-color: #06b6d4;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3);
 }
 
-/* Glow Effects */
-.glow-cyan {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+.agent-node-card.active-pulse {
+  border-color: #06b6d4;
+  box-shadow: 0 0 28px rgba(6, 182, 212, 0.55);
+  animation: agentPulse 2s infinite ease-in-out;
 }
 
-.glow-purple {
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+@keyframes agentPulse {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.35), inset 0 0 12px rgba(6, 182, 212, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 34px rgba(6, 182, 212, 0.7), inset 0 0 22px rgba(6, 182, 212, 0.3);
+  }
 }
 
-.glow-emerald {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+/* Mascot Avatar Image Styling */
+.agent-avatar-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1.5px solid rgba(6, 182, 212, 0.4);
+  background: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+  transition: transform 0.2s ease;
 }
 
-.glow-rose {
-  box-shadow: 0 0 20px rgba(244, 63, 94, 0.25);
+.agent-avatar-img:hover {
+  transform: scale(1.1) rotate(2deg);
 }
 
 /* Custom React Flow Node Styling */
 .custom-course-node {
-  width: 280px;
-  background: rgba(15, 23, 42, 0.95);
+  width: 270px;
+  background: rgba(11, 16, 28, 0.96);
   border: 1.5px solid rgba(59, 130, 246, 0.3);
-  border-radius: 10px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 14px;
   color: #f8fafc;
   font-size: 13px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s ease;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.65);
+  transition: all 0.25s ease;
 }
 
 .custom-course-node:hover {
   border-color: #06b6d4;
-  box-shadow: 0 0 22px rgba(6, 182, 212, 0.3);
-  transform: scale(1.02);
+  box-shadow: 0 0 28px rgba(6, 182, 212, 0.45);
+  transform: scale(1.03);
 }
 
 .custom-course-node.status-completed {
   border-color: #10b981;
-  background: rgba(6, 78, 59, 0.3);
+  background: rgba(6, 78, 59, 0.38);
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
 }
 
 .custom-course-node.status-enrolled {
   border-color: #06b6d4;
-  background: rgba(8, 51, 68, 0.35);
-  box-shadow: 0 0 16px rgba(6, 182, 212, 0.2);
+  background: rgba(8, 51, 68, 0.45);
+  box-shadow: 0 0 22px rgba(6, 182, 212, 0.35);
 }
 
-.custom-course-node.status-locked {
-  border-color: rgba(100, 116, 139, 0.3);
-  opacity: 0.7;
+.custom-course-node.status-available {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(14, 20, 36, 0.9);
 }
 
 .custom-course-node.is-bottleneck {
   border-color: #f59e0b;
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.4);
 }
 
 /* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: 5px;
+  padding: 3px 10px;
   border-radius: 9999px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .badge-emerald {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.18);
   color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
 .badge-cyan {
-  background: rgba(6, 182, 212, 0.15);
+  background: rgba(6, 182, 212, 0.18);
   color: #22d3ee;
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  border: 1px solid rgba(6, 182, 212, 0.35);
 }
 
 .badge-amber {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.18);
   color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
 .badge-rose {
-  background: rgba(244, 63, 94, 0.15);
+  background: rgba(244, 63, 94, 0.18);
   color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  border: 1px solid rgba(244, 63, 94, 0.35);
 }
 
 .badge-purple {
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(168, 85, 247, 0.18);
   color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  border: 1px solid rgba(168, 85, 247, 0.35);
 }
 
 .badge-blue {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(59, 130, 246, 0.18);
   color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.badge-pink {
+  background: rgba(236, 72, 153, 0.18);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.35);
+}
+
+/* Glowing text */
+.glow-text-cyan {
+  text-shadow: 0 0 14px rgba(6, 182, 212, 0.65);
+}
+
+.glow-text-emerald {
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.65);
+}
+
+.glow-text-purple {
+  text-shadow: 0 0 14px rgba(168, 85, 247, 0.65);
 }
 
 /* Pulse animation for active agents */
-@keyframes pulse-ring {
+@keyframes pulseDot {
   0% {
     transform: scale(0.95);
-    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
-  50% {
-    transform: scale(1.08);
-    opacity: 0.4;
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
   }
   100% {
     transform: scale(0.95);
-    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
 
-.pulse-active {
-  animation: pulse-ring 2s infinite ease-in-out;
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  animation: pulseDot 2s infinite;
 }
 
-/* Cybernetic Scanline & Grid Effect */
-.cyber-grid {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-}
-
-/* Modal Backdrop */
-.modal-backdrop {
-  background: rgba(5, 8, 14, 0.85);
-  backdrop-filter: blur(10px);
-}
-
-/* React Flow Canvas Customization */
-.react-flow__renderer {
-  background: #0d111a !important;
-}
-
-.react-flow__controls {
-  background: rgba(17, 24, 39, 0.8) !important;
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
-  border-radius: 8px !important;
+/* Quest Tree Level Node */
+.quest-level-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(59, 130, 246, 0.25);
+  position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.react-flow__controls-button {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15) !important;
-  color: #94a3b8 !important;
+.quest-level-card:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
 }
 
-.react-flow__controls-button:hover {
-  background: rgba(59, 130, 246, 0.2) !important;
-  color: #38bdf8 !important;
+.quest-level-card.level-active {
+  border-color: #06b6d4;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+  background: linear-gradient(135deg, rgba(8, 51, 68, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%);
 }
 
-.react-flow__minimap {
-  background: rgba(15, 23, 42, 0.9) !important;
-  border: 1px solid rgba(59, 130, 246, 0.25) !important;
-  border-radius: 8px !important;
+.quest-level-card.level-locked {
+  opacity: 0.6;
+}
+
+/* Deliberation Council Bubble */
+.council-bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  margin-bottom: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.council-bubble:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.2);
 }
