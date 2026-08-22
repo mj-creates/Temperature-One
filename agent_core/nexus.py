@@ -289,6 +289,20 @@ class NexusAgent:
             "citations": citations
         }
 
+    def receive_student(self, reg_number: str, name: str, goal: str = "") -> Dict[str, Any]:
+        """
+        Intake handler for a student advising session.
+        """
+        greeting = f"Hello {name}! Welcome to your Academic Advising session. I'm Nexus, your front desk advisor."
+        return {
+            "greeting": greeting,
+            "reg_number": reg_number,
+            "name": name,
+            "goal": goal or "Computer Science",
+            "status": "READY_FOR_ADVISING"
+        }
+
+
 
 # Functional wrapper
 def run_nexus(student_id: str, goal: Optional[str] = None, db_path: Optional[Path] = None) -> AdvisingSessionResponse:

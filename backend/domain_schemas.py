@@ -105,7 +105,8 @@ class AdvisingSessionResponse(BaseModel):
     advisor_greeting: str = Field(..., description="Front desk welcoming message from Nexus (Agent 1)")
     advisor_response: str = Field(..., description="Response generated from agent orchestration")
     background_check: Optional[Dict[str, Any]] = None
-    momentum_plan: Optional[str] = None
+    momentum_plan: Optional[Any] = None
+
 
 
 # ---------------------------------------------------------------------------

@@ -209,12 +209,19 @@ def start_advising_session(
             vector = Agent3Vector()
             enrolled_names = [s["subject_name"] for s in student["enrolled_subjects"]]
             schedule_context = {f"Semester {student['semester']}": enrolled_names}
-            momentum_plan = vector.generate_momentum_plan(
+            plan_res = vector.generate_momentum_plan(
                 student_goal=active_goal,
                 matrix_schedule=schedule_context
             )
+            if hasattr(plan_res, "raw_markdown"):
+                momentum_plan = plan_res.raw_markdown
+            elif hasattr(plan_res, "model_dump_json"):
+                momentum_plan = plan_res.model_dump_json()
+            else:
+                momentum_plan = str(plan_res)
         except Exception as e:
             print(f"[WARN] Vector microservice execution during advising session: {e}")
+
 
     advisor_response = (
         f"Your academic profile has been verified with {student['total_registered_credits']} enrolled credits and a CGPA of {student['cgpa']:.2f}. "
