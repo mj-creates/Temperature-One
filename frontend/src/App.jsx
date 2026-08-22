@@ -95,17 +95,18 @@ export default function App() {
   const [typewriterText, setTypewriterText] = useState('');
   const fullTitle = 'OMEGA';
   
-  const studentDetails = {
+  const [studentDetails, setStudentDetails] = useState({
     cgpa: 8.4,
     semester: 5,
     creditsEarned: 90,
     department: 'Computer Science'
-  };
+  });
 
   const [chatInput, setChatInput] = useState('');
   const [goalSet, setGoalSet] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [pipelineStep, setPipelineStep] = useState(-1);
+  const [pipelineData, setPipelineData] = useState(null); // Full Backend Response
 
   // React Flow State
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -126,9 +127,24 @@ export default function App() {
     }
   }, [view]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (regNo.trim() && name.trim()) {
+      // Dynamic fetch from backend
+      try {
+        const res = await fetch(`http://localhost:8000/api/students/${regNo.trim()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setStudentDetails({
+            cgpa: data.current_gpa || 8.4,
+            semester: data.semester || 1,
+            creditsEarned: data.enrolled_subjects?.reduce((acc, s) => acc + s.Credits, 0) || 90,
+            department: data.department || 'Computer Science'
+          });
+        }
+      } catch (err) {
+        console.warn("Could not fetch student details, using fallback.");
+      }
       setView('details');
     }
   };
@@ -143,30 +159,28 @@ export default function App() {
   // 1. Goal Validation & Dynamic Subject Generation
   const validDomains = ['software', 'data', 'ai', 'cyber', 'security', 'machine learning', 'ml', 'cloud', 'systems', 'robotics', 'web', 'app', 'developer', 'engineer', 'frontend', 'backend', 'fullstack', 'game'];
 
-  const getDynamicPath = (goal) => {
-    const g = goal.toLowerCase();
-    if (g.includes('data') || g.includes('ai') || g.includes('ml') || g.includes('machine learning')) {
-      return [
-        { sem: 'SEM 6', name: 'Intro to AI', delay: '0s' },
-        { sem: 'SEM 7', name: 'Deep Learning', delay: '0.4s' },
-        { sem: 'SEM 8', name: 'AI Capstone', delay: '0.8s' }
-      ];
+  const getDynamicPath = () => {
+    if (pipelineData && pipelineData.pathway && pipelineData.pathway.steps) {
+       let allCourses = [];
+       pipelineData.pathway.steps.forEach(step => {
+           step.nodes_details.forEach(c => allCourses.push(c));
+       });
+       
+       if (allCourses.length >= 3) {
+         const selected = [
+             allCourses[0],
+             allCourses[Math.floor(allCourses.length/2)],
+             allCourses[allCourses.length - 1]
+         ];
+         return selected.map((c, i) => ({
+            sem: `SEM ${c.semester}`,
+            name: c.name,
+            delay: `${i * 0.4}s`
+         }));
+       }
     }
-    if (g.includes('cyber') || g.includes('security')) {
-      return [
-        { sem: 'SEM 6', name: 'Cryptography', delay: '0s' },
-        { sem: 'SEM 7', name: 'Network Security', delay: '0.4s' },
-        { sem: 'SEM 8', name: 'Cyber Capstone', delay: '0.8s' }
-      ];
-    }
-    if (g.includes('game')) {
-      return [
-        { sem: 'SEM 6', name: 'Computer Graphics', delay: '0s' },
-        { sem: 'SEM 7', name: 'Game Engine Architecture', delay: '0.4s' },
-        { sem: 'SEM 8', name: 'Studio Capstone', delay: '0.8s' }
-      ];
-    }
-    // Default / Software
+    
+    // Fallback if backend didn't return steps
     return [
       { sem: 'SEM 6', name: 'Data Structures II', delay: '0s' },
       { sem: 'SEM 7', name: 'System Design', delay: '0.4s' },
@@ -174,7 +188,7 @@ export default function App() {
     ];
   };
 
-  const handleSendChat = (e) => {
+  const handleSendChat = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
@@ -184,7 +198,7 @@ export default function App() {
       
       const isRelevant = validDomains.some(domain => userGoal.toLowerCase().includes(domain));
 
-      setTimeout(() => {
+      setTimeout(async () => {
         if (!isRelevant) {
           setChatHistory(prev => [
             ...prev,
@@ -195,12 +209,35 @@ export default function App() {
           setGoalSet(true);
           setChatHistory(prev => [
             ...prev,
-            { sender: 'NEXUS', text: `Goal validated: "${userGoal}". All prerequisite subjects are available. Assembling the swarm to compute your optimal pathway...` }
+            { sender: 'NEXUS', text: `Goal validated: "${userGoal}". All prerequisite subjects are available. Establishing uplink to Omega Backend for computation...` }
           ]);
           
-          setTimeout(() => {
-            setView('dashboard');
-          }, 4500);
+          try {
+            const response = await fetch('http://localhost:8000/api/advising/pipeline', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ student_id: regNo, career_goal: userGoal })
+            });
+            
+            if (!response.ok) throw new Error('Pipeline failed');
+            const data = await response.json();
+            setPipelineData(data); // STORE BACKEND DATA
+            
+            setChatHistory(prev => [
+              ...prev, 
+              { sender: 'NEXUS', text: `Backend sync successful. Assembling the swarm to visualize your dynamic pathway...` }
+            ]);
+            
+            setTimeout(() => {
+              setView('dashboard');
+            }, 3000);
+          } catch (err) {
+            setChatHistory(prev => [
+              ...prev, 
+              { sender: 'NEXUS', text: `SYSTEM FAILURE: Backend communication failed. Is the API server running?` }
+            ]);
+            setGoalSet(false);
+          }
         }
       }, 1000);
     }
@@ -219,49 +256,72 @@ export default function App() {
     }
   }, [view]);
 
-  // 2. Treasure Map Tree Graph Setup
-  const openKnowledgeGraph = () => {
+  // 2. Treasure Map Tree Graph Setup from Backend Data!
+  const openKnowledgeGraph = async () => {
     setView('knowledge_graph');
     
-    // Create a beautiful branching treasure map!
-    const tNodes = [
-      { id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: 'Academic Journey', credits: 0, semester: 1, status: 'COMPLETED' } },
-      
-      // Core Branch
-      { id: 'core1', type: 'customCourseNode', position: { x: 350, y: 300 }, data: { subject_id: 'CS201', label: 'Data Structures', credits: 4, semester: 3, status: 'COMPLETED' } },
-      
-      // Upper Tree Branch (Math / AI)
-      { id: 't1', type: 'customCourseNode', position: { x: 700, y: 100 }, data: { subject_id: 'MATH201', label: 'Discrete Math', credits: 3, semester: 4, status: 'ENROLLED' } },
-      { id: 't2', type: 'customCourseNode', position: { x: 1050, y: 100 }, data: { subject_id: 'AI301', label: 'Machine Learning', credits: 4, semester: 5, status: 'AVAILABLE', is_bottleneck: true } },
-      
-      // Lower Tree Branch (Systems)
-      { id: 'b1', type: 'customCourseNode', position: { x: 700, y: 500 }, data: { subject_id: 'CS302', label: 'Operating Systems', credits: 4, semester: 4, status: 'ENROLLED' } },
-      { id: 'b2', type: 'customCourseNode', position: { x: 1050, y: 500 }, data: { subject_id: 'CS401', label: 'Cloud Architecture', credits: 4, semester: 5, status: 'AVAILABLE' } },
-      
-      // Convergence / Capstone
-      { id: 'cap', type: 'customCourseNode', position: { x: 1400, y: 300 }, data: { subject_id: 'PRJ401', label: 'Project Phase I', credits: 3, semester: 7, status: 'AVAILABLE' } },
-      
-      // The Treasure!
-      { id: 'treasure', type: 'customCourseNode', position: { x: 1750, y: 300 }, data: { subject_id: 'X_MARKS_SPOT', label: chatInput || 'Ultimate Goal', credits: 0, semester: 8, status: 'TREASURE' } }
-    ];
-
-    const tEdges = [
-      { id: 'e-start', source: 'start', target: 'core1', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      
-      { id: 'e-up', source: 'core1', target: 't1', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      { id: 'e-t12', source: 't1', target: 't2', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      
-      { id: 'e-down', source: 'core1', target: 'b1', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      { id: 'e-b12', source: 'b1', target: 'b2', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      
-      { id: 'e-conv1', source: 't2', target: 'cap', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      { id: 'e-conv2', source: 'b2', target: 'cap', type: 'step', style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' }, animated: true },
-      
-      { id: 'e-win', source: 'cap', target: 'treasure', type: 'step', style: { strokeWidth: 8, strokeDasharray: '10,10', stroke: '#eab308' }, animated: true }
-    ];
-
-    setNodes(tNodes);
-    setEdges(tEdges);
+    try {
+      const res = await fetch(`http://localhost:8000/api/graph/curriculum?student_id=${regNo}`);
+      if (res.ok) {
+        const data = await res.json();
+        
+        const tNodes = [{ id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: 'Academic Journey', credits: 0, semester: 0, status: 'COMPLETED' } }];
+        const tEdges = [];
+        
+        // Dynamically place nodes like a branching tree based on semester
+        let semCounters = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0};
+        
+        data.nodes.forEach(n => {
+          const sem = n.semester || n.data?.semester || 1;
+          const idx = semCounters[sem]++;
+          // create a zigzag vertical branch spread
+          const yOffset = (idx % 2 === 0 ? 1 : -1) * (Math.floor(idx/2) * 200);
+          tNodes.push({
+            id: n.id,
+            type: 'customCourseNode',
+            position: { x: sem*350 + 50, y: 300 + yOffset },
+            data: {
+              subject_id: n.id,
+              label: n.label || n.data?.label || n.id,
+              credits: n.credits || n.data?.credits || 3,
+              semester: sem,
+              status: n.data?.status || 'AVAILABLE',
+              is_bottleneck: n.data?.is_bottleneck
+            }
+          });
+        });
+        
+        data.edges.forEach((e, i) => {
+          tEdges.push({
+            id: e.id || `e-${i}`,
+            source: e.source,
+            target: e.target,
+            type: 'step',
+            style: { strokeWidth: 6, strokeDasharray: '10,10', stroke: '#78350f' },
+            animated: true
+          });
+        });
+        
+        // Find nodes with no outgoing edges to connect to Treasure
+        const sources = new Set(data.edges.map(e => e.source));
+        const maxSem = Math.max(...data.nodes.map(n => n.semester || n.data?.semester || 1));
+        const finalX = (maxSem + 1) * 350 + 50;
+        
+        tNodes.push({ id: 'treasure', type: 'customCourseNode', position: { x: finalX, y: 300 }, data: { subject_id: 'X_MARKS_SPOT', label: chatInput || 'Ultimate Goal', credits: 0, semester: maxSem + 1, status: 'TREASURE' } });
+        
+        data.nodes.forEach(n => {
+          if (!sources.has(n.id)) {
+            tEdges.push({ id: `e-win-${n.id}`, source: n.id, target: 'treasure', type: 'step', style: { strokeWidth: 8, strokeDasharray: '10,10', stroke: '#eab308' }, animated: true });
+          }
+        });
+        
+        setNodes(tNodes);
+        setEdges(tEdges);
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend fetch failed, using fallback...");
+    }
   };
 
   const chatEndRef = useRef(null);
@@ -308,7 +368,7 @@ export default function App() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             fitView
-            className="bg-[#fef3c7] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDIwTDIwIDBMMjAgMjBMMCAyMEwyMCAyMHoiIHN0cm9rZT0icmdiYSgxMjAsIDUzLCAxNSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+')]"
+            className="bg-[#fef3c7] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDIwTDIwIDBMMjAgMjBMMCAyMEwyMCAyMHoiIHN0cm9rZT0icmdiYSgxMj0sIDUzLCAxNSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+')]"
           >
             <Background color="#78350f" gap={40} size={2} />
             <Controls className="border-4 border-[#451a03] shadow-[4px_4px_0_#78350f] bg-[#fef3c7] rounded-none" />
@@ -593,10 +653,10 @@ export default function App() {
 
                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12 md:gap-0 px-4">
                       
-                      {getDynamicPath(chatInput).map((node, i) => (
+                      {getDynamicPath().map((node, i) => (
                         <div key={i} className="flex flex-col items-center bg-white border-[6px] border-black p-6 w-48 text-center shadow-[8px_8px_0_#000] transform transition-all duration-500 hover:-translate-y-4 hover:shadow-[12px_16px_0_#000] relative group" style={{ animation: `slideUp 0.5s ease-out ${node.delay} both` }}>
                           <div className="absolute -top-6 bg-black text-white px-3 py-1 title-text text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-blue-600 transition-colors">{node.sem}</div>
-                          <div className="text-2xl font-bold mt-2">{node.name}</div>
+                          <div className="text-xl font-bold mt-2">{node.name}</div>
                           <div className="w-4 h-4 bg-blue-500 border-2 border-black rounded-full mt-4 animate-ping"></div>
                         </div>
                       ))}
@@ -611,7 +671,16 @@ export default function App() {
                     </div>
                   </div>
                   
-                  <div className="mt-20 text-center animate-[slideUp_0.5s_ease-out_2s_both]">
+                  {pipelineData?.career_vector && (
+                    <div className="mt-16 bg-white border-4 border-black p-6 shadow-[8px_8px_0_#000] animate-[slideUp_0.5s_ease-out_1.5s_both]">
+                      <h4 className="title-text text-xl mb-4 bg-blue-600 text-white inline-block px-4 py-1">CAREER VECTOR: NEXT STEPS</h4>
+                      <div className="text-xl leading-relaxed text-gray-700">
+                        <strong className="text-black">Recommended Action:</strong> {pipelineData.career_vector.actionable_project}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mt-12 text-center animate-[slideUp_0.5s_ease-out_2s_both]">
                     <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-2xl md:text-3xl flex items-center gap-4 mx-auto py-6 px-10 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
                       <MapIcon size={28}/> OPEN TREASURE MAP
                     </button>
