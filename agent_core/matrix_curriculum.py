@@ -1,6 +1,6 @@
 """
 University Curriculum Graph Builder for Agent Matrix.
-Extracts courses from SQLite database and establishes standard academic prerequisite chains.
+Extracts courses, prerequisites, corequisites, antirequisites, and course substitutions from SQLite.
 """
 
 import sqlite3
@@ -14,122 +14,69 @@ except ImportError:
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "backend" / "university.db"
 
-# Canonical academic prerequisite chains mapped across CS catalog semesters
-CANONICAL_PREREQUISITES: Dict[str, List[str]] = {
-    # Semester 2 Prerequisites
-    "Sub_2_1": ["Sub_1_1"],           # DSA requires Intro to Programming
-    "Sub_2_2": ["Sub_1_1"],           # OOP Java requires Intro to Programming
-    "Sub_2_3": ["Sub_1_2"],           # Linear Algebra requires Calculus
-    "Sub_2_4": ["Sub_1_7"],           # Comp Arch requires Digital Logic
-    "Sub_2_5": ["Sub_1_2"],           # Prob & Stats requires Calculus
-    "Sub_2_7": ["Sub_1_1"],           # Software Eng requires Programming
-    "Sub_2_9": ["Sub_1_1"],           # Relational DB requires Programming
-    "Sub_2_10": ["Sub_1_10"],         # Automata requires Discrete Math
-    "Sub_2_13": ["Sub_1_12"],         # Linux Scripting requires Hardware Lab
-
-    # Semester 3 Prerequisites
-    "Sub_3_1": ["Sub_2_9"],           # DBMS requires Relational DB Concepts
-    "Sub_3_2": ["Sub_2_4", "Sub_2_13"],# Operating Systems requires Comp Arch & Linux
-    "Sub_3_3": ["Sub_2_1"],           # Algorithms requires DSA
-    "Sub_3_4": ["Sub_3_2"],           # Networks requires OS
-    "Sub_3_5": ["Sub_2_3", "Sub_2_5"],# AI requires Linear Algebra & Prob/Stats
-    "Sub_3_6": ["Sub_2_6"],           # Full Stack requires Web Dev Fundamentals
-    "Sub_3_7": ["Sub_2_2"],           # Mobile App requires Java OOP
-    "Sub_3_8": ["Sub_1_10"],          # Cryptography requires Discrete Math
-    "Sub_3_9": ["Sub_2_4"],           # Cloud Computing requires Comp Arch
-    "Sub_3_10": ["Sub_2_10"],         # Compiler Design requires Automata
-    "Sub_3_11": ["Sub_2_9"],          # Data Warehousing requires Relational DB
-    "Sub_3_12": ["Sub_2_1"],          # Distributed Systems requires DSA
-    "Sub_3_13": ["Sub_2_13"],         # Cyber Forensics requires Linux
-    "Sub_3_14": ["Sub_1_13"],         # NLP Basics requires Python Prototyping
-    "Sub_3_15": ["Sub_2_7"],          # Agile & DevOps requires Software Eng
-
-    # Semester 4 Prerequisites
-    "Sub_4_1": ["Sub_3_3", "Sub_3_5"],# ML Systems requires Algorithms & AI
-    "Sub_4_2": ["Sub_4_1"],           # Deep Learning requires ML Systems
-    "Sub_4_3": ["Sub_3_1", "Sub_2_5"],# Big Data requires DBMS & Stats
-    "Sub_4_4": ["Sub_3_15", "Sub_3_4"],# DevOps & CI/CD requires Agile & Networks
-    "Sub_4_5": ["Sub_3_8"],           # Information Security requires Cryptography
-    "Sub_4_6": ["Sub_3_4"],           # IoT requires Networks
-    "Sub_4_7": ["Sub_3_5", "Sub_2_3"],# Computer Vision requires AI & Linear Algebra
-    "Sub_4_8": ["Sub_3_8", "Sub_3_12"],# Blockchain requires Cryptography & Distributed Systems
-    "Sub_4_9": ["Sub_3_9", "Sub_3_6"],# Cloud Microservices requires Cloud & Full-Stack
-    "Sub_4_10": ["Sub_3_2"],          # Parallel Computing requires OS
-    "Sub_4_11": ["Sub_4_1"],          # Reinforcement Learning requires ML Systems
-    "Sub_4_12": ["Sub_2_7"],          # QA & Testing requires Software Eng
-    "Sub_4_13": ["Sub_2_3"],          # Quantum Computing requires Linear Algebra
-    "Sub_4_14": ["Sub_3_11"],         # Data Visualization requires Data Warehousing
-    "Sub_4_15": ["Sub_3_3", "Sub_3_1"],# Capstone Project requires Algorithms & DBMS
-}
-
-# Canonical Co-requisite pairs (courses designed to be taken together or prior)
-CANONICAL_COREQUISITES: Dict[str, List[str]] = {
-    "Sub_1_12": ["Sub_1_7"],   # Hardware Lab + Digital Logic
-    "Sub_3_6": ["Sub_3_1"],    # Full Stack Web + DBMS
-}
-
-# Canonical Anti-requisite pairs (mutually exclusive courses)
-CANONICAL_ANTIREQUISITES: Dict[str, List[str]] = {
-    # Example: Specialization alternatives
-    "Sub_4_13": ["Sub_4_6"],   # Quantum Computing vs IoT Elective Track
-}
-
 
 def build_curriculum_graph_from_db(db_path: Optional[Union[str, Path]] = None) -> PrerequisiteGraph:
     """
-    Constructs a PrerequisiteGraph by reading subjects from the university SQLite database
-    and augmenting them with canonical curriculum prerequisites, co-requisites, and anti-requisites.
+    Constructs a PrerequisiteGraph by reading subjects and explicit prerequisite relations
+    directly from the SQLite university database.
     """
     graph = PrerequisiteGraph()
     target_db = Path(db_path) if db_path else DEFAULT_DB_PATH
 
-    if target_db.exists():
-        try:
-            conn = sqlite3.connect(str(target_db))
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute("SELECT SubjectID, SubjectName, Semester, Credits FROM Subjects;")
-            rows = cursor.fetchall()
-            conn.close()
+    if not target_db.exists():
+        return graph
 
-            for row in rows:
-                sid = row["SubjectID"]
-                node = GraphNode(
-                    node_id=sid,
-                    name=row["SubjectName"],
-                    credits=row["Credits"],
-                    semester=row["Semester"],
-                    prerequisites=CANONICAL_PREREQUISITES.get(sid, []),
-                    corequisites=CANONICAL_COREQUISITES.get(sid, []),
-                    antirequisites=CANONICAL_ANTIREQUISITES.get(sid, []),
-                )
-                graph.add_node(node)
-            return graph
-        except Exception:
-            pass
+    try:
+        conn = sqlite3.connect(str(target_db))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
 
-    # Fallback default generation if DB is unavailable
-    for sem in range(1, 5):
-        for i in range(1, 16):
-            sid = f"Sub_{sem}_{i}"
-            credits = 4 if i in (1, 2, 4, 7, 10) else 3
+        cursor.execute("SELECT SubjectID, SubjectName, Semester, Credits FROM Subjects ORDER BY Semester, SubjectID;")
+        subjects_rows = cursor.fetchall()
+
+        cursor.execute("SELECT SubjectID, PrereqSubjectID, PrereqType FROM Prerequisites;")
+        prereq_rows = cursor.fetchall()
+
+        prereq_map: Dict[str, List[str]] = {}
+        coreq_map: Dict[str, List[str]] = {}
+        antireq_map: Dict[str, List[str]] = {}
+
+        for row in prereq_rows:
+            sid = row["SubjectID"]
+            prereq_id = row["PrereqSubjectID"]
+            ptype = row["PrereqType"]
+
+            if ptype == "HARD_PREREQ":
+                prereq_map.setdefault(sid, []).append(prereq_id)
+            elif ptype == "COREQ":
+                coreq_map.setdefault(sid, []).append(prereq_id)
+            elif ptype == "ANTIREQ":
+                antireq_map.setdefault(sid, []).append(prereq_id)
+
+        conn.close()
+
+        for row in subjects_rows:
+            sid = row["SubjectID"]
             node = GraphNode(
                 node_id=sid,
-                name=f"Course {sid}",
-                credits=credits,
-                semester=sem,
-                prerequisites=CANONICAL_PREREQUISITES.get(sid, []),
-                corequisites=CANONICAL_COREQUISITES.get(sid, []),
-                antirequisites=CANONICAL_ANTIREQUISITES.get(sid, []),
+                name=row["SubjectName"],
+                credits=row["Credits"],
+                semester=row["Semester"],
+                prerequisites=prereq_map.get(sid, []),
+                corequisites=coreq_map.get(sid, []),
+                antirequisites=antireq_map.get(sid, []),
             )
             graph.add_node(node)
 
-    return graph
+        return graph
+    except Exception as e:
+        print(f"[WARN] Error loading curriculum graph from DB: {e}")
+        return graph
 
 
 def build_custom_graph(nodes_payload: List[Dict[str, Any]]) -> PrerequisiteGraph:
     """
-    Builds a PrerequisiteGraph from custom user-supplied node dictionaries.
+    Builds a PrerequisiteGraph from custom node dictionaries.
     """
     graph = PrerequisiteGraph()
     for item in nodes_payload:
@@ -144,3 +91,130 @@ def build_custom_graph(nodes_payload: List[Dict[str, Any]]) -> PrerequisiteGraph
         )
         graph.add_node(node)
     return graph
+
+
+def get_course_substitutions_from_db(subject_id: str, db_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Retrieves valid course substitutions and elective alternatives from the database."""
+    target_db = Path(db_path) if db_path else DEFAULT_DB_PATH
+    if not target_db.exists():
+        return []
+
+    try:
+        conn = sqlite3.connect(str(target_db))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT 
+                ce.SubjectID, ce.EquivalentSubjectID, ce.EquivalenceType,
+                s.SubjectName as EquivalentName, s.Credits, s.Semester
+            FROM Course_Equivalences ce
+            JOIN Subjects s ON ce.EquivalentSubjectID = s.SubjectID
+            WHERE ce.SubjectID = ?;
+        """, (subject_id,))
+        rows = cursor.fetchall()
+        conn.close()
+
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
+
+
+def export_react_flow_graph(
+    db_path: Optional[Path] = None,
+    student_completed_nodes: Optional[List[str]] = None,
+    student_enrolled_nodes: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """
+    Exports curriculum nodes and edges structured specifically for React Flow rendering.
+    Positions nodes in distinct columns by semester (Sem 1 to Sem 4).
+    """
+    target_db = Path(db_path) if db_path else DEFAULT_DB_PATH
+    completed_set = set(student_completed_nodes or [])
+    enrolled_set = set(student_enrolled_nodes or [])
+
+    nodes = []
+    edges = []
+
+    if not target_db.exists():
+        return {"nodes": [], "edges": []}
+
+    try:
+        conn = sqlite3.connect(str(target_db))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT SubjectID, SubjectName, Semester, Credits FROM Subjects ORDER BY Semester, SubjectID;")
+        subject_rows = cursor.fetchall()
+
+        cursor.execute("SELECT PrereqID, SubjectID, PrereqSubjectID, PrereqType FROM Prerequisites;")
+        prereq_rows = cursor.fetchall()
+        conn.close()
+
+        semester_counters: Dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0}
+        
+        for row in subject_rows:
+            sid = row["SubjectID"]
+            sem = row["Semester"]
+            name = row["SubjectName"]
+            credits = row["Credits"]
+
+            idx_in_sem = semester_counters[sem]
+            semester_counters[sem] += 1
+
+            if sid in completed_set:
+                status = "COMPLETED"
+            elif sid in enrolled_set:
+                status = "ENROLLED"
+            else:
+                status = "AVAILABLE"
+
+            is_bottleneck = sid in ("Sub_2_1", "Sub_3_1", "Sub_3_2", "Sub_3_3", "Sub_4_1")
+
+            x_pos = (sem - 1) * 360 + 50
+            y_pos = idx_in_sem * 120 + 60
+
+            nodes.append({
+                "id": sid,
+                "type": "customCourseNode",
+                "position": {"x": x_pos, "y": y_pos},
+                "data": {
+                    "subject_id": sid,
+                    "label": name,
+                    "credits": credits,
+                    "semester": sem,
+                    "status": status,
+                    "is_bottleneck": is_bottleneck
+                }
+            })
+
+        for r in prereq_rows:
+            target_id = r["SubjectID"]
+            source_id = r["PrereqSubjectID"]
+            ptype = r["PrereqType"]
+            edge_id = f"edge_{source_id}_{target_id}_{ptype}"
+
+            is_active_path = (source_id in completed_set or source_id in enrolled_set) and (target_id in enrolled_set)
+
+            edge_data = {
+                "id": edge_id,
+                "source": source_id,
+                "target": target_id,
+                "type": "smoothstep",
+                "animated": is_active_path or ptype == "COREQ",
+                "style": {
+                    "stroke": "#10b981" if is_active_path else ("#3b82f6" if ptype == "HARD_PREREQ" else ("#f59e0b" if ptype == "COREQ" else "#ef4444")),
+                    "strokeWidth": 2.5 if is_active_path else 1.5,
+                    "strokeDasharray": "5,5" if ptype == "COREQ" else None
+                },
+                "data": {
+                    "type": ptype
+                }
+            }
+            edges.append(edge_data)
+
+        return {"nodes": nodes, "edges": edges}
+
+    except Exception as e:
+        print(f"[WARN] Error exporting React Flow graph: {e}")
+        return {"nodes": [], "edges": []}

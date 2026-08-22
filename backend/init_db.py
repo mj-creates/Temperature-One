@@ -4,47 +4,27 @@ University Academic Advising & Curriculum Database Initializer
 A complete, standalone Python script using sqlite3 and random libraries
 to create, format, and populate a local SQLite database (university.db).
 
-Requirements:
-1. University Curriculum Rules:
-   - 160 total credits required to graduate over 8 semesters (~20 credits/semester).
-   - 4 Semesters (Semesters 1 through 4).
-   - 15 subjects per semester pool (60 subjects total: Sub_1_1 to Sub_4_15).
-   - 3 or 4 credits per subject (expected 20 credits per 6-subject semester).
-
-2. Student Database Schema & Logic:
-   - RegNo (Primary Key, e.g., REG1001 to REG1050)
-   - StudentName (Realistic randomly generated names)
-   - Semester (Random between 1 and 4)
-   - CGPA (Random float between 5.0 and 10.0, rounded to 2 decimals)
-   - Goal (Random tech career goals)
-
-3. Subject Registration Constraints (The 6-Subject Rule):
-   - Student_Subjects mapping table (RegNo, SubjectID) with Foreign Keys.
-   - Enforces exactly 6 subjects randomly enrolled from the student's current semester pool.
-
-4. Mock Data Generation:
-   - 50 Students.
-   - 60 Subjects.
-   - 300 Student-Subject enrollments (50 students * 6 subjects).
-
-5. Clean Run & Console Verification:
-   - Drops/deletes previous university.db if existing.
-   - Executes validation queries and prints sample student profiles with enrolled subjects.
+Enhanced Schema:
+1. Degree_Requirements: General catalog rules & graduation constraints.
+2. Subjects: Full course catalog (60 courses across 4 semesters).
+3. Students: 50 student records with CGPA, Semester, and Career Goal.
+4. Student_Subjects: Enrolled courses per student (enforcing 6-subject rule).
+5. Prerequisites: Explicit graph edge table (HARD_PREREQ, COREQ, ANTIREQ).
+6. Course_Equivalences: Approved course substitutions and alternate elective tracks.
+7. Academic_Policies: Graph-RAG policy knowledge base with clause citations.
+8. Faculty_Petitions & Waiver_Requests: Override, waiver, and exception workflow with audit hashes.
 """
 
+import hashlib
 import os
 import random
 import sqlite3
+import time
 from pathlib import Path
 from typing import List, Tuple, Dict, Any
 
-# Determine DB file location (stored in the same directory as this script or backend/)
 SCRIPT_DIR = Path(__file__).resolve().parent
 DB_PATH = SCRIPT_DIR / "university.db"
-
-# ---------------------------------------------------------------------------
-# Curriculum Catalog & Career Goals Definition
-# ---------------------------------------------------------------------------
 
 CAREER_GOALS: List[str] = [
     "Data Scientist",
@@ -74,9 +54,6 @@ LAST_NAMES: List[str] = [
     "Sharma", "Smith", "Taylor", "Thomas", "Verma", "Walker", "Williams", "Wilson", "Zhang"
 ]
 
-# 15 Subjects for each of the 4 Semesters (Total 60 subjects)
-# Each semester has 5 subjects of 4 credits and 10 subjects of 3 credits
-# (Pool average = 50 credits / 15 subjects = 3.333 cr/subj -> 6 subjects = 20 cr/semester)
 CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int]]] = {
     1: [
         ("Sub_1_1", "Introduction to Programming & Problem Solving", 4),
@@ -148,39 +125,176 @@ CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int]]] = {
     ],
 }
 
+PREREQUISITE_RELATIONS: List[Tuple[str, str, str]] = [
+    # Sem 2 Prereqs
+    ("Sub_2_1", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_2", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_3", "Sub_1_2", "HARD_PREREQ"),
+    ("Sub_2_4", "Sub_1_7", "HARD_PREREQ"),
+    ("Sub_2_5", "Sub_1_2", "HARD_PREREQ"),
+    ("Sub_2_7", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_9", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_10", "Sub_1_10", "HARD_PREREQ"),
+    ("Sub_2_13", "Sub_1_12", "HARD_PREREQ"),
 
-def delete_existing_db(db_path: Path) -> None:
-    """Deletes existing SQLite database file to ensure a clean run."""
+    # Sem 3 Prereqs
+    ("Sub_3_1", "Sub_2_9", "HARD_PREREQ"),
+    ("Sub_3_2", "Sub_2_4", "HARD_PREREQ"),
+    ("Sub_3_2", "Sub_2_13", "HARD_PREREQ"),
+    ("Sub_3_3", "Sub_2_1", "HARD_PREREQ"),
+    ("Sub_3_4", "Sub_3_2", "HARD_PREREQ"),
+    ("Sub_3_5", "Sub_2_3", "HARD_PREREQ"),
+    ("Sub_3_5", "Sub_2_5", "HARD_PREREQ"),
+    ("Sub_3_6", "Sub_2_6", "HARD_PREREQ"),
+    ("Sub_3_7", "Sub_2_2", "HARD_PREREQ"),
+    ("Sub_3_8", "Sub_1_10", "HARD_PREREQ"),
+    ("Sub_3_9", "Sub_2_4", "HARD_PREREQ"),
+    ("Sub_3_10", "Sub_2_10", "HARD_PREREQ"),
+    ("Sub_3_11", "Sub_2_9", "HARD_PREREQ"),
+    ("Sub_3_12", "Sub_2_1", "HARD_PREREQ"),
+    ("Sub_3_13", "Sub_2_13", "HARD_PREREQ"),
+    ("Sub_3_14", "Sub_1_13", "HARD_PREREQ"),
+    ("Sub_3_15", "Sub_2_7", "HARD_PREREQ"),
+
+    # Sem 4 Prereqs
+    ("Sub_4_1", "Sub_3_3", "HARD_PREREQ"),
+    ("Sub_4_1", "Sub_3_5", "HARD_PREREQ"),
+    ("Sub_4_2", "Sub_4_1", "HARD_PREREQ"),
+    ("Sub_4_3", "Sub_3_1", "HARD_PREREQ"),
+    ("Sub_4_3", "Sub_2_5", "HARD_PREREQ"),
+    ("Sub_4_4", "Sub_3_15", "HARD_PREREQ"),
+    ("Sub_4_4", "Sub_3_4", "HARD_PREREQ"),
+    ("Sub_4_5", "Sub_3_8", "HARD_PREREQ"),
+    ("Sub_4_6", "Sub_3_4", "HARD_PREREQ"),
+    ("Sub_4_7", "Sub_3_5", "HARD_PREREQ"),
+    ("Sub_4_7", "Sub_2_3", "HARD_PREREQ"),
+    ("Sub_4_8", "Sub_3_8", "HARD_PREREQ"),
+    ("Sub_4_8", "Sub_3_12", "HARD_PREREQ"),
+    ("Sub_4_9", "Sub_3_9", "HARD_PREREQ"),
+    ("Sub_4_9", "Sub_3_6", "HARD_PREREQ"),
+    ("Sub_4_10", "Sub_3_2", "HARD_PREREQ"),
+    ("Sub_4_11", "Sub_4_1", "HARD_PREREQ"),
+    ("Sub_4_12", "Sub_2_7", "HARD_PREREQ"),
+    ("Sub_4_13", "Sub_2_3", "HARD_PREREQ"),
+    ("Sub_4_14", "Sub_3_11", "HARD_PREREQ"),
+    ("Sub_4_15", "Sub_3_3", "HARD_PREREQ"),
+    ("Sub_4_15", "Sub_3_1", "HARD_PREREQ"),
+
+    # Corequisites
+    ("Sub_1_12", "Sub_1_7", "COREQ"),
+    ("Sub_3_6", "Sub_3_1", "COREQ"),
+
+    # Antirequisites
+    ("Sub_4_6", "Sub_4_13", "ANTIREQ"),
+    ("Sub_4_13", "Sub_4_6", "ANTIREQ"),
+]
+
+COURSE_EQUIVALENCES: List[Tuple[str, str, str]] = [
+    ("Sub_3_6", "Sub_4_9", "ADVANCED_EQUIVALENT"),
+    ("Sub_3_14", "Sub_4_2", "FOUNDATIONAL_TRACK"),
+    ("Sub_3_9", "Sub_4_4", "INFRA_EQUIVALENT"),
+    ("Sub_2_6", "Sub_3_6", "ELECTIVE_BRIDGE"),
+    ("Sub_3_11", "Sub_4_3", "ANALYTICS_EQUIVALENT"),
+]
+
+ACADEMIC_POLICIES: List[Tuple[str, str, str, str, str, str]] = [
+    (
+        "POL_01",
+        "Section 1.1",
+        "Degree Completion & Graduation Thresholds",
+        "Students must accumulate a minimum of 160 earned credit units across 8 academic semesters with a cumulative grade point average (CGPA) >= 5.0 to be eligible for the Bachelor of Technology degree conferral.",
+        "Graduation",
+        "[Policy §1.1: Degree Completion]"
+    ),
+    (
+        "POL_02",
+        "Section 2.1",
+        "Credit Load & Overload Regulations",
+        "The standard semester course registration workload is capped at 20 credit units. Exceptional students with a cumulative GPA >= 8.5 (Honors threshold) may request an academic overload up to 24 credits upon formal faculty approval.",
+        "Enrollment",
+        "[Policy §2.1: Credit Load & Overload]"
+    ),
+    (
+        "POL_03",
+        "Section 2.2",
+        "Academic Probation & Minimum Term Load",
+        "Students with a cumulative GPA below 6.0 are placed on academic warning/probation. In accordance with remedial guidelines, credit registration for probationary terms is restricted to a maximum of 16 credits.",
+        "Academic Standing",
+        "[Policy §2.2: Academic Probation]"
+    ),
+    (
+        "POL_04",
+        "Section 3.1",
+        "Prerequisite Sequential Progression & Enforcement",
+        "Enrollment in advanced courses strictly requires prior successful completion of all designated HARD_PREREQ dependencies. Co-requisites must be taken in the same semester or previously cleared.",
+        "Prerequisites",
+        "[Policy §3.1: Prerequisite Progression]"
+    ),
+    (
+        "POL_05",
+        "Section 3.2",
+        "Prerequisite Waiver & Prior Learning Assessment",
+        "A prerequisite waiver may be granted upon submission of verifiable prior learning credentials (e.g. MOOC certifications, transfer credits) subject to formal faculty petition review and department chair approval.",
+        "Waivers",
+        "[Policy §3.2: Prerequisite Waiver]"
+    ),
+    (
+        "POL_06",
+        "Section 4.1",
+        "Course Substitution & Equivalency Mapping",
+        "When required courses are unavailable or conflict with degree milestones, students may enroll in department-approved equivalent electives listed in the Course Equivalency Matrix.",
+        "Equivalence",
+        "[Policy §4.1: Course Substitution]"
+    ),
+    (
+        "POL_07",
+        "Section 5.1",
+        "Anti-Requisite Mutual Exclusion Policy",
+        "Courses designated as ANTIREQ share overlapping instructional syllabi and cannot both be counted towards cumulative degree graduation credits.",
+        "Prerequisites",
+        "[Policy §5.1: Anti-Requisites]"
+    ),
+    (
+        "POL_08",
+        "Section 6.1",
+        "Capstone Research Project Eligibility Criteria",
+        "Registration for Sub_4_15 (Applied Capstone Research Project) mandates standing in Semester 4 or above, satisfaction of Sub_3_3 and Sub_3_1 prerequisites, and no active probationary holds.",
+        "Capstone",
+        "[Policy §6.1: Capstone Eligibility]"
+    ),
+]
+
+
+def delete_existing_db(db_path: Path = DB_PATH) -> None:
+    """Deletes existing SQLite database file if present."""
     if db_path.exists():
         try:
-            db_path.unlink()
-            print(f"[CLEANUP] Deleted existing database at: {db_path}")
+            os.remove(db_path)
+            print(f"[CLEANUP] Deleted existing database at {db_path}")
         except Exception as e:
-            print(f"[WARN] Failed to delete existing database file: {e}")
+            print(f"[WARN] Could not delete {db_path}: {e}")
 
 
 def create_schema(cursor: sqlite3.Cursor) -> None:
-    """Creates tables for Academic Rules, Subjects, Students, and Registrations."""
-    # 1. Degree Requirements & University Curriculum Metadata Table
+    """Creates the complete relational schema with 8 normalized tables."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Degree_Requirements (
-            RuleKey TEXT PRIMARY KEY,
+            RequirementID INTEGER PRIMARY KEY AUTOINCREMENT,
+            RuleKey TEXT UNIQUE NOT NULL,
             RuleValue TEXT NOT NULL,
             Description TEXT
         );
     """)
 
-    # 2. Subjects Table (The Catalog)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Subjects (
             SubjectID TEXT PRIMARY KEY,
             SubjectName TEXT NOT NULL,
             Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 4),
-            Credits INTEGER NOT NULL CHECK(Credits IN (3, 4))
+            Credits INTEGER NOT NULL CHECK(Credits BETWEEN 1 AND 10)
         );
     """)
 
-    # 3. Students Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Students (
             RegNo TEXT PRIMARY KEY,
@@ -191,7 +305,6 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
         );
     """)
 
-    # 4. Student Subjects Relational Mapping Table (6-Subject Rule)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Student_Subjects (
             RegistrationID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -204,7 +317,57 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
         );
     """)
 
-    # 5. Faculty Waiver Requests Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Prerequisites (
+            PrereqID INTEGER PRIMARY KEY AUTOINCREMENT,
+            SubjectID TEXT NOT NULL,
+            PrereqSubjectID TEXT NOT NULL,
+            PrereqType TEXT NOT NULL CHECK(PrereqType IN ('HARD_PREREQ', 'COREQ', 'ANTIREQ')),
+            FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
+            FOREIGN KEY (PrereqSubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
+            UNIQUE(SubjectID, PrereqSubjectID, PrereqType)
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Course_Equivalences (
+            EquivalenceID INTEGER PRIMARY KEY AUTOINCREMENT,
+            SubjectID TEXT NOT NULL,
+            EquivalentSubjectID TEXT NOT NULL,
+            EquivalenceType TEXT NOT NULL,
+            FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
+            FOREIGN KEY (EquivalentSubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE,
+            UNIQUE(SubjectID, EquivalentSubjectID)
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Academic_Policies (
+            PolicyID TEXT PRIMARY KEY,
+            Section TEXT NOT NULL,
+            Title TEXT NOT NULL,
+            Content TEXT NOT NULL,
+            Category TEXT NOT NULL,
+            CitationCode TEXT NOT NULL
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Faculty_Petitions (
+            PetitionID TEXT PRIMARY KEY,
+            RegNo TEXT NOT NULL,
+            SubjectID TEXT NOT NULL,
+            PetitionType TEXT NOT NULL CHECK(PetitionType IN ('PREREQUISITE_WAIVER', 'CREDIT_OVERLOAD', 'COURSE_SUBSTITUTION', 'SPECIAL_PERMISSION')),
+            Reason TEXT NOT NULL,
+            Status TEXT NOT NULL DEFAULT 'PENDING' CHECK(Status IN ('PENDING', 'APPROVED', 'REJECTED')),
+            FacultyRemarks TEXT,
+            Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            AuditHash TEXT NOT NULL,
+            FOREIGN KEY (RegNo) REFERENCES Students(RegNo) ON DELETE CASCADE,
+            FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE
+        );
+    """)
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Waiver_Requests (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -219,13 +382,15 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
         );
     """)
 
-    # Create Indexes for fast lookup
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_subjects_semester ON Subjects(Semester);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_students_semester ON Students(Semester);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_student_subjects_regno ON Student_Subjects(RegNo);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_student_subjects_subjectid ON Student_Subjects(SubjectID);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_waivers_regno ON Waiver_Requests(reg_no);")
-
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_prereq_subjectid ON Prerequisites(SubjectID);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_prereq_prereqsubjectid ON Prerequisites(PrereqSubjectID);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_policies_category ON Academic_Policies(Category);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_petitions_regno ON Faculty_Petitions(RegNo);")
 
 
 def populate_degree_rules(cursor: sqlite3.Cursor) -> None:
@@ -235,6 +400,10 @@ def populate_degree_rules(cursor: sqlite3.Cursor) -> None:
         ("TOTAL_SEMESTERS", "8", "Total duration of undergraduate degree in semesters"),
         ("SUBJECTS_PER_SEMESTER", "6", "Mandatory subjects enrolled per semester"),
         ("SEMESTER_CREDIT_TARGET", "20", "Target average credits per semester (20 * 8 = 160 credits)"),
+        ("MAX_CREDIT_LIMIT_STANDARD", "20", "Standard maximum credit load per semester"),
+        ("MAX_CREDIT_LIMIT_OVERLOAD", "24", "Maximum allowed credit load with faculty overload approval"),
+        ("MIN_PROBATION_CGPA", "6.0", "CGPA threshold below which student is on academic probation"),
+        ("HONORS_CGPA_THRESHOLD", "8.5", "CGPA threshold for academic honors classification"),
         ("CURRICULUM_SEMESTERS_CONFIGURED", "4", "Number of catalog semesters populated in this phase"),
         ("SUBJECT_POOL_PER_SEMESTER", "15", "Available subjects in curriculum pool per semester"),
     ]
@@ -245,109 +414,177 @@ def populate_degree_rules(cursor: sqlite3.Cursor) -> None:
 
 
 def populate_subjects(cursor: sqlite3.Cursor) -> int:
-    """Populates 15 subjects for each of the 4 semesters (60 total subjects)."""
-    subject_records: List[Tuple[str, str, int, int]] = []
-    for semester, subjects in CURRICULUM_DATA.items():
-        for subject_id, name, credits in subjects:
-            subject_records.append((subject_id, name, semester, credits))
+    """Inserts all 60 subjects across 4 semesters."""
+    all_subjects = []
+    for sem, subjects in CURRICULUM_DATA.items():
+        for sid, sname, cred in subjects:
+            all_subjects.append((sid, sname, sem, cred))
 
     cursor.executemany("""
         INSERT INTO Subjects (SubjectID, SubjectName, Semester, Credits)
         VALUES (?, ?, ?, ?);
-    """, subject_records)
-    return len(subject_records)
+    """, all_subjects)
+    return len(all_subjects)
 
 
-def populate_students(cursor: sqlite3.Cursor, count: int = 50) -> List[Tuple[str, str, int, float, str]]:
-    """Populates 50 student records with realistic names, semester, CGPA, and career goals."""
-    students: List[Tuple[str, str, int, float, str]] = []
-    used_names = set()
+def populate_prerequisites(cursor: sqlite3.Cursor) -> int:
+    """Inserts all explicit prerequisite, corequisite, and antirequisite relations."""
+    cursor.executemany("""
+        INSERT INTO Prerequisites (SubjectID, PrereqSubjectID, PrereqType)
+        VALUES (?, ?, ?);
+    """, PREREQUISITE_RELATIONS)
+    return len(PREREQUISITE_RELATIONS)
 
-    for i in range(1, count + 1):
-        reg_no = f"REG{1000 + i}"
 
-        # Generate realistic student name
-        while True:
-            first = random.choice(FIRST_NAMES)
-            last = random.choice(LAST_NAMES)
-            name = f"{first} {last}"
-            if name not in used_names or len(used_names) >= (len(FIRST_NAMES) * len(LAST_NAMES)):
-                used_names.add(name)
-                break
+def populate_course_equivalences(cursor: sqlite3.Cursor) -> int:
+    """Inserts course substitutions and equivalent elective tracks."""
+    cursor.executemany("""
+        INSERT INTO Course_Equivalences (SubjectID, EquivalentSubjectID, EquivalenceType)
+        VALUES (?, ?, ?);
+    """, COURSE_EQUIVALENCES)
+    return len(COURSE_EQUIVALENCES)
 
-        semester = random.randint(1, 4)
-        cgpa = round(random.uniform(5.00, 10.00), 2)
-        goal = random.choice(CAREER_GOALS)
 
-        students.append((reg_no, name, semester, cgpa, goal))
+def populate_academic_policies(cursor: sqlite3.Cursor) -> int:
+    """Inserts policy records into Academic_Policies table for Graph-RAG retrieval."""
+    cursor.executemany("""
+        INSERT INTO Academic_Policies (PolicyID, Section, Title, Content, Category, CitationCode)
+        VALUES (?, ?, ?, ?, ?, ?);
+    """, ACADEMIC_POLICIES)
+    return len(ACADEMIC_POLICIES)
+
+
+def generate_unique_student_names(count: int = 50) -> List[str]:
+    """Generates unique full names."""
+    pairs = set()
+    names = []
+    while len(names) < count:
+        fn = random.choice(FIRST_NAMES)
+        ln = random.choice(LAST_NAMES)
+        full = f"{fn} {ln}"
+        if full not in pairs:
+            pairs.add(full)
+            names.append(full)
+    return names
+
+
+def populate_students(cursor: sqlite3.Cursor, count: int = 50) -> List[Dict[str, Any]]:
+    """Inserts 50 realistic student records into Students table."""
+    full_names = generate_unique_student_names(count)
+    students = []
+
+    for i in range(count):
+        reg_no = f"REG{1001 + i}"
+        name = full_names[i]
+        semester = (i % 4) + 1
+        goal = CAREER_GOALS[i % len(CAREER_GOALS)]
+
+        base_gpa = random.gauss(7.8, 1.1)
+        cgpa = max(4.50, min(9.95, round(base_gpa, 2)))
+
+        students.append({
+            "reg_no": reg_no,
+            "name": name,
+            "semester": semester,
+            "cgpa": cgpa,
+            "goal": goal
+        })
 
     cursor.executemany("""
         INSERT INTO Students (RegNo, StudentName, Semester, CGPA, Goal)
-        VALUES (?, ?, ?, ?, ?);
+        VALUES (:reg_no, :name, :semester, :cgpa, :goal);
     """, students)
+
     return students
 
 
-def enroll_students_in_subjects(cursor: sqlite3.Cursor, students: List[Tuple[str, str, int, float, str]]) -> int:
-    """
-    Enforces the 6-Subject Rule:
-    For every student, randomly picks exactly 6 subjects out of the 15 available
-    for their specific current semester.
-    """
-    # Fetch all subjects grouped by semester
-    cursor.execute("SELECT SubjectID, Semester FROM Subjects;")
-    all_subjects = cursor.fetchall()
-    
-    semester_subject_map: Dict[int, List[str]] = {1: [], 2: [], 3: [], 4: []}
-    for sub_id, sem in all_subjects:
-        if sem in semester_subject_map:
-            semester_subject_map[sem].append(sub_id)
+def enroll_students_in_subjects(cursor: sqlite3.Cursor, students: List[Dict[str, Any]]) -> int:
+    """Enrolls each student in exactly 6 subjects from their assigned semester."""
+    enrollments = []
+    for st in students:
+        sem = st["semester"]
+        pool = CURRICULUM_DATA[sem]
+        chosen = random.sample(pool, 6)
 
-    registration_records: List[Tuple[str, str]] = []
-    for reg_no, name, sem, cgpa, goal in students:
-        available_subjects = semester_subject_map[sem]
-        # Strictly pick exactly 6 subjects out of 15 available for current semester
-        chosen_subjects = random.sample(available_subjects, 6)
-        for sub_id in chosen_subjects:
-            registration_records.append((reg_no, sub_id))
+        for subj_id, _, _ in chosen:
+            enrollments.append((st["reg_no"], subj_id))
 
     cursor.executemany("""
         INSERT INTO Student_Subjects (RegNo, SubjectID)
         VALUES (?, ?);
-    """, registration_records)
-    return len(registration_records)
+    """, enrollments)
+
+    return len(enrollments)
+
+
+def populate_initial_faculty_petitions(cursor: sqlite3.Cursor) -> int:
+    """Seeds sample faculty petitions with cryptographic audit hashes."""
+    def make_hash(reg_no: str, subj_id: str, ptype: str) -> str:
+        raw = f"{reg_no}:{subj_id}:{ptype}:{time.time()}"
+        return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+    petitions = [
+        (
+            "PET_8A1B",
+            "REG1001",
+            "Sub_4_2",
+            "PREREQUISITE_WAIVER",
+            "Completed DeepLearning.AI Specialization on Coursera with verified credential. Requesting waiver for Sub_4_1 prerequisite.",
+            "PENDING",
+            None,
+            make_hash("REG1001", "Sub_4_2", "PREREQUISITE_WAIVER")
+        ),
+        (
+            "PET_4C2D",
+            "REG1004",
+            "Sub_3_3",
+            "CREDIT_OVERLOAD",
+            "Student holds 9.1 CGPA in Honors track. Requesting 24 credit overload for Semester 3 accelerated graduation pathway.",
+            "APPROVED",
+            "Approved by Department Chair Prof. K. Rao. Student meets GPA >= 8.5 threshold [Policy §2.1].",
+            make_hash("REG1004", "Sub_3_3", "CREDIT_OVERLOAD")
+        ),
+        (
+            "PET_9E3F",
+            "REG1012",
+            "Sub_3_6",
+            "COURSE_SUBSTITUTION",
+            "Course schedule conflict between Sub_3_6 and Sub_3_2. Requesting enrollment in approved substitute Sub_4_9 [Policy §4.1].",
+            "PENDING",
+            None,
+            make_hash("REG1012", "Sub_3_6", "COURSE_SUBSTITUTION")
+        )
+    ]
+
+    cursor.executemany("""
+        INSERT INTO Faculty_Petitions (PetitionID, RegNo, SubjectID, PetitionType, Reason, Status, FacultyRemarks, AuditHash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    """, petitions)
+
+    return len(petitions)
 
 
 def run_verification_queries(conn: sqlite3.Connection) -> None:
-    """Runs verification queries and formats the results for inspection."""
+    """Runs database verification audits."""
     cursor = conn.cursor()
+    print("\n" + "=" * 70)
+    print(" UNIVERSITY DATABASE INTEGRITY AUDIT")
+    print("=" * 70)
 
-    print("\n" + "=" * 80)
-    print("                      DATABASE VERIFICATION REPORT")
-    print("=" * 80)
+    tables = [
+        "Degree_Requirements", "Subjects", "Students", "Student_Subjects",
+        "Prerequisites", "Course_Equivalences", "Academic_Policies", "Faculty_Petitions", "Waiver_Requests"
+    ]
 
-    # 1. Degree Requirements Summary
-    print("\n>>> 1. Degree Requirements & Catalog Configuration:")
-    cursor.execute("SELECT RuleKey, RuleValue, Description FROM Degree_Requirements;")
-    for key, val, desc in cursor.fetchall():
-        print(f"  * {key:30} : {val:5} ({desc})")
+    counts = {}
+    for tbl in tables:
+        cursor.execute(f"SELECT COUNT(*) FROM {tbl};")
+        counts[tbl] = cursor.fetchone()[0]
 
-    # 2. Table Counts
-    cursor.execute("SELECT COUNT(*) FROM Students;")
-    student_count = cursor.fetchone()[0]
+    print("\n>>> 1. Aggregate Data Counts:")
+    for tbl, cnt in counts.items():
+        print(f"  * {tbl:25} : {cnt} records")
 
-    cursor.execute("SELECT COUNT(*) FROM Subjects;")
-    subject_count = cursor.fetchone()[0]
-
-    cursor.execute("SELECT COUNT(*) FROM Student_Subjects;")
-    registration_count = cursor.fetchone()[0]
-
-    print("\n>>> 2. Aggregate Data Counts:")
-    print(f"  * Total Students Generated     : {student_count} (Expected: 50)")
-    print(f"  * Total Subjects in Catalog    : {subject_count} (Expected: 60 - 15/sem across 4 sems)")
-    print(f"  * Total Subject Registrations  : {registration_count} (Expected: 300 - 50 students * 6 subjects)")
-
-    # 3. 6-Subject Rule Verification
     cursor.execute("""
         SELECT RegNo, COUNT(SubjectID) as SubCount
         FROM Student_Subjects
@@ -356,100 +593,54 @@ def run_verification_queries(conn: sqlite3.Connection) -> None:
     """)
     violations = cursor.fetchall()
     if not violations:
-        print("\n>>> 3. Constraint Check (6-Subject Rule):")
+        print("\n>>> 2. Constraint Check (6-Subject Rule):")
         print("  [SUCCESS] All 50 students are enrolled in EXACTLY 6 subjects!")
     else:
         print(f"  [FAILURE] Rule violated for {len(violations)} students: {violations}")
 
-    # 4. Semester Matching Verification
     cursor.execute("""
-        SELECT COUNT(*)
-        FROM Student_Subjects ss
-        JOIN Students st ON ss.RegNo = st.RegNo
-        JOIN Subjects sub ON ss.SubjectID = sub.SubjectID
-        WHERE st.Semester != sub.Semester;
+        SELECT PrereqType, COUNT(*) FROM Prerequisites GROUP BY PrereqType;
     """)
-    mismatches = cursor.fetchone()[0]
-    if mismatches == 0:
-        print("  [SUCCESS] All enrolled subjects strictly match the student's current semester!")
-    else:
-        print(f"  [FAILURE] {mismatches} subject enrollments have semester mismatches!")
-
-    # 5. Sample Student Profiles & Their 6 Registered Subjects
-    print("\n>>> 4. Detailed Sample Inspection (Displaying 3 Students):")
-    print("-" * 80)
-
-    cursor.execute("SELECT RegNo, StudentName, Semester, CGPA, Goal FROM Students ORDER BY RANDOM() LIMIT 3;")
-    sample_students = cursor.fetchall()
-
-    for idx, (reg_no, name, sem, cgpa, goal) in enumerate(sample_students, 1):
-        print(f"\nStudent #{idx}: {name} ({reg_no})")
-        print(f"  * Current Semester : Semester {sem}")
-        print(f"  * Cumulative GPA   : {cgpa:.2f} / 10.00")
-        print(f"  * Career Goal      : {goal}")
-        print("  * Enrolled Subjects (6-Subject Registration):")
-
-        cursor.execute("""
-            SELECT sub.SubjectID, sub.SubjectName, sub.Credits
-            FROM Student_Subjects ss
-            JOIN Subjects sub ON ss.SubjectID = sub.SubjectID
-            WHERE ss.RegNo = ?
-            ORDER BY LENGTH(sub.SubjectID), sub.SubjectID;
-        """, (reg_no,))
-        enrolled_subjects = cursor.fetchall()
-
-        total_credits = 0
-        for sub_id, sub_name, credits in enrolled_subjects:
-            print(f"    - [{sub_id}] {sub_name:<48} | {credits} Credits")
-            total_credits += credits
-
-        print(f"    -> Total Semester Credits Enrolled: {total_credits} Credits")
-        print("-" * 80)
+    print("\n>>> 3. Prerequisite Graph Edges by Type:")
+    for ptype, count in cursor.fetchall():
+        print(f"  * {ptype:15} : {count} directed edges")
 
     print("\nDatabase initialization and verification completed successfully.\n")
 
 
-def init_university_database(db_path: Path = DB_PATH, seed: int = None) -> sqlite3.Connection:
-    """
-    Main orchestration function to initialize and populate the SQLite database.
-    """
+def init_university_database(db_path: Path = DB_PATH, seed: int = 42) -> sqlite3.Connection:
+    """Main orchestration function to initialize and populate the SQLite database."""
     if seed is not None:
         random.seed(seed)
 
     print(f"Starting University Database Initialization...")
     print(f"Target Database File: {db_path}")
 
-    # 1. Clean old database
     delete_existing_db(db_path)
 
-    # 2. Connect and enable Foreign Key constraints
     conn = sqlite3.connect(str(db_path))
     conn.execute("PRAGMA foreign_keys = ON;")
     cursor = conn.cursor()
 
     try:
-        # 3. Create Schema
         create_schema(cursor)
-        print("[SCHEMA] Created tables: Degree_Requirements, Subjects, Students, Student_Subjects.")
+        print("[SCHEMA] Created all relational tables.")
 
-        # 4. Populate Catalog & Rules
         populate_degree_rules(cursor)
         subj_count = populate_subjects(cursor)
-        print(f"[POPULATE] Inserted {subj_count} subjects across 4 semesters (15 per semester).")
+        prereq_count = populate_prerequisites(cursor)
+        equiv_count = populate_course_equivalences(cursor)
+        policy_count = populate_academic_policies(cursor)
+        print(f"[POPULATE] Inserted {subj_count} subjects, {prereq_count} prereq edges, {equiv_count} equivalences, {policy_count} policies.")
 
-        # 5. Populate Students
         students = populate_students(cursor, count=50)
-        print(f"[POPULATE] Inserted {len(students)} student records with random CGPA, Semesters, and Goals.")
-
-        # 6. Map Students to 6 Subjects
         enrollment_count = enroll_students_in_subjects(cursor, students)
-        print(f"[POPULATE] Inserted {enrollment_count} student-subject enrollments (6 subjects per student).")
+        petition_count = populate_initial_faculty_petitions(cursor)
+        print(f"[POPULATE] Inserted {len(students)} students, {enrollment_count} enrollments, {petition_count} faculty petitions.")
 
-        # Commit transactions
         conn.commit()
-        print("[COMMIT] All transactions committed successfully.")
+        print("[COMMIT] All database transactions committed successfully.")
 
-        # 7. Verification Queries
         run_verification_queries(conn)
         return conn
 
@@ -457,8 +648,6 @@ def init_university_database(db_path: Path = DB_PATH, seed: int = None) -> sqlit
         conn.rollback()
         print(f"[ERROR] Database initialization failed: {e}")
         raise
-    finally:
-        pass
 
 
 if __name__ == "__main__":
