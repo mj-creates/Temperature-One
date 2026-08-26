@@ -953,13 +953,11 @@ export default function App() {
 
                   {/* Visual Connected Roadmap Track - ONLY ONE MAIN SUBJECT PER SEMESTER */}
                   <div className="relative mt-8 mb-12 overflow-x-auto pb-8 pt-6">
-                    {/* The drawn animated line connecting the nodes */}
-                    <div className="absolute top-[35%] left-4 right-4 h-4 bg-gray-300 -translate-y-1/2 z-0 hidden md:block border-y-4 border-black min-w-[850px]">
-                      <div className="h-full bg-blue-500 animate-[growWidth_2s_ease-out_forwards] origin-left border-y-4 border-transparent" style={{ animationName: 'growWidth', animationDuration: '2s', animationFillMode: 'forwards' }}></div>
-                      <style>{`@keyframes growWidth { 0% { width: 0%; } 100% { width: 100%; } }`}</style>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-stretch md:items-start gap-12 md:gap-6 min-w-max px-4">
+                    <div className="relative z-10 flex flex-col md:flex-row justify-start items-stretch md:items-start gap-12 md:gap-8 min-w-max px-8">
+                      
+                      {/* The drawn line connecting continuously across all nodes */}
+                      <div className="absolute top-[40%] left-10 right-10 h-4 bg-blue-500 -translate-y-1/2 z-0 hidden md:block border-y-4 border-black">
+                      </div>
                       
                       {roadmapData.roadmapSteps.map((step, i) => (
                         <div 
