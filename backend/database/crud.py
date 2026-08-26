@@ -118,7 +118,7 @@ def create_student(
     
     cursor.execute("""
         INSERT INTO Students (RegNo, StudentName, Branch, Semester, CGPA, Goal)
-        VALUES (?, ?);
+        VALUES (?, ?, ?, ?, ?, ?);
     """, (clean_reg, student_name.strip(), branch.strip(), semester, cgpa, goal.strip()))
 
     if not enrolled_subject_ids:

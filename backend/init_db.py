@@ -7,7 +7,7 @@ to create, format, and populate a local SQLite database (university.db).
 Enhanced Schema:
 1. Degree_Requirements: General catalog rules & graduation constraints.
 2. Subjects: Full course catalog across branches & semesters with Branch & Credits.
-3. Students: Realistic student records with CGPA, Semester, Career Goal, Branch, CreditsObtained & CreditsRequired.
+3. Students: Realistic student records with CGPA, Semester, Career Goal, and Branch.
 4. Student_Subjects: Enrolled courses per student (enforcing enrollment rules).
 5. Prerequisites: Explicit graph edge table (HARD_PREREQ, COREQ, ANTIREQ).
 6. Course_Equivalences: Approved course substitutions and alternate elective tracks.
@@ -22,6 +22,11 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import List, Tuple, Dict, Any, Optional, Union
+
+try:
+    from backend.pdf_curriculum_parser import load_cse_curriculum, assign_weighted_credits
+except ImportError:
+    from pdf_curriculum_parser import load_cse_curriculum, assign_weighted_credits
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DB_PATH = SCRIPT_DIR / "university.db"
@@ -85,40 +90,6 @@ BRANCH_SUBJECTS_TEMPLATE: Dict[str, List[List[str]]] = {
         ["Structural Analysis I", "Geotechnical Engineering", "Environmental Engineering", "Transportation Engineering", "Concrete Technology", "Water Resources"],
         ["Structural Analysis II", "Construction Management", "Steel Structures", "Foundation Engineering", "Urban Planning", "Capstone Project"]
     ]
-}
-
-CSE_REAL_CURRICULUM: Dict[int, List[Tuple[str, str, int]]] = {
-    1: [("22MT103", "Linear Algebra and Ordinary Differential Equations", 4),
-        ("22PY105", "Semiconductor Physics and Electromagnetics", 4),
-        ("22EE101", "Basics of Electrical and Electronics Engineering", 3),
-        ("22CT103", "Engineering Chemistry", 4),
-        ("22TP105", "Problem Solving through Programming - I", 4),
-        ("22EN102", "English Proficiency and Communication Skills", 1),
-        ("22TP101", "Constitution of India", 1),
-        ("22SA101", "Physical Fitness, Sports and Games-I", 1)],
-    2: [("22MT106", "Algebra", 4),
-        ("22MT107", "Discrete Mathematical Structures", 4),
-        ("22ME101", "Engineering Graphics", 3),
-        ("22TP106", "Problem Solving through Programming - II", 3),
-        ("22EN104", "Technical English Communication", 3),
-        ("22MT108", "Numerical Methods", 4),
-        ("22SA102", "Orientation Session", 3),
-        ("22SA103", "Physical Fitness, Sports and Games - II", 1)],
-    3: [("22ST202", "Probability and Statistics", 4),
-        ("22TP201", "Data Structures", 4),
-        ("22MS201", "Management Science", 3),
-        ("22CS201", "Database Management Systems", 4),
-        ("22CS202", "Digital Logic Design", 3),
-        ("22CS203", "Object-Oriented Programming through JAVA", 3),
-        ("22CT201", "Environmental Studies", 2),
-        ("22SA201", "Life Skills-I", 1)],
-    4: [("22TP203", "Advanced Coding Competency", 1),
-        ("22TP204", "Professional Communication", 1),
-        ("22CS205", "Computer Organization and Architecture", 3),
-        ("22CS206", "Design and Analysis of Algorithms", 4),
-        ("22CS207", "Operating Systems", 3),
-        ("22CS208", "Theory of Computation", 4),
-        ("22SA202", "Life Skills - II", 1)]
 }
 
 GENERIC_CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int]]] = {
@@ -193,47 +164,35 @@ GENERIC_CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int]]] = {
 }
 
 
-def assign_credits(subj_name: str) -> int:
-    name = subj_name.lower()
-    if "capstone" in name or "project" in name:
-        return 5
-    low_keywords = ["workshop", "communication", "environmental", "ethics", "soft skills", "lab", "practice", "values"]
-    if any(kw in name for kw in low_keywords):
-        return 2
-    core_keywords = [
-        "math", "calculus", "algebra", "discrete", "statistics", "probability",
-        "data structure", "algorithm", "operating system", "database", "network",
-        "machine learning", "deep learning", "artificial intelligence", "ai principles",
-        "mechanics", "thermodynamics", "fluid", "kinematics", "dynamics", "structural analysis",
-        "geotechnical", "programming", "object oriented", "cryptography", "management",
-        "macroeconomics", "microeconomics", "finance", "accounting", "marketing",
-        "cloud computing", "computer architecture", "cybersecurity", "security",
-        "robotics", "automation", "big data", "machine design", "solid mechanics", "surveying"
-    ]
-    if any(kw in name for kw in core_keywords):
-        return 4
-    return 3
-
-
-CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int, str]]] = {}
-for sem in range(1, 5):
-    CURRICULUM_DATA[sem] = []
+def build_curriculum_catalog() -> Dict[int, List[Tuple[str, str, int, str]]]:
+    """Assembles complete multi-branch curriculum data incorporating robust PDF / fallback parser."""
+    catalog: Dict[int, List[Tuple[str, str, int, str]]] = {1: [], 2: [], 3: [], 4: []}
     
-    # Add generic subjects (standard foundation for CSE)
-    for sid, sname, cred in GENERIC_CURRICULUM_DATA[sem]:
-        CURRICULUM_DATA[sem].append((sid, sname, cred, "CSE"))
+    # 1. Add generic standard courses (CSE foundation)
+    for sem in range(1, 5):
+        for sid, sname, cred in GENERIC_CURRICULUM_DATA[sem]:
+            catalog[sem].append((sid, sname, cred, "CSE"))
 
-    # Add real CSE subjects
-    for subj_id, subj_name, credits in CSE_REAL_CURRICULUM[sem]:
-        CURRICULUM_DATA[sem].append((subj_id, subj_name, credits, "CSE"))
-        
-    # Add generated subjects for other branches
+    # 2. Add real CSE curriculum via PDF parser / fallback
+    cse_parsed = load_cse_curriculum()
+    for sem in range(1, 5):
+        if sem in cse_parsed:
+            for sid, sname, cred, branch in cse_parsed[sem]:
+                catalog[sem].append((sid, sname, cred, branch))
+
+    # 3. Add other branch subjects
     for branch, sems_subjects in BRANCH_SUBJECTS_TEMPLATE.items():
-        subjects = sems_subjects[sem - 1]
-        for i, subj_name in enumerate(subjects):
-            subj_id = f"{branch}_Sub_{sem}_{i+1}"
-            credits = assign_credits(subj_name)
-            CURRICULUM_DATA[sem].append((subj_id, subj_name, credits, branch))
+        for sem in range(1, 5):
+            subjects = sems_subjects[sem - 1]
+            for i, subj_name in enumerate(subjects):
+                subj_id = f"{branch}_Sub_{sem}_{i+1}"
+                credits = assign_weighted_credits(subj_name)
+                catalog[sem].append((subj_id, subj_name, credits, branch))
+
+    return catalog
+
+
+CURRICULUM_DATA = build_curriculum_catalog()
 
 PREREQUISITE_RELATIONS: List[Tuple[str, str, str]] = [
     # Standard Curriculum Prerequisites
@@ -426,8 +385,6 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
             StudentName TEXT NOT NULL,
             Branch TEXT NOT NULL,
             Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 4),
-            CreditsObtained INTEGER NOT NULL DEFAULT 0,
-            CreditsRequired INTEGER NOT NULL DEFAULT 160,
             CGPA REAL NOT NULL CHECK(CGPA BETWEEN 0.0 AND 10.0),
             Goal TEXT NOT NULL
         );
@@ -514,17 +471,11 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
     existing_student_cols = {row[1] for row in cursor.fetchall()}
     if "Branch" not in existing_student_cols:
         cursor.execute("ALTER TABLE Students ADD COLUMN Branch TEXT;")
-    if "CreditsObtained" not in existing_student_cols:
-        cursor.execute("ALTER TABLE Students ADD COLUMN CreditsObtained INTEGER DEFAULT 0;")
-    if "CreditsRequired" not in existing_student_cols:
-        cursor.execute("ALTER TABLE Students ADD COLUMN CreditsRequired INTEGER DEFAULT 160;")
 
     cursor.execute("PRAGMA table_info(Subjects);")
     existing_subject_cols = {row[1] for row in cursor.fetchall()}
     if "Branch" not in existing_subject_cols:
         cursor.execute("ALTER TABLE Subjects ADD COLUMN Branch TEXT;")
-    if "CreditsRequired" not in existing_subject_cols:
-        cursor.execute("ALTER TABLE Subjects ADD COLUMN CreditsRequired INTEGER DEFAULT 0;")
 
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_subjects_semester ON Subjects(Semester);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_subjects_branch ON Subjects(Branch);")
@@ -618,7 +569,7 @@ def generate_unique_student_names(count: int = 50) -> List[str]:
 
 
 def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str, Any]]:
-    """Inserts 60 realistic student records into Students table with branch and credits."""
+    """Inserts 60 realistic student records into Students table with branch and academic metadata."""
     full_names = generate_unique_student_names(count)
     students = []
     branches = ['CSE'] + list(BRANCH_SUBJECTS_TEMPLATE.keys())
@@ -632,23 +583,19 @@ def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str,
 
         base_gpa = random.gauss(7.8, 1.1)
         cgpa = max(4.50, min(9.95, round(base_gpa, 2)))
-        credits_required = 160
-        credits_obtained = (semester - 1) * 20 + random.randint(0, 10)
 
         students.append({
             "reg_no": reg_no,
             "name": name,
             "branch": branch,
             "semester": semester,
-            "credits_obtained": credits_obtained,
-            "credits_required": credits_required,
             "cgpa": cgpa,
             "goal": goal
         })
 
     cursor.executemany("""
-        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CreditsObtained, CreditsRequired, CGPA, Goal)
-        VALUES (:reg_no, :name, :branch, :semester, :credits_obtained, :credits_required, :cgpa, :goal);
+        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CGPA, Goal)
+        VALUES (:reg_no, :name, :branch, :semester, :cgpa, :goal);
     """, students)
 
     return students
@@ -782,11 +729,11 @@ def run_verification_queries(conn: sqlite3.Connection) -> None:
         print(f"  * {ptype:15} : {count} directed edges")
 
     cursor.execute("""
-        SELECT RegNo, StudentName, Branch, CreditsObtained, CreditsRequired FROM Students LIMIT 5;
+        SELECT RegNo, StudentName, Branch, Semester, CGPA, Goal FROM Students LIMIT 5;
     """)
-    print("\n>>> 4. Sample Students with Branch & Credits:")
+    print("\n>>> 4. Sample Students with Branch & Standing:")
     for r in cursor.fetchall():
-        print(f"  * {r[0]} - {r[1]} | Branch: {r[2]} | Credits: {r[3]}/{r[4]}")
+        print(f"  * {r[0]} - {r[1]} | Branch: {r[2]} | Sem: {r[3]} | CGPA: {r[4]:.2f} | Goal: {r[5]}")
 
     cursor.execute("""
         SELECT PetitionID, RegNo, SubjectID, PetitionType FROM Faculty_Petitions;
@@ -807,6 +754,7 @@ def init_university_database(db_path: Union[str, Path] = DB_PATH, seed: int = 42
     print(f"Starting University Database Initialization...")
     print(f"Target Database File: {target_path}")
 
+    # Force a clean database slate
     delete_existing_db(target_path)
 
     conn = sqlite3.connect(str(target_path))
