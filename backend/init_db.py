@@ -6,9 +6,9 @@ to create, format, and populate a local SQLite database (university.db).
 
 Enhanced Schema:
 1. Degree_Requirements: General catalog rules & graduation constraints.
-2. Subjects: Full course catalog (60 courses across 4 semesters).
-3. Students: 50 student records with CGPA, Semester, and Career Goal.
-4. Student_Subjects: Enrolled courses per student (enforcing 6-subject rule).
+2. Subjects: Full course catalog across branches & semesters with Branch & Credits.
+3. Students: Realistic student records with CGPA, Semester, Career Goal, Branch, CreditsObtained & CreditsRequired.
+4. Student_Subjects: Enrolled courses per student (enforcing enrollment rules).
 5. Prerequisites: Explicit graph edge table (HARD_PREREQ, COREQ, ANTIREQ).
 6. Course_Equivalences: Approved course substitutions and alternate elective tracks.
 7. Academic_Policies: Graph-RAG policy knowledge base with clause citations.
@@ -21,7 +21,7 @@ import random
 import sqlite3
 import time
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional, Union
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DB_PATH = SCRIPT_DIR / "university.db"
@@ -54,8 +54,7 @@ LAST_NAMES: List[str] = [
     "Sharma", "Smith", "Taylor", "Thomas", "Verma", "Walker", "Williams", "Wilson", "Zhang"
 ]
 
-
-BRANCH_SUBJECTS_TEMPLATE = {
+BRANCH_SUBJECTS_TEMPLATE: Dict[str, List[List[str]]] = {
     "AIML": [
         ["Intro to Python", "Engineering Math I", "Statistics & Probability", "Physics", "Communication Skills", "Engineering Workshop"],
         ["Data Structures", "Advanced Statistics", "Linear Algebra", "Data Mining", "Web Dev Fundamentals", "Environmental Science"],
@@ -88,7 +87,7 @@ BRANCH_SUBJECTS_TEMPLATE = {
     ]
 }
 
-CSE_REAL_CURRICULUM = {
+CSE_REAL_CURRICULUM: Dict[int, List[Tuple[str, str, int]]] = {
     1: [("22MT103", "Linear Algebra and Ordinary Differential Equations", 4),
         ("22PY105", "Semiconductor Physics and Electromagnetics", 4),
         ("22EE101", "Basics of Electrical and Electronics Engineering", 3),
@@ -122,6 +121,78 @@ CSE_REAL_CURRICULUM = {
         ("22SA202", "Life Skills - II", 1)]
 }
 
+GENERIC_CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int]]] = {
+    1: [
+        ("Sub_1_1", "Introduction to Programming & Problem Solving", 4),
+        ("Sub_1_2", "Calculus & Analytical Geometry", 4),
+        ("Sub_1_3", "Physics for Engineers", 3),
+        ("Sub_1_4", "Engineering Chemistry", 3),
+        ("Sub_1_5", "Basic Electrical & Electronics Engineering", 3),
+        ("Sub_1_6", "Technical Communication & Soft Skills", 3),
+        ("Sub_1_7", "Digital Logic & Circuit Design", 4),
+        ("Sub_1_8", "Environmental Science & Sustainability", 3),
+        ("Sub_1_9", "Engineering Workshop Practice", 3),
+        ("Sub_1_10", "Discrete Mathematics", 4),
+        ("Sub_1_11", "Principles of Economics & Management", 3),
+        ("Sub_1_12", "Computer Organization & Hardware Lab", 4),
+        ("Sub_1_13", "Python for Rapid Prototyping", 3),
+        ("Sub_1_14", "Engineering Graphics & CAD", 3),
+        ("Sub_1_15", "Ethics & Human Values in Computing", 3),
+    ],
+    2: [
+        ("Sub_2_1", "Data Structures and Algorithms", 4),
+        ("Sub_2_2", "Object-Oriented Programming with Java", 4),
+        ("Sub_2_3", "Linear Algebra & Vector Spaces", 3),
+        ("Sub_2_4", "Computer Architecture & Microprocessors", 4),
+        ("Sub_2_5", "Probability and Applied Statistics", 3),
+        ("Sub_2_6", "Web Development Fundamentals", 3),
+        ("Sub_2_7", "Software Engineering Principles", 4),
+        ("Sub_2_8", "Signals and Systems", 3),
+        ("Sub_2_9", "Relational Database Concepts", 4),
+        ("Sub_2_10", "Formal Languages & Automata Theory", 3),
+        ("Sub_2_11", "User Interface Design Fundamentals", 3),
+        ("Sub_2_12", "Digital Signal Processing", 3),
+        ("Sub_2_13", "Linux System & Shell Scripting", 3),
+        ("Sub_2_14", "Numerical Methods in Computing", 3),
+        ("Sub_2_15", "Technical Seminar & Scientific Writing", 3),
+    ],
+    3: [
+        ("Sub_3_1", "Database Management Systems & SQL", 4),
+        ("Sub_3_2", "Operating Systems Architecture", 4),
+        ("Sub_3_3", "Design & Analysis of Algorithms", 4),
+        ("Sub_3_4", "Computer Networks & Protocols", 4),
+        ("Sub_3_5", "Artificial Intelligence Principles", 4),
+        ("Sub_3_6", "Full-Stack Web Development", 3),
+        ("Sub_3_7", "Mobile Application Development", 3),
+        ("Sub_3_8", "Cryptography & Network Security", 3),
+        ("Sub_3_9", "Cloud Computing Foundations", 3),
+        ("Sub_3_10", "Compiler Design & Construction", 3),
+        ("Sub_3_11", "Data Warehousing and Mining", 3),
+        ("Sub_3_12", "Distributed Systems Concepts", 3),
+        ("Sub_3_13", "Cyber Forensics & Incident Response", 3),
+        ("Sub_3_14", "Natural Language Processing Basics", 3),
+        ("Sub_3_15", "Agile & DevOps Project Management", 3),
+    ],
+    4: [
+        ("Sub_4_1", "Machine Learning Systems & Algorithms", 4),
+        ("Sub_4_2", "Deep Learning & Neural Networks", 4),
+        ("Sub_4_3", "Big Data Analytics & Streaming", 4),
+        ("Sub_4_4", "DevOps & CI/CD Automation", 4),
+        ("Sub_4_5", "Information Security & Applied Privacy", 4),
+        ("Sub_4_6", "Internet of Things (IoT) & Smart Systems", 3),
+        ("Sub_4_7", "Computer Vision & Image Processing", 3),
+        ("Sub_4_8", "Blockchain Architecture & Smart Contracts", 3),
+        ("Sub_4_9", "Cloud-Native Microservices", 3),
+        ("Sub_4_10", "High-Performance Parallel Computing", 3),
+        ("Sub_4_11", "Reinforcement Learning & Decision Making", 3),
+        ("Sub_4_12", "Software Quality Assurance & Testing", 3),
+        ("Sub_4_13", "Quantum Computing Foundations", 3),
+        ("Sub_4_14", "Data Visualization & Business Intelligence", 3),
+        ("Sub_4_15", "Applied Capstone Research Project", 3),
+    ],
+}
+
+
 def assign_credits(subj_name: str) -> int:
     name = subj_name.lower()
     if "capstone" in name or "project" in name:
@@ -129,36 +200,108 @@ def assign_credits(subj_name: str) -> int:
     low_keywords = ["workshop", "communication", "environmental", "ethics", "soft skills", "lab", "practice", "values"]
     if any(kw in name for kw in low_keywords):
         return 2
-    core_keywords = ["math", "calculus", "algebra", "discrete", "statistics", "probability", "data structure", "algorithm", "operating system", "database", "network", "machine learning", "deep learning", "artificial intelligence", "ai principles", "mechanics", "thermodynamics", "fluid", "kinematics", "dynamics", "structural analysis", "geotechnical", "programming", "object oriented", "cryptography", "management", "macroeconomics", "microeconomics", "finance", "accounting", "marketing", "cloud computing", "computer architecture", "cybersecurity", "security", "robotics", "automation", "big data", "machine design", "solid mechanics", "surveying"]
+    core_keywords = [
+        "math", "calculus", "algebra", "discrete", "statistics", "probability",
+        "data structure", "algorithm", "operating system", "database", "network",
+        "machine learning", "deep learning", "artificial intelligence", "ai principles",
+        "mechanics", "thermodynamics", "fluid", "kinematics", "dynamics", "structural analysis",
+        "geotechnical", "programming", "object oriented", "cryptography", "management",
+        "macroeconomics", "microeconomics", "finance", "accounting", "marketing",
+        "cloud computing", "computer architecture", "cybersecurity", "security",
+        "robotics", "automation", "big data", "machine design", "solid mechanics", "surveying"
+    ]
     if any(kw in name for kw in core_keywords):
         return 4
     return 3
 
-CURRICULUM_DATA = {}
+
+CURRICULUM_DATA: Dict[int, List[Tuple[str, str, int, str]]] = {}
 for sem in range(1, 5):
     CURRICULUM_DATA[sem] = []
     
+    # Add generic subjects (standard foundation for CSE)
+    for sid, sname, cred in GENERIC_CURRICULUM_DATA[sem]:
+        CURRICULUM_DATA[sem].append((sid, sname, cred, "CSE"))
+
     # Add real CSE subjects
     for subj_id, subj_name, credits in CSE_REAL_CURRICULUM[sem]:
         CURRICULUM_DATA[sem].append((subj_id, subj_name, credits, "CSE"))
         
     # Add generated subjects for other branches
     for branch, sems_subjects in BRANCH_SUBJECTS_TEMPLATE.items():
-        subjects = sems_subjects[sem-1]
+        subjects = sems_subjects[sem - 1]
         for i, subj_name in enumerate(subjects):
             subj_id = f"{branch}_Sub_{sem}_{i+1}"
             credits = assign_credits(subj_name)
             CURRICULUM_DATA[sem].append((subj_id, subj_name, credits, branch))
 
-PREREQUISITE_RELATIONS = [
-    # Explicit CSE Prerequisites extracted from PDF
-    ("22CS206", "22TP105", "HARD_PREREQ"), # DAA requires PPS
-    ("22CS206", "22MT107", "HARD_PREREQ"), # DAA requires DMS
-    ("22CS206", "22TP201", "HARD_PREREQ"), # DAA requires DS
-    ("22CS207", "22CS205", "HARD_PREREQ"), # OS requires COA
-    ("22CS207", "22CS202", "HARD_PREREQ"), # OS requires DLD
-    ("22CS201", "22MT107", "HARD_PREREQ"), # DBMS requires DMS
+PREREQUISITE_RELATIONS: List[Tuple[str, str, str]] = [
+    # Standard Curriculum Prerequisites
+    ("Sub_2_1", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_2", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_3", "Sub_1_2", "HARD_PREREQ"),
+    ("Sub_2_4", "Sub_1_7", "HARD_PREREQ"),
+    ("Sub_2_5", "Sub_1_2", "HARD_PREREQ"),
+    ("Sub_2_7", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_9", "Sub_1_1", "HARD_PREREQ"),
+    ("Sub_2_10", "Sub_1_10", "HARD_PREREQ"),
+    ("Sub_2_13", "Sub_1_12", "HARD_PREREQ"),
+
+    ("Sub_3_1", "Sub_2_9", "HARD_PREREQ"),
+    ("Sub_3_2", "Sub_2_4", "HARD_PREREQ"),
+    ("Sub_3_2", "Sub_2_13", "HARD_PREREQ"),
+    ("Sub_3_3", "Sub_2_1", "HARD_PREREQ"),
+    ("Sub_3_4", "Sub_3_2", "HARD_PREREQ"),
+    ("Sub_3_5", "Sub_2_3", "HARD_PREREQ"),
+    ("Sub_3_5", "Sub_2_5", "HARD_PREREQ"),
+    ("Sub_3_6", "Sub_2_6", "HARD_PREREQ"),
+    ("Sub_3_7", "Sub_2_2", "HARD_PREREQ"),
+    ("Sub_3_8", "Sub_1_10", "HARD_PREREQ"),
+    ("Sub_3_9", "Sub_2_4", "HARD_PREREQ"),
+    ("Sub_3_10", "Sub_2_10", "HARD_PREREQ"),
+    ("Sub_3_11", "Sub_2_9", "HARD_PREREQ"),
+    ("Sub_3_12", "Sub_2_1", "HARD_PREREQ"),
+    ("Sub_3_13", "Sub_2_13", "HARD_PREREQ"),
+    ("Sub_3_14", "Sub_1_13", "HARD_PREREQ"),
+    ("Sub_3_15", "Sub_2_7", "HARD_PREREQ"),
+
+    ("Sub_4_1", "Sub_3_3", "HARD_PREREQ"),
+    ("Sub_4_1", "Sub_3_5", "HARD_PREREQ"),
+    ("Sub_4_2", "Sub_4_1", "HARD_PREREQ"),
+    ("Sub_4_3", "Sub_3_1", "HARD_PREREQ"),
+    ("Sub_4_3", "Sub_2_5", "HARD_PREREQ"),
+    ("Sub_4_4", "Sub_3_15", "HARD_PREREQ"),
+    ("Sub_4_4", "Sub_3_4", "HARD_PREREQ"),
+    ("Sub_4_5", "Sub_3_8", "HARD_PREREQ"),
+    ("Sub_4_6", "Sub_3_4", "HARD_PREREQ"),
+    ("Sub_4_7", "Sub_3_5", "HARD_PREREQ"),
+    ("Sub_4_7", "Sub_2_3", "HARD_PREREQ"),
+    ("Sub_4_8", "Sub_3_8", "HARD_PREREQ"),
+    ("Sub_4_8", "Sub_3_12", "HARD_PREREQ"),
+    ("Sub_4_9", "Sub_3_9", "HARD_PREREQ"),
+    ("Sub_4_9", "Sub_3_6", "HARD_PREREQ"),
+    ("Sub_4_10", "Sub_3_2", "HARD_PREREQ"),
+    ("Sub_4_11", "Sub_4_1", "HARD_PREREQ"),
+    ("Sub_4_12", "Sub_2_7", "HARD_PREREQ"),
+    ("Sub_4_13", "Sub_2_3", "HARD_PREREQ"),
+    ("Sub_4_14", "Sub_3_11", "HARD_PREREQ"),
+    ("Sub_4_15", "Sub_3_3", "HARD_PREREQ"),
+    ("Sub_4_15", "Sub_3_1", "HARD_PREREQ"),
+
+    ("Sub_1_12", "Sub_1_7", "COREQ"),
+    ("Sub_3_6", "Sub_3_1", "COREQ"),
+    ("Sub_4_6", "Sub_4_13", "ANTIREQ"),
+    ("Sub_4_13", "Sub_4_6", "ANTIREQ"),
+
+    # Explicit CSE Prerequisites extracted from curriculum
+    ("22CS206", "22TP105", "HARD_PREREQ"),  # DAA requires PPS
+    ("22CS206", "22MT107", "HARD_PREREQ"),  # DAA requires DMS
+    ("22CS206", "22TP201", "HARD_PREREQ"),  # DAA requires DS
+    ("22CS207", "22CS205", "HARD_PREREQ"),  # OS requires COA
+    ("22CS207", "22CS202", "HARD_PREREQ"),  # OS requires DLD
+    ("22CS201", "22MT107", "HARD_PREREQ"),  # DBMS requires DMS
 ]
+
 for branch in BRANCH_SUBJECTS_TEMPLATE.keys():
     PREREQUISITE_RELATIONS.extend([
         (f"{branch}_Sub_2_1", f"{branch}_Sub_1_1", "HARD_PREREQ"),
@@ -169,8 +312,15 @@ for branch in BRANCH_SUBJECTS_TEMPLATE.keys():
         (f"{branch}_Sub_4_6", f"{branch}_Sub_3_6", "HARD_PREREQ"),
     ])
 
-COURSE_EQUIVALENCES = []
-ACADEMIC_POLICIES = [
+COURSE_EQUIVALENCES: List[Tuple[str, str, str]] = [
+    ("Sub_3_6", "Sub_4_9", "ADVANCED_EQUIVALENT"),
+    ("Sub_3_14", "Sub_4_2", "FOUNDATIONAL_TRACK"),
+    ("Sub_3_9", "Sub_4_4", "INFRA_EQUIVALENT"),
+    ("Sub_2_6", "Sub_3_6", "ELECTIVE_BRIDGE"),
+    ("Sub_3_11", "Sub_4_3", "ANALYTICS_EQUIVALENT"),
+]
+
+ACADEMIC_POLICIES: List[Tuple[str, str, str, str, str, str]] = [
     (
         "POL_01",
         "Section 1.1",
@@ -211,17 +361,42 @@ ACADEMIC_POLICIES = [
         "Waivers",
         "[Policy §3.2: Prerequisite Waiver]"
     ),
+    (
+        "POL_06",
+        "Section 4.1",
+        "Course Substitution & Equivalency Mapping",
+        "When required courses are unavailable or conflict with degree milestones, students may enroll in department-approved equivalent electives listed in the Course Equivalency Matrix.",
+        "Equivalence",
+        "[Policy §4.1: Course Substitution]"
+    ),
+    (
+        "POL_07",
+        "Section 5.1",
+        "Anti-Requisite Mutual Exclusion Policy",
+        "Courses designated as ANTIREQ share overlapping instructional syllabi and cannot both be counted towards cumulative degree graduation credits.",
+        "Prerequisites",
+        "[Policy §5.1: Anti-Requisites]"
+    ),
+    (
+        "POL_08",
+        "Section 6.1",
+        "Capstone Research Project Eligibility Criteria",
+        "Registration for Sub_4_15 (Applied Capstone Research Project) mandates standing in Semester 4 or above, satisfaction of Sub_3_3 and Sub_3_1 prerequisites, and no active probationary holds.",
+        "Capstone",
+        "[Policy §6.1: Capstone Eligibility]"
+    ),
 ]
 
 
-def delete_existing_db(db_path: Path = DB_PATH) -> None:
-    """Deletes existing SQLite database file if present."""
-    if db_path.exists():
+def delete_existing_db(db_path: Union[str, Path] = DB_PATH) -> None:
+    """Deletes existing SQLite database file if present so new schema is cleanly generated."""
+    target = Path(db_path)
+    if target.exists():
         try:
-            os.remove(db_path)
-            print(f"[CLEANUP] Deleted existing database at {db_path}")
+            os.remove(target)
+            print(f"[CLEANUP] Deleted existing database at {target}")
         except Exception as e:
-            print(f"[WARN] Could not delete {db_path}: {e}")
+            print(f"[WARN] Could not delete {target}: {e}")
 
 
 def create_schema(cursor: sqlite3.Cursor) -> None:
@@ -251,7 +426,8 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
             StudentName TEXT NOT NULL,
             Branch TEXT NOT NULL,
             Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 4),
-            
+            CreditsObtained INTEGER NOT NULL DEFAULT 0,
+            CreditsRequired INTEGER NOT NULL DEFAULT 160,
             CGPA REAL NOT NULL CHECK(CGPA BETWEEN 0.0 AND 10.0),
             Goal TEXT NOT NULL
         );
@@ -315,8 +491,7 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
             FacultyRemarks TEXT,
             Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             AuditHash TEXT NOT NULL,
-            FOREIGN KEY (RegNo) REFERENCES Students(RegNo) ON DELETE CASCADE,
-            FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID) ON DELETE CASCADE
+            FOREIGN KEY (RegNo) REFERENCES Students(RegNo) ON DELETE CASCADE
         );
     """)
 
@@ -334,8 +509,27 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
         );
     """)
 
+    # ALTER TABLE execution blocks to safely append missing columns if tables pre-exist
+    cursor.execute("PRAGMA table_info(Students);")
+    existing_student_cols = {row[1] for row in cursor.fetchall()}
+    if "Branch" not in existing_student_cols:
+        cursor.execute("ALTER TABLE Students ADD COLUMN Branch TEXT;")
+    if "CreditsObtained" not in existing_student_cols:
+        cursor.execute("ALTER TABLE Students ADD COLUMN CreditsObtained INTEGER DEFAULT 0;")
+    if "CreditsRequired" not in existing_student_cols:
+        cursor.execute("ALTER TABLE Students ADD COLUMN CreditsRequired INTEGER DEFAULT 160;")
+
+    cursor.execute("PRAGMA table_info(Subjects);")
+    existing_subject_cols = {row[1] for row in cursor.fetchall()}
+    if "Branch" not in existing_subject_cols:
+        cursor.execute("ALTER TABLE Subjects ADD COLUMN Branch TEXT;")
+    if "CreditsRequired" not in existing_subject_cols:
+        cursor.execute("ALTER TABLE Subjects ADD COLUMN CreditsRequired INTEGER DEFAULT 0;")
+
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_subjects_semester ON Subjects(Semester);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_subjects_branch ON Subjects(Branch);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_students_semester ON Students(Semester);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_students_branch ON Students(Branch);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_student_subjects_regno ON Student_Subjects(RegNo);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_student_subjects_subjectid ON Student_Subjects(SubjectID);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_waivers_regno ON Waiver_Requests(reg_no);")
@@ -368,9 +562,12 @@ def populate_degree_rules(cursor: sqlite3.Cursor) -> None:
 def populate_subjects(cursor: sqlite3.Cursor) -> int:
     """Inserts all subjects across branches and semesters."""
     all_subjects = []
+    seen = set()
     for sem, subjects in CURRICULUM_DATA.items():
         for sid, sname, cred, branch in subjects:
-            all_subjects.append((sid, sname, branch, sem, cred))
+            if sid not in seen:
+                seen.add(sid)
+                all_subjects.append((sid, sname, branch, sem, cred))
 
     cursor.executemany("""
         INSERT INTO Subjects (SubjectID, SubjectName, Branch, Semester, Credits)
@@ -421,7 +618,7 @@ def generate_unique_student_names(count: int = 50) -> List[str]:
 
 
 def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str, Any]]:
-    """Inserts 60 realistic student records into Students table, 10 per branch."""
+    """Inserts 60 realistic student records into Students table with branch and credits."""
     full_names = generate_unique_student_names(count)
     students = []
     branches = ['CSE'] + list(BRANCH_SUBJECTS_TEMPLATE.keys())
@@ -435,28 +632,30 @@ def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str,
 
         base_gpa = random.gauss(7.8, 1.1)
         cgpa = max(4.50, min(9.95, round(base_gpa, 2)))
-        
-        
+        credits_required = 160
+        credits_obtained = (semester - 1) * 20 + random.randint(0, 10)
 
         students.append({
             "reg_no": reg_no,
             "name": name,
             "branch": branch,
             "semester": semester,
+            "credits_obtained": credits_obtained,
+            "credits_required": credits_required,
             "cgpa": cgpa,
             "goal": goal
         })
 
     cursor.executemany("""
-        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CGPA, Goal)
-        VALUES (:reg_no, :name, :branch, :semester, :cgpa, :goal);
+        INSERT INTO Students (RegNo, StudentName, Branch, Semester, CreditsObtained, CreditsRequired, CGPA, Goal)
+        VALUES (:reg_no, :name, :branch, :semester, :credits_obtained, :credits_required, :cgpa, :goal);
     """, students)
 
     return students
 
 
 def enroll_students_in_subjects(cursor: sqlite3.Cursor, students: List[Dict[str, Any]]) -> int:
-    """Enrolls each student in all subjects from their assigned semester and branch."""
+    """Enrolls each student in subjects from their assigned semester and branch."""
     enrollments = []
     for st in students:
         sem = st["semester"]
@@ -464,7 +663,12 @@ def enroll_students_in_subjects(cursor: sqlite3.Cursor, students: List[Dict[str,
         
         pool = [s for s in CURRICULUM_DATA[sem] if s[3] == branch]
         
-        for subj_id, _, _, _ in pool:
+        if len(pool) >= 6:
+            chosen = random.sample(pool, 6)
+        else:
+            chosen = pool
+
+        for subj_id, _, _, _ in chosen:
             enrollments.append((st["reg_no"], subj_id))
 
     cursor.executemany("""
@@ -476,41 +680,55 @@ def enroll_students_in_subjects(cursor: sqlite3.Cursor, students: List[Dict[str,
 
 
 def populate_initial_faculty_petitions(cursor: sqlite3.Cursor) -> int:
-    """Seeds sample faculty petitions with cryptographic audit hashes."""
+    """Seeds sample faculty petitions with dynamic branch-assigned subject codes and cryptographic audit hashes."""
     def make_hash(reg_no: str, subj_id: str, ptype: str) -> str:
         raw = f"{reg_no}:{subj_id}:{ptype}:{time.time()}"
         return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+    def get_student_branch(reg_no: str, fallback: str = "CSE") -> str:
+        cursor.execute("SELECT Branch FROM Students WHERE RegNo = ?;", (reg_no,))
+        row = cursor.fetchone()
+        return row[0] if (row and row[0]) else fallback
+
+    branch_1001 = get_student_branch("REG1001", "CSE")
+    branch_1004 = get_student_branch("REG1004", "CSCS")
+    branch_1012 = get_student_branch("REG1012", "CIVIL")
+
+    # Match subject based on dynamically queried branch
+    subj_1001 = "Sub_4_2" if branch_1001 == "CSE" else f"{branch_1001}_Sub_4_2"
+    subj_1004 = f"{branch_1004}_Sub_3_3" if branch_1004 != "CSE" else "Sub_3_3"
+    subj_1012 = f"{branch_1012}_Sub_3_6" if branch_1012 != "CSE" else "Sub_3_6"
 
     petitions = [
         (
             "PET_8A1B",
             "REG1001",
-            "22CS206",
+            subj_1001,
             "PREREQUISITE_WAIVER",
-            "Completed DeepLearning.AI Specialization on Coursera with verified credential. Requesting waiver for Sub_4_1 prerequisite.",
+            f"Completed DeepLearning.AI Specialization on Coursera with verified credential. Requesting waiver for Sub_4_1 prerequisite.",
             "PENDING",
             None,
-            make_hash("REG1001", "22CS206", "PREREQUISITE_WAIVER")
+            make_hash("REG1001", subj_1001, "PREREQUISITE_WAIVER")
         ),
         (
             "PET_4C2D",
             "REG1004",
-            "22CS203",
+            subj_1004,
             "CREDIT_OVERLOAD",
             "Student holds 9.1 CGPA in Honors track. Requesting 24 credit overload for Semester 3 accelerated graduation pathway.",
             "APPROVED",
             "Approved by Department Chair Prof. K. Rao. Student meets GPA >= 8.5 threshold [Policy §2.1].",
-            make_hash("REG1004", "22CS203", "CREDIT_OVERLOAD")
+            make_hash("REG1004", subj_1004, "CREDIT_OVERLOAD")
         ),
         (
             "PET_9E3F",
             "REG1012",
-            "22CT201",
+            subj_1012,
             "COURSE_SUBSTITUTION",
-            "Course schedule conflict between Sub_3_6 and Sub_3_2. Requesting enrollment in approved substitute Sub_4_9 [Policy §4.1].",
+            f"Course schedule conflict between {subj_1012} and {branch_1012}_Sub_3_2. Requesting enrollment in approved substitute Sub_4_9 [Policy §4.1].",
             "PENDING",
             None,
-            make_hash("REG1012", "22CT201", "COURSE_SUBSTITUTION")
+            make_hash("REG1012", subj_1012, "COURSE_SUBSTITUTION")
         )
     ]
 
@@ -551,8 +769,8 @@ def run_verification_queries(conn: sqlite3.Connection) -> None:
     """)
     violations = cursor.fetchall()
     if not violations:
-        print("\n>>> 2. Constraint Check (6-Subject Rule):")
-        print("  [SUCCESS] All students are enrolled in AT LEAST 6 subjects!")
+        print("\n>>> 2. Constraint Check (Enrollment Rule):")
+        print("  [SUCCESS] All students are enrolled in at least 6 subjects!")
     else:
         print(f"  [FAILURE] Rule violated for {len(violations)} students: {violations}")
 
@@ -563,20 +781,35 @@ def run_verification_queries(conn: sqlite3.Connection) -> None:
     for ptype, count in cursor.fetchall():
         print(f"  * {ptype:15} : {count} directed edges")
 
+    cursor.execute("""
+        SELECT RegNo, StudentName, Branch, CreditsObtained, CreditsRequired FROM Students LIMIT 5;
+    """)
+    print("\n>>> 4. Sample Students with Branch & Credits:")
+    for r in cursor.fetchall():
+        print(f"  * {r[0]} - {r[1]} | Branch: {r[2]} | Credits: {r[3]}/{r[4]}")
+
+    cursor.execute("""
+        SELECT PetitionID, RegNo, SubjectID, PetitionType FROM Faculty_Petitions;
+    """)
+    print("\n>>> 5. Sample Faculty Petitions (Dynamic Branch Subjects):")
+    for r in cursor.fetchall():
+        print(f"  * {r[0]} | Student: {r[1]} | Subject: {r[2]} | Type: {r[3]}")
+
     print("\nDatabase initialization and verification completed successfully.\n")
 
 
-def init_university_database(db_path: Path = DB_PATH, seed: int = 42) -> sqlite3.Connection:
+def init_university_database(db_path: Union[str, Path] = DB_PATH, seed: int = 42) -> sqlite3.Connection:
     """Main orchestration function to initialize and populate the SQLite database."""
     if seed is not None:
         random.seed(seed)
 
+    target_path = Path(db_path)
     print(f"Starting University Database Initialization...")
-    print(f"Target Database File: {db_path}")
+    print(f"Target Database File: {target_path}")
 
-    delete_existing_db(db_path)
+    delete_existing_db(target_path)
 
-    conn = sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(target_path))
     conn.execute("PRAGMA foreign_keys = ON;")
     cursor = conn.cursor()
 
