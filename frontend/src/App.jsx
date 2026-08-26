@@ -951,61 +951,69 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Sequential Remaining Semesters List - ONE MAIN SUBJECT PER SEMESTER */}
-                  <div className="space-y-6 max-w-4xl mx-auto">
-                    {roadmapData.roadmapSteps.map((step, i) => (
-                      <div 
-                        key={i} 
-                        className="bg-white border-[6px] border-black p-6 shadow-[8px_8px_0_#000] hover:shadow-[12px_12px_0_#3b82f6] hover:-translate-y-1 transition-all duration-300"
-                        style={{ animation: `slideUp 0.5s ease-out ${i * 0.12}s both` }}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b-2 border-dashed border-gray-300">
-                          <span className="title-text text-lg bg-black text-white px-3 py-1 border-2 border-white shadow-[2px_2px_0_#000]">
-                            {step.semesterLabel}
-                          </span>
-                          <span className="text-sm font-bold bg-blue-100 text-blue-900 px-3 py-1 border-2 border-black">
-                            {step.code} • {step.credits} CREDITS
-                          </span>
-                        </div>
+                  {/* Visual Connected Roadmap Track - ONLY ONE MAIN SUBJECT PER SEMESTER */}
+                  <div className="relative mt-8 mb-12 overflow-x-auto pb-8 pt-6">
+                    {/* The drawn animated line connecting the nodes */}
+                    <div className="absolute top-[35%] left-4 right-4 h-4 bg-gray-300 -translate-y-1/2 z-0 hidden md:block border-y-4 border-black min-w-[850px]">
+                      <div className="h-full bg-blue-500 animate-[growWidth_2s_ease-out_forwards] origin-left border-y-4 border-transparent" style={{ animationName: 'growWidth', animationDuration: '2s', animationFillMode: 'forwards' }}></div>
+                      <style>{`@keyframes growWidth { 0% { width: 0%; } 100% { width: 100%; } }`}</style>
+                    </div>
 
-                        <div className="text-xl md:text-2xl font-extrabold text-black flex items-start gap-2 mb-3">
-                          <span className="text-red-500 shrink-0">🎯</span>
-                          <span><strong className="text-gray-900">Main Subject:</strong> {step.mainSubject}</span>
+                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-stretch md:items-start gap-12 md:gap-6 min-w-max px-4">
+                      
+                      {roadmapData.roadmapSteps.map((step, i) => (
+                        <div 
+                          key={i} 
+                          className="flex flex-col items-center bg-white border-[6px] border-black p-5 w-full md:w-60 text-center shadow-[8px_8px_0_#000] transform transition-all duration-500 hover:-translate-y-4 hover:shadow-[12px_16px_0_#3b82f6] relative group"
+                          style={{ animation: `slideUp 0.5s ease-out ${i * 0.2}s both` }}
+                        >
+                          <div className="absolute -top-6 bg-black text-white px-3 py-1 title-text text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-blue-600 transition-colors">
+                            {step.semesterLabel.toUpperCase()}
+                          </div>
+                          
+                          <div className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 border border-blue-300 mt-2 mb-2">
+                            {step.code} • {step.credits} CR
+                          </div>
+                          
+                          <div className="text-base md:text-lg font-black text-black leading-snug mb-2">
+                            <span className="text-red-500 mr-1">🎯</span>{step.mainSubject}
+                          </div>
+                          
+                          <div className="mt-auto text-xs text-gray-700 bg-yellow-50 p-2.5 border-2 border-black text-left w-full">
+                            <strong className="text-black">💡 Why:</strong> {step.why}
+                          </div>
+                          
+                          <div className="w-4 h-4 bg-blue-500 border-2 border-black rounded-full mt-4 animate-ping hidden md:block"></div>
                         </div>
+                      ))}
 
-                        <div className="text-base md:text-lg text-gray-800 flex items-start gap-2 bg-yellow-50 p-4 border-2 border-black">
-                          <span className="text-yellow-600 shrink-0">💡</span>
-                          <span><strong className="text-gray-900">Why:</strong> {step.why}</span>
+                      {/* Final Milestone: After Semester 8 - Main Project / Capstone */}
+                      {roadmapData.capstoneStep && (
+                        <div 
+                          className="flex flex-col items-center bg-yellow-300 border-[6px] border-black p-6 w-full md:w-72 text-center shadow-[12px_12px_0_#000] transform transition-all duration-500 hover:scale-105 relative"
+                          style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length) * 0.2}s both, pulseBorder 2s infinite` }}
+                        >
+                          <div className="absolute -top-8 bg-yellow-500 text-black px-3 py-1.5 title-text text-xs md:text-sm border-[4px] border-black shadow-[4px_4px_0_#000] animate-bounce">
+                            AFTER SEM 8 • GOAL REACHED
+                          </div>
+                          
+                          <Briefcase className="text-black mb-2 mt-2" size={36} />
+                          
+                          <div className="text-base font-extrabold truncate w-full px-2 bg-white border-2 border-black py-1.5 mb-2">
+                            {chatInput || 'CAREER GOAL'}
+                          </div>
+                          
+                          <div className="text-xs md:text-sm font-black text-black leading-snug mb-2">
+                            <span className="text-yellow-800 mr-1">🚀</span>{roadmapData.capstoneStep.projectTitle}
+                          </div>
+                          
+                          <div className="mt-auto text-xs text-gray-900 bg-white p-2.5 border-2 border-black shadow-[2px_2px_0_#000] text-left w-full">
+                            <strong className="text-black">💡 Milestone:</strong> {roadmapData.capstoneStep.why}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )}
 
-                    {/* Final Milestone: After Semester 8 - Main Project / Capstone */}
-                    {roadmapData.capstoneStep && (
-                      <div 
-                        className="bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-200 border-[6px] border-black p-6 shadow-[12px_12px_0_#eab308] hover:scale-[1.01] transition-transform duration-300"
-                        style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length) * 0.12}s both` }}
-                      >
-                        <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-dashed border-black">
-                          <span className="title-text text-lg bg-yellow-500 text-black px-4 py-1 border-2 border-black shadow-[2px_2px_0_#000] font-bold">
-                            AFTER SEMESTER 8
-                          </span>
-                          <span className="text-sm font-bold bg-black text-yellow-300 px-3 py-1 border-2 border-yellow-400">
-                            FINAL CAPSTONE MILESTONE
-                          </span>
-                        </div>
-
-                        <div className="text-2xl md:text-3xl font-extrabold text-black flex items-start gap-2 mb-3">
-                          <span className="text-yellow-600 shrink-0">🚀</span>
-                          <span><strong className="text-black">Main Project / Capstone:</strong> {roadmapData.capstoneStep.projectTitle}</span>
-                        </div>
-
-                        <div className="text-base md:text-lg text-gray-900 flex items-start gap-2 bg-white p-4 border-2 border-black shadow-[4px_4px_0_#000]">
-                          <span className="text-blue-600 shrink-0">💡</span>
-                          <span><strong className="text-black">Why:</strong> {roadmapData.capstoneStep.why}</span>
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </div>
 
                   {/* Career Vector Box if available */}
