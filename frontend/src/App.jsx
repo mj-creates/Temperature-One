@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X } from 'lucide-react';
+import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X, Target, Lightbulb, Rocket } from 'lucide-react';
 import {
   ReactFlow,
   MiniMap,
@@ -32,6 +32,300 @@ const Typewriter = ({ text, delay = 30 }) => {
 
   return <span>{currentText}</span>;
 };
+
+// --- MULTI-DEPARTMENT CURRICULUM CATALOG (R22 REGULATION) ---
+const DEPARTMENT_CURRICULA = {
+  CSE: {
+    name: 'Computer Science and Engineering',
+    regulation: 'R22',
+    semesters: {
+      1: [
+        { code: '22TP105', name: 'Problem Solving through Programming - I', credits: 4, tags: ['programming', 'software', 'python', 'c', 'developer'] },
+        { code: '22MT103', name: 'Linear Algebra & Ordinary Differential Equations', credits: 4, tags: ['math', 'ai', 'data', 'ml'] },
+        { code: '22PY105', name: 'Semiconductor Physics', credits: 4, tags: ['physics', 'hardware'] },
+        { code: '22CT103', name: 'Engineering Chemistry', credits: 4, tags: ['chemistry', 'science'] }
+      ],
+      2: [
+        { code: '22TP106', name: 'Problem Solving through Programming - II (Java & OOP)', credits: 4, tags: ['programming', 'oop', 'java', 'software', 'developer', 'fullstack'] },
+        { code: '22MT107', name: 'Discrete Mathematical Structures', credits: 4, tags: ['math', 'algorithms', 'logic', 'cyber', 'security'] },
+        { code: '22ME101', name: 'Engineering Graphics', credits: 3, tags: ['design', 'cad'] },
+        { code: '22MT108', name: 'Numerical Methods', credits: 4, tags: ['math', 'data', 'analytics'] }
+      ],
+      3: [
+        { code: '22TP201', name: 'Data Structures & Algorithms', credits: 4, tags: ['data structures', 'algorithms', 'software', 'developer', 'fullstack', 'backend'] },
+        { code: '22CS201', name: 'Database Management Systems', credits: 4, tags: ['database', 'sql', 'backend', 'data', 'software', 'developer', 'fullstack'] },
+        { code: '22CS202', name: 'Digital Logic Design', credits: 3, tags: ['hardware', 'systems', 'embedded'] },
+        { code: '22CS203', name: 'Object-Oriented Programming through Java', credits: 3, tags: ['java', 'oop', 'software'] },
+        { code: '22ST202', name: 'Probability and Applied Statistics', credits: 4, tags: ['statistics', 'ai', 'data', 'data scientist', 'ml'] }
+      ],
+      4: [
+        { code: '22CS206', name: 'Design and Analysis of Algorithms', credits: 4, tags: ['algorithms', 'competitive', 'software', 'developer', 'systems'] },
+        { code: '22CS207', name: 'Operating Systems & Architecture', credits: 4, tags: ['operating systems', 'systems', 'kernel', 'cyber', 'security', 'cloud', 'devops'] },
+        { code: '22CS205', name: 'Computer Organization and Architecture', credits: 3, tags: ['hardware', 'systems', 'architecture'] },
+        { code: '22CS208', name: 'Theory of Computation', credits: 4, tags: ['theory', 'compiler', 'automata'] }
+      ],
+      5: [
+        { code: '22CS301', name: 'Web Technologies & Modern Frameworks', credits: 4, tags: ['web', 'frontend', 'backend', 'fullstack', 'react', 'node', 'software', 'developer'] },
+        { code: '22CS302', name: 'Computer Networks & Internet Protocols', credits: 4, tags: ['networks', 'protocols', 'cyber', 'security', 'cloud', 'systems'] },
+        { code: '22CS303', name: 'Artificial Intelligence Principles', credits: 4, tags: ['ai', 'artificial intelligence', 'search', 'ml', 'machine learning'] },
+        { code: '22CS304', name: 'Software Engineering & Agile Methodologies', credits: 3, tags: ['software engineering', 'sdlc', 'agile', 'management', 'developer'] }
+      ],
+      6: [
+        { code: '22CS306', name: 'Machine Learning Systems & Modeling', credits: 4, tags: ['machine learning', 'ml', 'ai', 'data scientist', 'data', 'predictive'] },
+        { code: '22CS307', name: 'Compiler Design & Construction', credits: 4, tags: ['compiler', 'systems', 'languages'] },
+        { code: '22CS308', name: 'Cryptography and Network Security', credits: 4, tags: ['security', 'cryptography', 'cyber', 'cybersecurity', 'networks'] },
+        { code: '22CS309', name: 'Mobile Application Development', credits: 3, tags: ['mobile', 'app', 'android', 'ios', 'frontend', 'developer'] }
+      ],
+      7: [
+        { code: '22CS401', name: 'Cloud Computing & Distributed Platforms', credits: 4, tags: ['cloud', 'aws', 'distributed', 'devops', 'microservices', 'software', 'architect'] },
+        { code: '22CS402', name: 'Deep Learning & Neural Networks', credits: 4, tags: ['deep learning', 'neural', 'ai', 'vision', 'nlp', 'machine learning', 'data scientist'] },
+        { code: '22CS403', name: 'Big Data Analytics & Streaming Platforms', credits: 4, tags: ['big data', 'spark', 'hadoop', 'data', 'data scientist', 'analytics'] },
+        { code: '22CS404', name: 'DevOps & CI/CD Pipeline Automation', credits: 3, tags: ['devops', 'ci/cd', 'docker', 'kubernetes', 'cloud', 'systems'] }
+      ],
+      8: [
+        { code: '22CS406', name: 'Distributed Systems & Scalable System Design', credits: 4, tags: ['system design', 'distributed', 'scalability', 'backend', 'software', 'architect'] },
+        { code: '22CS407', name: 'Natural Language Processing & LLMs', credits: 4, tags: ['nlp', 'llm', 'language', 'ai', 'deep learning', 'data scientist'] },
+        { code: '22CS408', name: 'Blockchain Architecture & Smart Contracts', credits: 3, tags: ['blockchain', 'crypto', 'decentralized', 'web3', 'security'] }
+      ]
+    }
+  },
+  AIML: {
+    name: 'Artificial Intelligence and Machine Learning',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22AI101', name: 'Python Programming for AI', credits: 4, tags: ['python', 'ai', 'programming'] }],
+      2: [{ code: '22AI102', name: 'Data Structures & Algorithmic Foundations', credits: 4, tags: ['data structures', 'algorithms'] }],
+      3: [{ code: '22AI201', name: 'Applied Mathematics & Statistics for AI', credits: 4, tags: ['statistics', 'math', 'ai', 'data'] }],
+      4: [{ code: '22AI204', name: 'Database Systems & Data Wrangling', credits: 4, tags: ['database', 'data', 'sql'] }],
+      5: [{ code: '22AI301', name: 'Machine Learning Foundations & Supervised Models', credits: 4, tags: ['machine learning', 'ml', 'ai'] }],
+      6: [{ code: '22AI303', name: 'Deep Learning Architectures & Computer Vision', credits: 4, tags: ['deep learning', 'vision', 'neural', 'ai'] }],
+      7: [{ code: '22AI401', name: 'Generative AI, LLMs & Prompt Engineering', credits: 4, tags: ['llm', 'generative ai', 'nlp', 'ai'] }],
+      8: [{ code: '22AI402', name: 'Reinforcement Learning & Autonomous AI Agents', credits: 4, tags: ['reinforcement learning', 'agents', 'ai', 'robotics'] }]
+    }
+  },
+  CSCS: {
+    name: 'Cybersecurity and Computer Science',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22CS101', name: 'Computer Programming & System Basics', credits: 4, tags: ['programming', 'c', 'systems'] }],
+      2: [{ code: '22CS102', name: 'Data Structures & Discrete Logic', credits: 4, tags: ['data structures', 'logic'] }],
+      3: [{ code: '22SC201', name: 'Computer Architecture & Assembly', credits: 4, tags: ['architecture', 'assembly', 'systems'] }],
+      4: [{ code: '22SC202', name: 'Operating Systems & Kernel Security', credits: 4, tags: ['operating systems', 'linux', 'security'] }],
+      5: [{ code: '22SC301', name: 'Computer Networks & Security Protocols', credits: 4, tags: ['networks', 'security', 'protocols'] }],
+      6: [{ code: '22SC302', name: 'Applied Cryptography & Network Defense', credits: 4, tags: ['cryptography', 'security', 'cyber'] }],
+      7: [{ code: '22SC401', name: 'Ethical Hacking & Penetration Testing', credits: 4, tags: ['ethical hacking', 'security', 'penetration'] }],
+      8: [{ code: '22SC404', name: 'Digital Forensics & Incident Response', credits: 4, tags: ['forensics', 'incident response', 'cyber'] }]
+    }
+  },
+  IT: {
+    name: 'Information Technology',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22IT101', name: 'Python Programming for Information Technology', credits: 4, tags: ['python', 'software'] }],
+      2: [{ code: '22IT102', name: 'OOP and Software Concepts', credits: 4, tags: ['oop', 'software', 'java'] }],
+      3: [{ code: '22IT201', name: 'Data Structures and Algorithm Design', credits: 4, tags: ['data structures', 'algorithms'] }],
+      4: [{ code: '22IT202', name: 'Database Management & Enterprise SQL', credits: 4, tags: ['database', 'sql', 'backend'] }],
+      5: [{ code: '22IT301', name: 'Full-Stack Web Application Frameworks', credits: 4, tags: ['web', 'fullstack', 'react', 'node'] }],
+      6: [{ code: '22IT303', name: 'Cloud Architecture & DevOps Automation', credits: 4, tags: ['cloud', 'devops', 'aws'] }],
+      7: [{ code: '22IT401', name: 'Enterprise Microservices & Cloud Platforms', credits: 4, tags: ['microservices', 'cloud', 'distributed'] }],
+      8: [{ code: '22IT403', name: 'Information Systems Governance & Security', credits: 4, tags: ['security', 'governance', 'cloud'] }]
+    }
+  },
+  MECH: {
+    name: 'Mechanical Engineering',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22ME101', name: 'Engineering Graphics & Computer-Aided Drafting', credits: 4, tags: ['graphics', 'cad', 'design'] }],
+      2: [{ code: '22ME102', name: 'Engineering Mechanics & Statics', credits: 4, tags: ['mechanics', 'materials'] }],
+      3: [{ code: '22ME201', name: 'Thermodynamics & Thermal Engineering', credits: 4, tags: ['thermodynamics', 'thermal', 'energy'] }],
+      4: [{ code: '22ME204', name: 'Kinematics & Dynamics of Machinery', credits: 4, tags: ['kinematics', 'dynamics', 'design'] }],
+      5: [{ code: '22ME301', name: 'Design of Machine Elements', credits: 4, tags: ['machine design', 'cad', 'design', 'mechanical'] }],
+      6: [{ code: '22ME303', name: 'Computer-Aided Design & Manufacturing (CAD/CAM)', credits: 4, tags: ['cad/cam', 'manufacturing', 'automation'] }],
+      7: [{ code: '22ME401', name: 'Finite Element Analysis (FEA) & Simulation', credits: 4, tags: ['fea', 'simulation', 'structural', 'design'] }],
+      8: [{ code: '22ME402', name: 'Robotics, Mechatronics & Industrial Automation', credits: 4, tags: ['robotics', 'automation', 'mechatronics'] }]
+    }
+  },
+  CIVIL: {
+    name: 'Civil Engineering',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22CE101', name: 'Engineering Graphics & Building Drawing', credits: 4, tags: ['drawing', 'cad', 'civil'] }],
+      2: [{ code: '22CE102', name: 'Plane & Geomatics Surveying', credits: 4, tags: ['surveying', 'geomatics'] }],
+      3: [{ code: '22CE201', name: 'Solid Mechanics & Construction Materials', credits: 4, tags: ['materials', 'mechanics'] }],
+      4: [{ code: '22CE203', name: 'Structural Analysis - I', credits: 4, tags: ['structural analysis', 'structures'] }],
+      5: [{ code: '22CE301', name: 'Structural Analysis - II & Matrix Methods', credits: 4, tags: ['structural analysis', 'structures', 'design'] }],
+      6: [{ code: '22CE303', name: 'Design of Reinforced Concrete Structures (RCC)', credits: 4, tags: ['concrete', 'rcc', 'design', 'civil'] }],
+      7: [{ code: '22CE401', name: 'Design of Steel Structures & Foundation Engineering', credits: 4, tags: ['steel', 'foundation', 'geotechnical'] }],
+      8: [{ code: '22CE403', name: 'Urban Planning, Transportation & Smart Infrastructure', credits: 4, tags: ['urban planning', 'transportation', 'smart city'] }]
+    }
+  },
+  ECE: {
+    name: 'Electronics and Communication Engineering',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22EC101', name: 'Electronic Devices & Circuits', credits: 4, tags: ['circuits', 'electronics'] }],
+      2: [{ code: '22EC102', name: 'Digital Logic Design & Verilog HDL', credits: 4, tags: ['digital', 'verilog', 'hardware'] }],
+      3: [{ code: '22EC201', name: 'Signals and Systems', credits: 4, tags: ['signals', 'dsp', 'systems'] }],
+      4: [{ code: '22EC203', name: 'Analog & Digital Communication Systems', credits: 4, tags: ['communications', 'signals'] }],
+      5: [{ code: '22EC301', name: 'Microcontrollers & Embedded Systems', credits: 4, tags: ['embedded', 'microcontrollers', 'iot'] }],
+      6: [{ code: '22EC303', name: 'VLSI Design & Semiconductor Fabrication', credits: 4, tags: ['vlsi', 'semiconductor', 'chip design'] }],
+      7: [{ code: '22EC401', name: 'Wireless & 5G Cellular Communications', credits: 4, tags: ['wireless', '5g', 'telecom'] }],
+      8: [{ code: '22EC402', name: 'Embedded System Design & RTOS', credits: 4, tags: ['rtos', 'embedded', 'robotics'] }]
+    }
+  },
+  EEE: {
+    name: 'Electrical and Electronics Engineering',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22EE101', name: 'Circuit Analysis & Network Theorems', credits: 4, tags: ['circuits', 'electrical'] }],
+      2: [{ code: '22EE102', name: 'Electromagnetic Fields & Measurements', credits: 4, tags: ['electromagnetics', 'measurements'] }],
+      3: [{ code: '22EE201', name: 'Electrical Machines - I (DC & Transformers)', credits: 4, tags: ['machines', 'power'] }],
+      4: [{ code: '22EE203', name: 'Electrical Machines - II (AC Machines)', credits: 4, tags: ['machines', 'ac'] }],
+      5: [{ code: '22EE301', name: 'Power Electronics & Industrial Drives', credits: 4, tags: ['power electronics', 'drives'] }],
+      6: [{ code: '22EE302', name: 'Control Systems Engineering & Automation', credits: 4, tags: ['control systems', 'automation'] }],
+      7: [{ code: '22EE401', name: 'Renewable Energy Systems & Smart Grids', credits: 4, tags: ['renewable', 'solar', 'smart grid'] }],
+      8: [{ code: '22EE402', name: 'Electric Vehicle Powertrains & Battery Storage', credits: 4, tags: ['ev', 'battery', 'electric vehicle'] }]
+    }
+  },
+  BBA: {
+    name: 'Bachelor of Business Administration',
+    regulation: 'R22',
+    semesters: {
+      1: [{ code: '22BB101', name: 'Principles of Management & Organization', credits: 4, tags: ['management', 'business'] }],
+      2: [{ code: '22BB102', name: 'Financial Accounting & Quantitative Methods', credits: 4, tags: ['accounting', 'finance'] }],
+      3: [{ code: '22BB201', name: 'Marketing Management & Consumer Psychology', credits: 4, tags: ['marketing', 'strategy'] }],
+      4: [{ code: '22BB203', name: 'Corporate Finance & Financial Management', credits: 4, tags: ['finance', 'corporate', 'analytics'] }],
+      5: [{ code: '22BB301', name: 'Operations & Supply Chain Optimization', credits: 4, tags: ['operations', 'supply chain'] }],
+      6: [{ code: '22BB303', name: 'Business Analytics & Data-Driven Decision Making', credits: 4, tags: ['business analytics', 'data', 'analytics', 'decision'] }],
+      7: [{ code: '22BB401', name: 'Strategic Management & Global Business', credits: 4, tags: ['strategy', 'leadership', 'global'] }],
+      8: [{ code: '22BB403', name: 'Entrepreneurship, Venture Capital & FinTech', credits: 4, tags: ['entrepreneurship', 'fintech', 'venture capital'] }]
+    }
+  }
+};
+
+// --- DYNAMIC GOAL-BASED ROADMAP ENGINE ---
+function generateGoalBasedRoadmap(department, currentSemester, goal) {
+  const normDept = (department || 'CSE').toUpperCase().trim();
+  let deptKey = 'CSE';
+  if (normDept.includes('AI') || normDept.includes('MACHINE')) deptKey = 'AIML';
+  else if (normDept.includes('CYBER') || normDept.includes('CSCS') || normDept.includes('SECURITY')) deptKey = 'CSCS';
+  else if (normDept.includes('INFO') || normDept === 'IT') deptKey = 'IT';
+  else if (normDept.includes('MECH')) deptKey = 'MECH';
+  else if (normDept.includes('CIVIL')) deptKey = 'CIVIL';
+  else if (normDept.includes('ECE') || normDept.includes('COMMUNICATION')) deptKey = 'ECE';
+  else if (normDept.includes('EEE') || normDept.includes('ELECTRICAL')) deptKey = 'EEE';
+  else if (normDept.includes('BBA') || normDept.includes('BUSINESS')) deptKey = 'BBA';
+  else if (normDept.includes('BCOM') || normDept.includes('COMMERCE')) deptKey = 'BBA';
+  else if (DEPARTMENT_CURRICULA[normDept]) deptKey = normDept;
+
+  const curriculum = DEPARTMENT_CURRICULA[deptKey] || DEPARTMENT_CURRICULA['CSE'];
+  const curSem = Math.max(1, Math.min(8, parseInt(currentSemester, 10) || 1));
+  const goalStr = (goal || 'Software Engineer').toLowerCase();
+
+  const roadmapSteps = [];
+
+  // Iterate strictly through remaining semesters (curSem + 1 to 8)
+  for (let sem = curSem + 1; sem <= 8; sem++) {
+    const semSubjects = curriculum.semesters[sem] || [];
+    if (semSubjects.length === 0) continue;
+
+    // Score subjects based on goal relevance
+    let bestSubject = semSubjects[0];
+    let highestScore = -1;
+
+    for (const sub of semSubjects) {
+      let score = 0;
+      const subNameLow = sub.name.toLowerCase();
+      
+      // Keyword matching
+      for (const tag of sub.tags) {
+        if (goalStr.includes(tag) || tag.split(' ').some(w => goalStr.includes(w))) {
+          score += 10;
+        }
+      }
+      if (goalStr.split(' ').some(w => w.length > 2 && subNameLow.includes(w))) {
+        score += 8;
+      }
+      score += (sub.credits || 3); // secondary factor
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestSubject = sub;
+      }
+    }
+
+    // Generate goal-specific rationale
+    let rationale = `Builds fundamental competency directly applicable to ${goal}.`;
+    const subName = bestSubject.name.toLowerCase();
+    
+    if (subName.includes('database') || subName.includes('sql')) {
+      rationale = 'Essential for scalable backend architecture, data persistence, and enterprise data models.';
+    } else if (subName.includes('web') || subName.includes('full-stack')) {
+      rationale = 'Provides hands-on mastery in building end-to-end modern web applications and REST APIs.';
+    } else if (subName.includes('algorithms') || subName.includes('structures')) {
+      rationale = 'Core foundation for optimal problem-solving, computational efficiency, and technical interviews.';
+    } else if (subName.includes('operating systems') || subName.includes('kernel')) {
+      rationale = 'Deepens understanding of concurrency, memory management, process scheduling, and low-level execution.';
+    } else if (subName.includes('machine learning') || subName.includes('deep learning') || subName.includes('ai')) {
+      rationale = 'Critical core coursework for developing predictive intelligence, training neural networks, and deploying ML models.';
+    } else if (subName.includes('cloud') || subName.includes('devops') || subName.includes('distributed')) {
+      rationale = 'Helps with deploying, containerizing, and orchestrating highly available, scalable microservices.';
+    } else if (subName.includes('security') || subName.includes('crypto') || subName.includes('hacking')) {
+      rationale = 'Vital for threat modeling, hardening enterprise networks, and implementing zero-trust security.';
+    } else if (subName.includes('design of machine') || subName.includes('cad') || subName.includes('fea')) {
+      rationale = 'Key engineering milestone for computer-aided mechanical modeling, structural simulations, and stress analysis.';
+    } else if (subName.includes('structural analysis') || subName.includes('concrete') || subName.includes('steel')) {
+      rationale = 'Foundational for designing stable structural frameworks, calculating load distributions, and modern construction.';
+    } else if (subName.includes('analytics') || subName.includes('finance') || subName.includes('strategy')) {
+      rationale = 'Equips you with quantitative financial modeling, market analytics, and executive business strategy.';
+    }
+
+    roadmapSteps.push({
+      semester: sem,
+      semesterLabel: `Semester ${sem}`,
+      mainSubject: bestSubject.name,
+      code: bestSubject.code,
+      credits: bestSubject.credits,
+      why: rationale
+    });
+  }
+
+  // Capstone Project Milestone recommendation
+  let capstoneTitle = 'Enterprise Full-Stack Cloud Application & Scalable Microservices Architecture';
+  let capstoneRationale = `Comprehensive end-to-end capstone synthesizing your ${deptKey} coursework into production-ready industry credentials.`;
+
+  if (goalStr.includes('ai') || goalStr.includes('machine learning') || goalStr.includes('ml') || goalStr.includes('data scientist')) {
+    capstoneTitle = 'Autonomous End-to-End Multimodal Deep Learning & AI Agent System';
+    capstoneRationale = 'A complete AI/ML deployment showcasing custom neural architectures, real-time inferencing, and MLOps pipelines.';
+  } else if (goalStr.includes('cyber') || goalStr.includes('security')) {
+    capstoneTitle = 'Zero-Trust Automated Threat Detection & Security Operations Platform';
+    capstoneRationale = 'Industrial cybersecurity deployment integrating proactive vulnerability analysis and real-time incident mitigation.';
+  } else if (goalStr.includes('cloud') || goalStr.includes('devops')) {
+    capstoneTitle = 'Multi-Region Kubernetes Cloud Infrastructure & Automated GitOps CI/CD Platform';
+    capstoneRationale = 'Production cloud architecture demonstrating automated failover, load balancing, and infrastructure-as-code.';
+  } else if (deptKey === 'MECH' || goalStr.includes('mech') || goalStr.includes('robot')) {
+    capstoneTitle = 'Autonomous Robotic Manipulator CAD Modeling, FEA Simulation & Hardware Prototyping';
+    capstoneRationale = 'Complete mechanical design lifecycle validating kinematic motion, thermal durability, and automated mechatronic control.';
+  } else if (deptKey === 'CIVIL' || goalStr.includes('civil') || goalStr.includes('structur')) {
+    capstoneTitle = 'Sustainable Smart City Infrastructure Modeling & High-Rise Structural Analysis';
+    capstoneRationale = 'Integrated civil engineering project covering seismic resistance, reinforced concrete design, and smart drainage systems.';
+  } else if (deptKey === 'BBA' || goalStr.includes('business') || goalStr.includes('analyst') || goalStr.includes('finance')) {
+    capstoneTitle = 'Predictive Enterprise Business Analytics & FinTech Market Forecasting Engine';
+    capstoneRationale = 'Executive-level data-driven market strategy solving supply chain bottlenecks and optimizing financial capital allocation.';
+  }
+
+  const capstoneStep = {
+    projectTitle: capstoneTitle,
+    why: capstoneRationale
+  };
+
+  return {
+    roadmapSteps,
+    capstoneStep,
+    departmentName: curriculum.name,
+    regulation: curriculum.regulation
+  };
+}
 
 // --- REACT FLOW NODE (TREASURE MAP STYLE) ---
 const GodmodeCourseNode = ({ data, selected }) => {
@@ -97,9 +391,9 @@ export default function App() {
   
   const [studentDetails, setStudentDetails] = useState({
     cgpa: 8.4,
-    semester: 5,
-    creditsEarned: 90,
-    department: 'Computer Science'
+    semester: 3,
+    creditsEarned: 60,
+    department: 'CSE'
   });
 
   const [chatInput, setChatInput] = useState('');
@@ -136,10 +430,10 @@ export default function App() {
         if (res.ok) {
           const data = await res.json();
           setStudentDetails({
-            cgpa: data.current_gpa || 8.4,
+            cgpa: data.cgpa || data.current_gpa || 8.4,
             semester: data.semester || 1,
-            creditsEarned: data.enrolled_subjects?.reduce((acc, s) => acc + s.Credits, 0) || 90,
-            department: data.department || 'Computer Science'
+            creditsEarned: data.total_registered_credits || 60,
+            department: data.branch || data.department || 'CSE'
           });
         }
       } catch (err) {
@@ -152,45 +446,19 @@ export default function App() {
   const startAgentConsultation = () => {
     setView('agent_chat');
     setChatHistory([
-      { sender: 'NEXUS', text: `Hello ${name}. I am Nexus, your AI Advisor. To build your academic pipeline, I need to know: what is your ultimate career goal?` }
+      { sender: 'NEXUS', text: `Hello ${name}. I am Nexus, your AI Advisor. To build your personalized academic roadmap, I need to know: what is your target career goal?` }
     ]);
   };
 
-  // 1. Goal Validation & Dynamic Subject Generation
-  const validDomains = ['software', 'data', 'ai', 'cyber', 'security', 'machine learning', 'ml', 'cloud', 'systems', 'robotics', 'web', 'app', 'developer', 'engineer', 'frontend', 'backend', 'fullstack', 'game'];
+  // Goal Validation
+  const validDomains = ['software', 'data', 'ai', 'cyber', 'security', 'machine learning', 'ml', 'cloud', 'systems', 'robotics', 'web', 'app', 'developer', 'engineer', 'frontend', 'backend', 'fullstack', 'game', 'mechanic', 'civil', 'business', 'analyst', 'manager', 'finance', 'designer'];
 
-  const getDynamicPath = () => {
-    if (pipelineData && pipelineData.degree_pathway && pipelineData.degree_pathway.path_sequence) {
-       let allCourses = [];
-       pipelineData.degree_pathway.path_sequence.forEach(step => {
-           step.nodes_details.forEach(c => allCourses.push({ ...c, semester: step.step_number }));
-       });
-       
-       if (allCourses.length >= 3) {
-         // Filter for core computer science or target subjects to make it look cool (ignore basic math/physics if possible)
-         const interesting = allCourses.filter(c => c.name.length > 15 || c.credits >= 4);
-         const source = interesting.length >= 3 ? interesting : allCourses;
-         
-         const selected = [
-             source[0],
-             source[Math.floor(source.length/2)],
-             source[source.length - 1]
-         ];
-         return selected.map((c, i) => ({
-            sem: `STEP ${c.semester}`,
-            name: c.name,
-            delay: `${i * 0.4}s`
-         }));
-       }
-    }
-    
-    // Fallback if backend didn't return steps
-    return [
-      { sem: 'SEM 6', name: 'Data Structures II', delay: '0s' },
-      { sem: 'SEM 7', name: 'System Design', delay: '0.4s' },
-      { sem: 'SEM 8', name: 'Software Capstone', delay: '0.8s' }
-    ];
-  };
+  // Roadmap Data Generator
+  const roadmapData = generateGoalBasedRoadmap(
+    studentDetails.department,
+    studentDetails.semester,
+    chatInput || 'Software Engineer'
+  );
 
   const handleSendChat = async (e) => {
     e.preventDefault();
@@ -206,14 +474,14 @@ export default function App() {
         if (!isRelevant) {
           setChatHistory(prev => [
             ...prev,
-            { sender: 'NEXUS', text: `ERROR: I am sorry, but there are no subjects relevant to "${userGoal}" available in this university's curriculum. Please choose an engineering or technology focused career goal.` }
+            { sender: 'NEXUS', text: `ERROR: I am sorry, but there are no subjects relevant to "${userGoal}" available in this curriculum. Please specify an engineering, technology, or business career goal.` }
           ]);
           setChatInput(''); // reset input
         } else {
           setGoalSet(true);
           setChatHistory(prev => [
             ...prev,
-            { sender: 'NEXUS', text: `Goal validated: "${userGoal}". All prerequisite subjects are available. Establishing uplink to Omega Backend for computation...` }
+            { sender: 'NEXUS', text: `Career Goal Validated: "${userGoal}". Analyzing ${studentDetails.department} curriculum starting from Semester ${studentDetails.semester + 1} to synthesize your optimal single-subject roadmap...` }
           ]);
           
           try {
@@ -229,18 +497,20 @@ export default function App() {
             
             setChatHistory(prev => [
               ...prev, 
-              { sender: 'NEXUS', text: `Backend sync successful. Assembling the swarm to visualize your dynamic pathway...` }
+              { sender: 'NEXUS', text: `Academic roadmap synthesized successfully! Launching Swarm Dashboard...` }
             ]);
             
             setTimeout(() => {
               setView('dashboard');
-            }, 3000);
+            }, 2500);
           } catch (err) {
             setChatHistory(prev => [
               ...prev, 
-              { sender: 'NEXUS', text: `SYSTEM FAILURE: Backend communication failed. Is the API server running?` }
+              { sender: 'NEXUS', text: `Connected offline. Synthesizing academic roadmap locally for ${userGoal}...` }
             ]);
-            setGoalSet(false);
+            setTimeout(() => {
+              setView('dashboard');
+            }, 2500);
           }
         }
       }, 1000);
@@ -250,57 +520,60 @@ export default function App() {
   useEffect(() => {
     if (view === 'dashboard') {
       const steps = [
-        setTimeout(() => setPipelineStep(0), 1000),
-        setTimeout(() => setPipelineStep(1), 2500),
-        setTimeout(() => setPipelineStep(2), 4000),
-        setTimeout(() => setPipelineStep(3), 5500),
-        setTimeout(() => setPipelineStep(4), 7500)
+        setTimeout(() => setPipelineStep(0), 800),
+        setTimeout(() => setPipelineStep(1), 1800),
+        setTimeout(() => setPipelineStep(2), 3000),
+        setTimeout(() => setPipelineStep(3), 4200),
+        setTimeout(() => setPipelineStep(4), 5600)
       ];
       return () => steps.forEach(clearTimeout);
     }
   }, [view]);
 
-  // 2. Treasure Map Tree Graph Setup from Backend Data!
   const openKnowledgeGraph = () => {
     setView('knowledge_graph');
     
     try {
       if (pipelineData && pipelineData.degree_pathway && pipelineData.degree_pathway.path_sequence) {
-        
-        const tNodes = [{ id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: 'Academic Journey', credits: 0, semester: 0, status: 'COMPLETED' } }];
+        const tNodes = [];
         const tEdges = [];
+        const stepXOffset = 380;
+        const nodeYOffset = 180;
         
-        let stepXOffset = 350;
         let lastStepNodes = ['start'];
-        let maxSem = 0;
+        let maxSem = 1;
+        
+        tNodes.push({ id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: `${name} [${studentDetails.department}]`, credits: 0, semester: studentDetails.semester || 1, status: 'COMPLETED' } });
         
         pipelineData.degree_pathway.path_sequence.forEach((step, stepIndex) => {
-          maxSem = step.step_number;
+          const stepX = (stepIndex + 1) * stepXOffset + 50;
           const currentStepNodes = [];
           
           step.nodes_details.forEach((node, idx) => {
-            const yOffset = (idx % 2 === 0 ? 1 : -1) * (Math.floor((idx+1)/2) * 160);
-            const nodeId = node.subject_id;
+            const nodeId = node.id || `node-${stepIndex}-${idx}`;
             currentStepNodes.push(nodeId);
+            if (node.semester > maxSem) maxSem = node.semester;
+            
+            const totalInStep = step.nodes_details.length;
+            const startY = 300 - ((totalInStep - 1) * nodeYOffset) / 2;
+            const nodeY = startY + idx * nodeYOffset;
             
             tNodes.push({
               id: nodeId,
               type: 'customCourseNode',
-              position: { x: (stepIndex + 1) * stepXOffset + 50, y: 300 + yOffset },
+              position: { x: stepX, y: nodeY },
               data: {
-                subject_id: nodeId,
+                subject_id: node.id,
                 label: node.name,
                 credits: node.credits,
-                semester: step.step_number,
+                semester: node.semester,
                 status: 'AVAILABLE',
-                is_bottleneck: pipelineData.degree_pathway.bottlenecks?.includes(nodeId)
+                is_bottleneck: pipelineData.degree_pathway.bottlenecks?.includes(node.id)
               }
             });
             
-            // Connect to previous step (simple tree connectivity)
             if (node.prerequisites && node.prerequisites.length > 0) {
                node.prerequisites.forEach(prereq => {
-                   // if prereq is in graph, link it
                    tEdges.push({
                      id: `e-${prereq}-${nodeId}`,
                      source: prereq,
@@ -311,7 +584,6 @@ export default function App() {
                    });
                });
             } else {
-               // Fallback link to random node from last step to ensure tree connectivity
                const fallbackSource = lastStepNodes[idx % lastStepNodes.length];
                tEdges.push({
                  id: `e-${fallbackSource}-${nodeId}`,
@@ -329,7 +601,6 @@ export default function App() {
           }
         });
         
-        // Find nodes with no outgoing edges to connect to Treasure
         const sources = new Set(tEdges.map(e => e.source));
         const finalX = (pipelineData.degree_pathway.path_sequence.length + 1) * stepXOffset + 150;
         
@@ -379,7 +650,7 @@ export default function App() {
           </div>
           {name && view !== 'login' && (
             <div className="title-text text-sm md:text-base flex items-center gap-2 bg-yellow-300 px-4 py-2 border-4 border-black shadow-[4px_4px_0_#000] transform hover:-rotate-2 transition-transform cursor-default">
-              <User size={18}/> {name} <span className="text-gray-600">[{regNo}]</span>
+              <User size={18}/> {name} <span className="text-gray-600">[{regNo} • {studentDetails.department}]</span>
             </div>
           )}
         </header>
@@ -395,7 +666,7 @@ export default function App() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             fitView
-            className="bg-[#fef3c7] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDIwTDIwIDBMMjAgMjBMMCAyMEwyMCAyMHoiIHN0cm9rZT0icmdiYSgxMj0sIDUzLCAxNSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+')]"
+            className="bg-[#fef3c7] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDIwTDIwIDBMMjAgMjBMMCAyMEwyMCAyMHoiIHN0cm9rZT0icmdiYSgxMjAsIDUzLCAxNSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+')]"
           >
             <Background color="#78350f" gap={40} size={2} />
             <Controls className="border-4 border-[#451a03] shadow-[4px_4px_0_#78350f] bg-[#fef3c7] rounded-none" />
@@ -521,7 +792,7 @@ export default function App() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 {[
-                  { label: 'CURRENT CGPA', value: studentDetails.cgpa, color: 'text-green-600', border: 'border-green-500', bg: 'bg-green-50', shadow: 'shadow-[8px_8px_0_#22c55e]' },
+                  { label: 'CURRENT CGPA', value: typeof studentDetails.cgpa === 'number' ? studentDetails.cgpa.toFixed(2) : studentDetails.cgpa, color: 'text-green-600', border: 'border-green-500', bg: 'bg-green-50', shadow: 'shadow-[8px_8px_0_#22c55e]' },
                   { label: 'SEMESTER', value: `0${studentDetails.semester}`, color: 'text-blue-600', border: 'border-blue-500', bg: 'bg-blue-50', shadow: 'shadow-[8px_8px_0_#3b82f6]' },
                   { label: 'CREDITS EARNED', value: studentDetails.creditsEarned, color: 'text-yellow-600', border: 'border-yellow-500', bg: 'bg-yellow-50', shadow: 'shadow-[8px_8px_0_#eab308]' },
                   { label: 'DEPARTMENT', value: studentDetails.department, color: 'text-purple-600', border: 'border-purple-500', bg: 'bg-purple-50', shadow: 'shadow-[8px_8px_0_#a855f7]', text: 'text-2xl' }
@@ -549,92 +820,80 @@ export default function App() {
 
         {/* VIEW: AGENT DIALOGUE CONVERSATION */}
         {view === 'agent_chat' && (
-          <div className="pixel-box animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] w-full mx-auto flex flex-col md:flex-row border-[6px] shadow-[16px_16px_0_rgba(0,0,0,0.2)] bg-white overflow-hidden">
-            
-            {/* Left side: Avatar Box */}
-            <div className="w-full md:w-1/3 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+')] bg-blue-600 flex flex-col items-center justify-center p-8 border-b-[6px] md:border-b-0 md:border-r-[6px] border-black relative">
-              <div className="absolute top-4 left-4 flex gap-2">
-                <div className="w-4 h-4 bg-white shadow-[2px_2px_0_#000]"></div>
-                <div className="w-4 h-4 border-[3px] border-white shadow-[2px_2px_0_#000]"></div>
-              </div>
-              <div className="title-text text-white text-2xl mb-6 text-center mt-6 drop-shadow-[2px_2px_0_#000]">NEXUS AGENT</div>
-              <div className="w-40 h-40 md:w-56 md:h-56 border-[6px] border-black bg-white shadow-[12px_12px_0_rgba(0,0,0,0.5)] overflow-hidden animate-[bounce_2s_infinite]">
-                <img src="/assets/nexus.png" alt="Nexus Agent" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
-              </div>
+          <div className="pixel-box animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] mx-auto max-w-3xl bg-white border-[6px]">
+            <div className="window-header bg-black text-white px-4 py-3 flex justify-between border-b-[6px] border-black text-lg">
+              <span className="flex items-center gap-2"><Cpu size={20} className="text-blue-400 animate-spin"/> NEXUS_CORE.COM</span>
+              <span>LIVE TRANSMISSION</span>
             </div>
 
-            {/* Right side: Chat Log */}
-            <div className="w-full md:w-2/3 flex flex-col bg-gray-50 h-[600px] relative">
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:100%_4px] pointer-events-none z-0"></div>
+            <div className="p-6 md:p-8 flex flex-col h-[500px]">
               
-              <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6 relative z-10 scrollbar-hide">
-                {chatHistory.map((msg, idx) => (
-                  <div key={idx} className={`w-full ${msg.sender === 'YOU' ? 'text-right' : 'text-left'} animate-[slideUp_0.3s_ease-out_forwards]`}>
-                    <div className={`inline-block border-[4px] border-black p-5 max-w-[90%] text-2xl md:text-3xl leading-relaxed relative ${msg.sender === 'YOU' ? 'bg-yellow-300 text-black shadow-[6px_6px_0_#000]' : 'bg-white text-black shadow-[6px_6px_0_#3b82f6]'}`}>
-                      {msg.sender === 'NEXUS' && (
-                        <div className="absolute -left-[14px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-r-[10px] border-r-black border-b-[8px] border-b-transparent"></div>
-                      )}
-                      {msg.sender === 'YOU' && (
-                        <div className="absolute -right-[14px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-l-[10px] border-l-black border-b-[8px] border-b-transparent"></div>
-                      )}
-                      <div className="title-text text-sm text-gray-500 mb-2 bg-black text-white inline-block px-2">{msg.sender}</div>
-                      <div className="mt-1">
-                        {/* Typewriter effect for Nexus, instant for YOU */}
-                        {msg.sender === 'NEXUS' && idx === chatHistory.length - 1 ? (
-                          <Typewriter text={msg.text} />
-                        ) : (
-                          msg.text
-                        )}
-                      </div>
+              {/* Chat Log Window */}
+              <div className="flex-1 overflow-y-auto space-y-6 pr-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wNCkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] p-4 border-4 border-black">
+                {chatHistory.map((msg, i) => (
+                  <div key={i} className={`flex flex-col ${msg.sender === 'YOU' ? 'items-end' : 'items-start'} animate-[slideUp_0.3s_ease-out_both]`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`title-text text-xs px-2 py-0.5 border-2 border-black ${msg.sender === 'YOU' ? 'bg-yellow-300' : 'bg-blue-600 text-white'}`}>
+                        {msg.sender}
+                      </span>
+                    </div>
+                    <div className={`p-4 max-w-[85%] text-xl font-bold border-4 border-black ${msg.sender === 'YOU' ? 'bg-yellow-100 shadow-[4px_4px_0_#000]' : 'bg-white shadow-[4px_4px_0_#3b82f6]'}`}>
+                      {msg.sender === 'NEXUS' ? <Typewriter text={msg.text} delay={20} /> : msg.text}
                     </div>
                   </div>
                 ))}
                 <div ref={chatEndRef} />
               </div>
 
-              {!goalSet && (
-                <form onSubmit={handleSendChat} className="w-full flex p-6 bg-white border-t-[6px] border-black animate-slide-up relative z-10">
-                  <div className="flex-1 relative">
-                    <Sparkles className="absolute left-4 top-5 text-yellow-400 animate-pulse" size={24} />
-                    <input 
-                      type="text"
-                      className="pixel-input w-full pl-12 text-2xl py-4 border-[4px] shadow-[inset_4px_4px_0_rgba(0,0,0,0.05)] focus:border-blue-600 focus:outline-none"
-                      placeholder="Enter your career goal..."
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-                  <button type="submit" className="pixel-btn bg-blue-600 text-white text-2xl px-8 ml-4 border-[4px] border-black shadow-[6px_6px_0_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0_#000] active:translate-x-2 active:translate-y-2 active:shadow-none transition-all">
-                    SEND
-                  </button>
-                </form>
-              )}
+              {/* Chat Input */}
+              <form onSubmit={handleSendChat} className="mt-6 flex gap-4">
+                <input 
+                  type="text" 
+                  className="pixel-input flex-1 text-2xl py-4 border-4 border-black shadow-[4px_4px_0_#000]"
+                  placeholder="Type your career goal (e.g. Software Engineer, AI Researcher, Data Scientist)..."
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  disabled={goalSet}
+                  autoFocus
+                />
+                <button 
+                  type="submit" 
+                  className="pixel-btn bg-black text-white px-8 text-2xl border-4 border-black shadow-[4px_4px_0_#000] hover:shadow-[2px_2px_0_#000] hover:translate-x-1 hover:translate-y-1 active:translate-x-2 active:translate-y-2 transition-all disabled:opacity-50"
+                  disabled={goalSet}
+                >
+                  <ArrowRight size={28} />
+                </button>
+              </form>
+
             </div>
           </div>
         )}
 
-        {/* VIEW: DASHBOARD (MULTI-AGENT PIPELINE & PATH) */}
+        {/* VIEW: DASHBOARD (SWARM & VISUAL PATHWAY) */}
         {view === 'dashboard' && (
-          <div className="flex flex-col gap-10 w-full pb-20">
+          <div className="flex flex-col items-center gap-12 w-full">
             
-            {/* The Agents Assembling */}
-            <div className="pixel-box w-full animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] border-[6px]">
-              <div className="window-header bg-black text-white px-4 py-3 border-b-[6px] border-black text-lg">
-                <span>MULTI_AGENT_ASSEMBLY.SYS</span>
+            {/* The Swarm Process Window */}
+            <div className="pixel-box w-full bg-white border-[6px]">
+              <div className="window-header bg-black text-white px-4 py-3 border-b-[6px] border-black text-lg flex justify-between">
+                <span>SWARM_ORCHESTRATOR.SYS</span>
+                <span className="text-yellow-400 animate-pulse">STATUS: COMPUTING DYNAMIC PATH</span>
               </div>
-              <div className="p-8 md:p-12 bg-white">
-                <div className="text-center mb-10">
-                  <h2 className="title-text text-3xl md:text-4xl text-black mb-4 drop-shadow-[2px_2px_0_#22c55e]">AGENT SWARM ACTIVATED</h2>
-                  <p className="text-2xl md:text-3xl text-gray-600 bg-gray-100 inline-block px-4 py-2 border-2 border-black">Computing pathway for: <span className="text-blue-600 font-bold">"{chatInput}"</span></p>
-                </div>
+              
+              <div className="p-8 md:p-12">
+                <h2 className="title-text text-3xl mb-8 flex items-center justify-between">
+                  <span>SWARM ACTIVE: 6 NODES SYNCED</span>
+                  <span className="text-sm font-normal bg-black text-white px-3 py-1 border-2 border-white">TARGET: {chatInput}</span>
+                </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                   {[
-                    { id: 0, name: 'NEXUS', role: 'Front Desk', avatar: '/assets/nexus.png', color: 'blue' },
-                    { id: 1, name: 'MATRIX', role: 'Pathfinder', avatar: '/assets/matrix.png', color: 'yellow' },
-                    { id: 2, name: 'VECTOR', role: 'Career Velocity', avatar: '/assets/vector.png', color: 'purple' },
-                    { id: 3, name: 'SENTINEL', role: 'Verifier', avatar: '/assets/sentinel.png', color: 'red' }
+                    { id: 0, name: 'NEXUS', role: 'Orchestrator', avatar: '/assets/nexus.png' },
+                    { id: 1, name: 'MATRIX', role: 'Pathfinder', avatar: '/assets/matrix.png' },
+                    { id: 2, name: 'VECTOR', role: 'Trajectory', avatar: '/assets/vector.png' },
+                    { id: 3, name: 'STATE', role: 'Auditor', avatar: '/assets/state.png' },
+                    { id: 4, name: 'CODEX', role: 'Policy RAG', avatar: '/assets/codex.png' },
+                    { id: 5, name: 'SENTINEL', role: 'Verifier', avatar: '/assets/sentinel.png' },
                   ].map((agent) => {
                     const isActive = pipelineStep >= agent.id;
                     const isDone = pipelineStep > agent.id;
@@ -661,53 +920,106 @@ export default function App() {
               </div>
             </div>
 
-            {/* The Visual Path Output */}
+            {/* The Visual Path Output: OPTIMAL_PATHWAY_GENERATED.DAT */}
             {pipelineStep >= 4 && (
               <div className="pixel-box w-full bg-blue-50 animate-[slideUp_0.8s_ease-out_forwards] border-[6px] border-black shadow-[16px_16px_0_#3b82f6]">
-                <div className="window-header bg-blue-600 text-white px-4 py-3 border-b-[6px] border-black text-lg">
-                  <span>OPTIMAL_PATHWAY_GENERATED.DAT</span>
+                <div className="window-header bg-blue-600 text-white px-4 py-3 border-b-[6px] border-black text-lg flex justify-between items-center flex-wrap gap-2">
+                  <span className="font-bold tracking-wider">OPTIMAL_PATHWAY_GENERATED.DAT</span>
+                  <span className="text-xs bg-black text-yellow-300 px-3 py-1 border border-yellow-300 font-mono">
+                    {roadmapData.departmentName} • {roadmapData.regulation} • REMAINING SEMESTERS
+                  </span>
                 </div>
                 
-                <div className="p-8 md:p-14 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wMikiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]">
-                  <h3 className="title-text text-4xl mb-16 text-center text-black drop-shadow-[3px_3px_0_#3b82f6] bg-white inline-block px-6 py-2 border-4 border-black mx-auto block w-fit">ACADEMIC ROADMAP</h3>
+                <div className="p-6 md:p-12 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wMikiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]">
                   
-                  <div className="relative mt-8">
-                    {/* The drawn line connecting the nodes */}
-                    <div className="absolute top-1/2 left-0 w-full h-4 bg-gray-300 -translate-y-1/2 z-0 hidden md:block border-y-4 border-black">
-                      <div className="h-full bg-blue-500 animate-[growWidth_2s_ease-out_forwards] origin-left border-y-4 border-transparent" style={{ animationName: 'growWidth', animationDuration: '2s', animationFillMode: 'forwards' }}></div>
-                      <style>{`@keyframes growWidth { 0% { width: 0%; } 100% { width: 100%; } }`}</style>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12 md:gap-0 px-4">
-                      
-                      {getDynamicPath().map((node, i) => (
-                        <div key={i} className="flex flex-col items-center bg-white border-[6px] border-black p-6 w-48 text-center shadow-[8px_8px_0_#000] transform transition-all duration-500 hover:-translate-y-4 hover:shadow-[12px_16px_0_#000] relative group" style={{ animation: `slideUp 0.5s ease-out ${node.delay} both` }}>
-                          <div className="absolute -top-6 bg-black text-white px-3 py-1 title-text text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-blue-600 transition-colors">{node.sem}</div>
-                          <div className="text-xl font-bold mt-2">{node.name}</div>
-                          <div className="w-4 h-4 bg-blue-500 border-2 border-black rounded-full mt-4 animate-ping"></div>
-                        </div>
-                      ))}
-
-                      {/* Goal Node */}
-                      <div className="flex flex-col items-center bg-yellow-300 border-[6px] border-black p-6 w-64 text-center shadow-[12px_12px_0_#000] transform transition-all duration-500 hover:scale-110 relative" style={{ animation: `slideUp 0.5s ease-out 1.2s both, pulseBorder 2s infinite` }}>
-                        <div className="absolute -top-8 bg-yellow-500 text-black px-4 py-2 title-text text-lg border-[4px] border-black shadow-[4px_4px_0_#000] animate-bounce">GOAL REACHED</div>
-                        <Briefcase className="text-black mb-3 mt-4" size={48} />
-                        <div className="text-2xl font-bold truncate w-full px-2 bg-white border-2 border-black py-2">{chatInput}</div>
-                      </div>
-
+                  <div className="text-center mb-10">
+                    <h3 className="title-text text-3xl md:text-5xl text-black drop-shadow-[3px_3px_0_#3b82f6] bg-white inline-block px-8 py-3 border-4 border-black mx-auto">
+                      ACADEMIC ROADMAP
+                    </h3>
+                    <div className="mt-4 flex flex-wrap justify-center gap-3">
+                      <span className="text-base md:text-lg font-bold text-gray-800 bg-yellow-200 px-4 py-1.5 border-2 border-black shadow-[2px_2px_0_#000]">
+                        🎯 Target Career: <strong className="text-blue-800">{chatInput}</strong>
+                      </span>
+                      <span className="text-base md:text-lg font-bold text-gray-800 bg-green-200 px-4 py-1.5 border-2 border-black shadow-[2px_2px_0_#000]">
+                        📍 Current Standing: <strong className="text-green-900">Semester {studentDetails.semester}</strong>
+                      </span>
+                      <span className="text-base md:text-lg font-bold text-gray-800 bg-purple-200 px-4 py-1.5 border-2 border-black shadow-[2px_2px_0_#000]">
+                        ⚡ Roadmap Start: <strong className="text-purple-900">Semester {Math.min(8, (studentDetails.semester || 1) + 1)}</strong>
+                      </span>
                     </div>
                   </div>
-                  
+
+                  {/* Sequential Remaining Semesters List - ONE MAIN SUBJECT PER SEMESTER */}
+                  <div className="space-y-6 max-w-4xl mx-auto">
+                    {roadmapData.roadmapSteps.map((step, i) => (
+                      <div 
+                        key={i} 
+                        className="bg-white border-[6px] border-black p-6 shadow-[8px_8px_0_#000] hover:shadow-[12px_12px_0_#3b82f6] hover:-translate-y-1 transition-all duration-300"
+                        style={{ animation: `slideUp 0.5s ease-out ${i * 0.12}s both` }}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b-2 border-dashed border-gray-300">
+                          <span className="title-text text-lg bg-black text-white px-3 py-1 border-2 border-white shadow-[2px_2px_0_#000]">
+                            {step.semesterLabel}
+                          </span>
+                          <span className="text-sm font-bold bg-blue-100 text-blue-900 px-3 py-1 border-2 border-black">
+                            {step.code} • {step.credits} CREDITS
+                          </span>
+                        </div>
+
+                        <div className="text-xl md:text-2xl font-extrabold text-black flex items-start gap-2 mb-3">
+                          <span className="text-red-500 shrink-0">🎯</span>
+                          <span><strong className="text-gray-900">Main Subject:</strong> {step.mainSubject}</span>
+                        </div>
+
+                        <div className="text-base md:text-lg text-gray-800 flex items-start gap-2 bg-yellow-50 p-4 border-2 border-black">
+                          <span className="text-yellow-600 shrink-0">💡</span>
+                          <span><strong className="text-gray-900">Why:</strong> {step.why}</span>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Final Milestone: After Semester 8 - Main Project / Capstone */}
+                    {roadmapData.capstoneStep && (
+                      <div 
+                        className="bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-200 border-[6px] border-black p-6 shadow-[12px_12px_0_#eab308] hover:scale-[1.01] transition-transform duration-300"
+                        style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length) * 0.12}s both` }}
+                      >
+                        <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-dashed border-black">
+                          <span className="title-text text-lg bg-yellow-500 text-black px-4 py-1 border-2 border-black shadow-[2px_2px_0_#000] font-bold">
+                            AFTER SEMESTER 8
+                          </span>
+                          <span className="text-sm font-bold bg-black text-yellow-300 px-3 py-1 border-2 border-yellow-400">
+                            FINAL CAPSTONE MILESTONE
+                          </span>
+                        </div>
+
+                        <div className="text-2xl md:text-3xl font-extrabold text-black flex items-start gap-2 mb-3">
+                          <span className="text-yellow-600 shrink-0">🚀</span>
+                          <span><strong className="text-black">Main Project / Capstone:</strong> {roadmapData.capstoneStep.projectTitle}</span>
+                        </div>
+
+                        <div className="text-base md:text-lg text-gray-900 flex items-start gap-2 bg-white p-4 border-2 border-black shadow-[4px_4px_0_#000]">
+                          <span className="text-blue-600 shrink-0">💡</span>
+                          <span><strong className="text-black">Why:</strong> {roadmapData.capstoneStep.why}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Career Vector Box if available */}
                   {pipelineData?.career_vector && (
-                    <div className="mt-16 bg-white border-4 border-black p-6 shadow-[8px_8px_0_#000] animate-[slideUp_0.5s_ease-out_1.5s_both]">
-                      <h4 className="title-text text-xl mb-4 bg-blue-600 text-white inline-block px-4 py-1">CAREER VECTOR: NEXT STEPS</h4>
-                      <div className="text-xl leading-relaxed text-gray-700">
+                    <div className="mt-12 max-w-4xl mx-auto bg-white border-4 border-black p-6 shadow-[8px_8px_0_#000] animate-[slideUp_0.5s_ease-out_1.5s_both]">
+                      <h4 className="title-text text-xl mb-3 bg-blue-600 text-white inline-block px-4 py-1">
+                        CAREER VECTOR: NEXT STEPS
+                      </h4>
+                      <div className="text-lg leading-relaxed text-gray-700">
                         <strong className="text-black">Recommended Action:</strong> {pipelineData.career_vector.actionable_project}
                       </div>
                     </div>
                   )}
                   
-                  <div className="mt-12 text-center animate-[slideUp_0.5s_ease-out_2s_both]">
+                  {/* Knowledge Graph Button */}
+                  <div className="mt-12 text-center animate-[slideUp_0.5s_ease-out_1.8s_both]">
                     <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-2xl md:text-3xl flex items-center gap-4 mx-auto py-6 px-10 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
                       <MapIcon size={28}/> OPEN TREASURE MAP
                     </button>

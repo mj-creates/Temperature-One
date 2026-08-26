@@ -1,0 +1,154 @@
+# ==============================================================================
+# OPTIMAL_PATHWAY_GENERATED.DAT
+# Academic Pathway Intelligence & Goal-Specific Curriculum Navigator
+# ==============================================================================
+# Specification Version: 2.5.0
+# Engine: Autonomous Multi-Department Goal-Driven Pathway Synthesis
+# Description:
+#   Self-contained academic roadmap engine that dynamically selects EXACTLY ONE
+#   high-relevance curriculum subject per remaining semester based on:
+#   Department + Regulation + Current Semester + Career Goal,
+#   culminating in a goal-aligned Capstone / Main Project milestone after Sem 8.
+# ==============================================================================
+
+[ROADMAP_ENGINE_SPECIFICATION]
+RULE_1_GOAL_SPECIFICITY = STRICT_CAREER_RELEVANCE_MATCH
+RULE_2_SINGLE_SUBJECT_PER_SEMESTER = MANDATORY_EXACTLY_ONE
+RULE_3_STARTING_SEMESTER = CURRENT_SEMESTER_PLUS_ONE_UP_TO_EIGHT
+RULE_4_CURRICULUM_SOURCE = REGULATION_AUTHENTIC_DEPARTMENT_CATALOG
+RULE_5_MULTI_DEPARTMENT = CSE, IT, AIML, CSCS, ECE, EEE, MECH, CIVIL, BBA, BCOM, BSC
+RULE_6_CAPSTONE_MILESTONE = POST_SEMESTER_EIGHT_FINAL_PROJECT
+
+# ------------------------------------------------------------------------------
+# CURRICULUM CATALOG BY DEPARTMENT & REGULATION (R22)
+# ------------------------------------------------------------------------------
+
+[DEPARTMENT: CSE]
+REGULATION = R22
+SEM_1 = 22TP105:Problem Solving through Programming - I:4 | 22MT103:Linear Algebra & ODE:4 | 22PY105:Semiconductor Physics:4 | 22CT103:Engineering Chemistry:4 | 22EN102:English Communication:1
+SEM_2 = 22TP106:Problem Solving through Programming - II (Java/OOP):4 | 22MT107:Discrete Mathematical Structures:4 | 22ME101:Engineering Graphics:3 | 22MT108:Numerical Methods:4
+SEM_3 = 22TP201:Data Structures & Algorithms:4 | 22CS201:Database Management Systems:4 | 22CS202:Digital Logic Design:3 | 22CS203:Object-Oriented Programming in Java:3 | 22ST202:Probability & Statistics:4
+SEM_4 = 22CS206:Design & Analysis of Algorithms:4 | 22CS207:Operating Systems & Kernel Architecture:4 | 22CS205:Computer Organization & Architecture:3 | 22CS208:Theory of Computation:4
+SEM_5 = 22CS301:Web Technologies & Full-Stack Frameworks:4 | 22CS302:Computer Networks & Protocols:4 | 22CS303:Artificial Intelligence Principles:4 | 22CS304:Software Engineering Principles:3
+SEM_6 = 22CS306:Machine Learning Systems & Modeling:4 | 22CS307:Compiler Design & Language Engineering:4 | 22CS308:Cryptography & Network Security:3 | 22CS309:Mobile Application Development:3
+SEM_7 = 22CS401:Cloud Computing & Distributed Systems:4 | 22CS402:Deep Learning & Neural Architectures:4 | 22CS403:Big Data Analytics & Streaming:4 | 22CS404:DevOps & CI/CD Automation:3
+SEM_8 = 22CS406:Distributed Systems & Scalable System Design:4 | 22CS407:Natural Language Processing & LLMs:4 | 22CS408:Blockchain & Decentralized Systems:3
+
+[DEPARTMENT: AIML]
+REGULATION = R22
+SEM_1 = 22AI101:Python Programming & Algorithmic Problem Solving:4 | 22MT103:Linear Algebra for Computing:4 | 22PY105:Physics:4
+SEM_2 = 22AI102:Object-Oriented Programming with Python:4 | 22MT107:Discrete Mathematics & Logic:4 | 22MT108:Numerical Computing:4
+SEM_3 = 22AI201:Data Structures & Advanced Algorithms:4 | 22ST202:Probability & Mathematical Statistics:4 | 22AI203:Data Wrangling & Visualization:3
+SEM_4 = 22AI204:Database Management & SQL for Data Science:4 | 22AI205:Artificial Intelligence & Search Strategies:4 | 22CS207:Operating Systems:3
+SEM_5 = 22AI301:Machine Learning Algorithms & Optimization:4 | 22AI302:Pattern Recognition & Feature Engineering:4 | 22CS302:Computer Networks:3
+SEM_6 = 22AI303:Deep Learning Architectures & PyTorch:4 | 22AI304:Natural Language Processing Foundations:4 | 22AI305:Computer Vision:3
+SEM_7 = 22AI401:Generative AI, LLMs & Prompt Engineering:4 | 22AI402:Reinforcement Learning & Autonomous Agents:4 | 22AI403:MLOps & Production ML:3
+SEM_8 = 22AI404:Ethical AI, Explainability & AI Safety:4 | 22AI405:Multimodal AI & Speech Processing:4
+
+[DEPARTMENT: CSCS]
+REGULATION = R22
+SEM_1 = 22CS101:Problem Solving & C Programming:4 | 22MT103:Linear Algebra:4 | 22PY105:Physics:4
+SEM_2 = 22CS102:Object-Oriented Programming in C++:4 | 22MT107:Discrete Mathematics & Graph Theory:4 | 22CS104:Digital Systems:3
+SEM_3 = 22CS201:Data Structures:4 | 22SC201:Computer Organization & Assembly Language:4 | 22ST202:Probability & Statistics:4
+SEM_4 = 22SC202:Operating Systems & Linux Kernel Security:4 | 22SC203:Database Security & SQL:4 | 22CS206:Algorithms Design:4
+SEM_5 = 22SC301:Computer Networks & Network Security Protocols:4 | 22SC302:Applied Cryptography & Public Key Infrastructure:4
+SEM_6 = 22SC303:Ethical Hacking & Penetration Testing:4 | 22SC304:Web Application Security & OWASP:4 | 22SC305:Malware Analysis:3
+SEM_7 = 22SC401:Cyber Threat Intelligence & Incident Response:4 | 22SC402:Cloud Security & Zero Trust Architecture:4 | 22SC403:Identity & Access Management:3
+SEM_8 = 22SC404:Digital Forensics & Incident Response:4 | 22SC405:Security Operations Center (SOC) Analytics:4 | 22SC406:Blockchain Security:3
+
+[DEPARTMENT: IT]
+REGULATION = R22
+SEM_1 = 22IT101:Python Programming for IT:4 | 22MT103:Calculus & Linear Algebra:4 | 22PY105:Engineering Physics:4
+SEM_2 = 22IT102:Object-Oriented Programming with Java:4 | 22MT107:Discrete Structures:4 | 22ME101:Engineering Graphics:3
+SEM_3 = 22IT201:Data Structures and Algorithms:4 | 22IT202:Relational Database Management Systems:4 | 22ST202:Applied Statistics:4
+SEM_4 = 22IT203:Operating Systems & Shell Scripting:4 | 22IT204:Design and Analysis of Algorithms:4 | 22IT205:Web Fundamentals:3
+SEM_5 = 22IT301:Full-Stack Web Technologies (React & Node):4 | 22IT302:Computer Networks & Internet Architecture:4
+SEM_6 = 22IT303:Cloud Architecture, Virtualization & DevOps:4 | 22IT304:Information & Network Security:4 | 22IT305:Mobile App Development:3
+SEM_7 = 22IT401:Enterprise Application Development & Microservices:4 | 22IT402:Big Data Engineering & Data Lakes:4
+SEM_8 = 22IT403:Information Systems Governance & IT Strategy:4 | 22IT404:Distributed Cloud Infrastructure:4
+
+[DEPARTMENT: MECH]
+REGULATION = R22
+SEM_1 = 22ME101:Engineering Graphics & Computer-Aided Drafting:4 | 22MT103:Calculus & Differential Equations:4 | 22PY105:Physics:4
+SEM_2 = 22ME102:Engineering Mechanics & Statics:4 | 22MT108:Numerical Analysis:4 | 22ME104:Manufacturing Processes Workshop:3
+SEM_3 = 22ME201:Thermodynamics & Thermal Engineering:4 | 22ME202:Mechanics of Materials & Strength of Solids:4
+SEM_4 = 22ME203:Fluid Mechanics & Hydraulic Machinery:4 | 22ME204:Kinematics & Dynamics of Machinery:4
+SEM_5 = 22ME301:Design of Machine Elements & Mechanical Systems:4 | 22ME302:Heat and Mass Transfer:4
+SEM_6 = 22ME303:Computer-Aided Design & Manufacturing (CAD/CAM):4 | 22ME304:Automobile Engineering:3 | 22ME305:IC Engines:3
+SEM_7 = 22ME401:Finite Element Analysis (FEA) & Simulation:4 | 22ME402:Robotics, Sensors & Industrial Automation:4
+SEM_8 = 22ME403:Mechatronics Systems & Smart Manufacturing:4 | 22ME404:Power Plant & Renewable Energy Engineering:4
+
+[DEPARTMENT: CIVIL]
+REGULATION = R22
+SEM_1 = 22CE101:Engineering Graphics & Building Drawing:4 | 22MT103:Mathematics:4 | 22PY105:Physics:4
+SEM_2 = 22CE102:Plane & Advanced Geomatics Surveying:4 | 22CE103:Engineering Mechanics:4 | 22CE104:Building Materials:3
+SEM_3 = 22CE201:Solid Mechanics & Strength of Structural Elements:4 | 22CE202:Fluid Mechanics:4
+SEM_4 = 22CE203:Structural Analysis - I (Indeterminate Structures):4 | 22CE204:Hydraulics & Water Resources Engineering:4
+SEM_5 = 22CE301:Structural Analysis - II & Matrix Methods:4 | 22CE302:Geotechnical Engineering & Soil Mechanics:4
+SEM_6 = 22CE303:Design of Reinforced Concrete Structures (RCC):4 | 22CE304:Transportation & Highway Engineering:4
+SEM_7 = 22CE401:Design of Steel Structures:4 | 22CE402:Foundation Engineering & Subsurface Exploration:4
+SEM_8 = 22CE403:Urban Planning & Smart Infrastructure Development:4 | 22CE404:Environmental Engineering & Waste Management:4
+
+[DEPARTMENT: ECE]
+REGULATION = R22
+SEM_1 = 22EC101:Electronic Devices & Circuit Theory:4 | 22MT103:Linear Algebra:4 | 22PY105:Physics:4
+SEM_2 = 22EC102:Digital Logic Design & HDL:4 | 22MT107:Discrete Math:4 | 22EC104:Network Analysis:3
+SEM_3 = 22EC201:Analog Circuits & Operational Amplifiers:4 | 22EC202:Signals & Systems:4
+SEM_4 = 22EC203:Analog & Digital Communication Systems:4 | 22EC204:Electromagnetic Fields & Waves:4
+SEM_5 = 22EC301:Microprocessors, Microcontrollers & Interfacing:4 | 22EC302:Digital Signal Processing (DSP):4
+SEM_6 = 22EC303:VLSI Design & Semiconductor Fabrication:4 | 22EC304:Antennas & Wave Propagation:3 | 22EC305:Embedded IoT:3
+SEM_7 = 22EC401:Wireless & 5G Cellular Communications:4 | 22EC402:Embedded System Design & RTOS:4
+SEM_8 = 22EC403:Optical Fiber Communications:4 | 22EC404:Radar & Satellite Communication Systems:4
+
+[DEPARTMENT: EEE]
+REGULATION = R22
+SEM_1 = 22EE101:Circuit Analysis & Electrical Fundamentals:4 | 22MT103:Calculus:4 | 22PY105:Physics:4
+SEM_2 = 22EE102:Electromagnetic Fields & Measurements:4 | 22MT108:Numerical Methods:4 | 22EE104:Basic Electronics:3
+SEM_3 = 22EE201:Electrical Machines - I (Transformers & DC Machines):4 | 22EE202:Analog Electronics:4
+SEM_4 = 22EE203:Electrical Machines - II (AC & Synchronous Machines):4 | 22EE204:Power Systems - I:4
+SEM_5 = 22EE301:Power Electronics & Industrial Drives:4 | 22EE302:Control Systems Engineering:4
+SEM_6 = 22EE303:Power System Analysis & Grid Protection:4 | 22EE304:Microcontroller Based System Design:3
+SEM_7 = 22EE401:Renewable Energy Systems & Smart Grid Technology:4 | 22EE402:Electric Vehicle Drives & Energy Storage:4
+SEM_8 = 22EE403:High Voltage Engineering & Power Quality:4 | 22EE404:Industrial Automation & PLC/SCADA:4
+
+[DEPARTMENT: BBA]
+REGULATION = R22
+SEM_1 = 22BB101:Principles of Management & Organization:4 | 22BB102:Business Mathematics & Quantitative Techniques:4
+SEM_2 = 22BB103:Microeconomics for Business:4 | 22BB104:Financial Accounting & Reporting:4
+SEM_3 = 22BB201:Marketing Management & Consumer Behavior:4 | 22BB202:Macroeconomics & Global Markets:4
+SEM_4 = 22BB203:Financial Management & Corporate Finance:4 | 22BB204:Organizational Behavior & HR Fundamentals:4
+SEM_5 = 22BB301:Operations & Supply Chain Management:4 | 22BB302:Business Research Methods:4
+SEM_6 = 22BB303:Business Analytics & Data-Driven Decision Making:4 | 22BB304:E-Commerce & Digital Marketing:4
+SEM_7 = 22BB401:Strategic Management & Enterprise Strategy:4 | 22BB402:International Business & Trade:4
+SEM_8 = 22BB403:Entrepreneurship, Venture Capital & FinTech:4 | 22BB404:Corporate Governance & Business Ethics:4
+
+# ------------------------------------------------------------------------------
+# GOAL-RELEVANCE DOMAIN MAPPING & SCORING RULES
+# ------------------------------------------------------------------------------
+
+[GOAL_DOMAIN_MATRIX]
+Software Engineer = [programming, algorithms, data structures, database, web, operating systems, cloud, distributed systems, software engineering, system design]
+AI/ML Engineer = [python, machine learning, deep learning, artificial intelligence, statistics, probability, data structures, vision, natural language, neural]
+Data Scientist = [python, statistics, probability, data structures, database, sql, machine learning, data mining, big data, analytics, data wrangling]
+Cybersecurity Analyst = [security, networks, cryptography, operating systems, linux, ethical hacking, penetration testing, forensics, cloud security, vulnerability]
+Cloud Architect / DevOps = [operating systems, networks, cloud computing, distributed systems, devops, virtualization, microservices, containerization, scalable]
+Mechanical Design Engineer = [graphics, cad, cam, mechanics, thermodynamics, machine design, kinematics, finite element, fea, robotics, manufacturing]
+Civil / Structural Engineer = [surveying, mechanics, solid, structures, structural analysis, concrete, rcc, steel, geotechnical, foundation, urban]
+Business / Financial Analyst = [business mathematics, accounting, finance, financial management, economics, operations, business analytics, strategy, statistics]
+Robotics & Automation Engineer = [digital logic, microprocessors, microcontrollers, control systems, kinematics, dynamics, robotics, embedded, automation, ros]
+
+# ------------------------------------------------------------------------------
+# DYNAMIC PATHWAY SELECTION ALGORITHM
+# ------------------------------------------------------------------------------
+# Algorithm:
+#   Inputs: (Department, Regulation, Current_Semester, Selected_Goal)
+#   Remaining_Semesters = [Sem | Sem in (Current_Semester + 1 ... 8)]
+#   For each Semester in Remaining_Semesters:
+#       Candidates = Get_Available_Subjects(Department, Regulation, Semester)
+#       Candidate_Scores = [Score_Subject_Relevance(Subject, Selected_Goal) for Subject in Candidates]
+#       Top_Subject = ArgMax(Candidate_Scores) (Select ONLY ONE subject with highest domain relevance)
+#       Why_Explanation = Generate_Goal_Aligned_Rationale(Top_Subject, Selected_Goal)
+#       Roadmap.append({ Semester: Semester, MainSubject: Top_Subject, Why: Why_Explanation })
+#   Capstone_Project = Generate_Goal_Aligned_Capstone(Department, Selected_Goal)
+#   Roadmap.append({ Milestone: "After Semester 8", MainProject: Capstone_Project })
+#   Return Roadmap
