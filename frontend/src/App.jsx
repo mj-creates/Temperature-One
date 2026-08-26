@@ -987,31 +987,55 @@ export default function App() {
                         </div>
                       ))}
 
-                      {/* Final Milestone: After Semester 8 - Main Project / Capstone */}
+                      {/* Dedicated Capstone Project Node After Semester 8 */}
                       {roadmapData.capstoneStep && (
                         <div 
-                          className="flex flex-col items-center bg-yellow-300 border-[6px] border-black p-6 w-full md:w-72 text-center shadow-[12px_12px_0_#000] transform transition-all duration-500 hover:scale-105 relative"
-                          style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length) * 0.2}s both, pulseBorder 2s infinite` }}
+                          className="flex flex-col items-center bg-purple-50 border-[6px] border-black p-5 w-full md:w-64 text-center shadow-[8px_8px_0_#a855f7] transform transition-all duration-500 hover:-translate-y-4 hover:shadow-[12px_16px_0_#a855f7] relative group"
+                          style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length) * 0.2}s both` }}
                         >
-                          <div className="absolute -top-8 bg-yellow-500 text-black px-3 py-1.5 title-text text-xs md:text-sm border-[4px] border-black shadow-[4px_4px_0_#000] animate-bounce">
-                            AFTER SEM 8 • GOAL REACHED
+                          <div className="absolute -top-6 bg-purple-700 text-white px-3 py-1 title-text text-xs md:text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-purple-900 transition-colors">
+                            AFTER SEM 8 • CAPSTONE
                           </div>
                           
-                          <Briefcase className="text-black mb-2 mt-2" size={36} />
-                          
-                          <div className="text-base font-extrabold truncate w-full px-2 bg-white border-2 border-black py-1.5 mb-2">
-                            {chatInput || 'CAREER GOAL'}
+                          <div className="text-xs font-bold text-purple-800 bg-purple-100 px-2 py-0.5 border border-purple-300 mt-2 mb-2">
+                            22PR801 • 12 CREDITS (MAJOR PROJECT)
                           </div>
                           
-                          <div className="text-xs md:text-sm font-black text-black leading-snug mb-2">
-                            <span className="text-yellow-800 mr-1">🚀</span>{roadmapData.capstoneStep.projectTitle}
+                          <div className="text-base md:text-lg font-black text-black leading-snug mb-2">
+                            <span className="text-purple-600 mr-1">🚀</span>{roadmapData.capstoneStep.projectTitle}
                           </div>
                           
-                          <div className="mt-auto text-xs text-gray-900 bg-white p-2.5 border-2 border-black shadow-[2px_2px_0_#000] text-left w-full">
-                            <strong className="text-black">💡 Milestone:</strong> {roadmapData.capstoneStep.why}
+                          <div className="mt-auto text-xs text-gray-800 bg-yellow-50 p-2.5 border-2 border-black text-left w-full">
+                            <strong className="text-black">💡 Why Needed:</strong> {roadmapData.capstoneStep.why}
                           </div>
+                          
+                          <div className="w-4 h-4 bg-purple-600 border-2 border-black rounded-full mt-4 animate-ping hidden md:block"></div>
                         </div>
                       )}
+
+                      {/* Final Destination Node: Goal Reached */}
+                      <div 
+                        className="flex flex-col items-center bg-yellow-300 border-[6px] border-black p-6 w-full md:w-64 text-center shadow-[12px_12px_0_#000] transform transition-all duration-500 hover:scale-105 relative"
+                        style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length + 1) * 0.2}s both, pulseBorder 2s infinite` }}
+                      >
+                        <div className="absolute -top-8 bg-yellow-500 text-black px-4 py-1.5 title-text text-xs md:text-sm border-[4px] border-black shadow-[4px_4px_0_#000] animate-bounce">
+                          GOAL REACHED
+                        </div>
+                        
+                        <Briefcase className="text-black mb-2 mt-2" size={36} />
+                        
+                        <div className="text-lg font-extrabold truncate w-full px-2 bg-white border-2 border-black py-1.5 mb-2">
+                          {chatInput || 'CAREER GOAL'}
+                        </div>
+                        
+                        <div className="text-xs font-bold text-gray-800 bg-yellow-100 px-2 py-1 border border-black mb-2">
+                          🎯 CAREER PATHWAY VERIFIED
+                        </div>
+                        
+                        <div className="mt-auto text-xs text-gray-900 bg-white p-2.5 border-2 border-black shadow-[2px_2px_0_#000] text-left w-full">
+                          <strong className="text-black">🏆 Outcome:</strong> All prerequisites and capstone milestones cleared for professional entry.
+                        </div>
+                      </div>
 
                     </div>
                   </div>
