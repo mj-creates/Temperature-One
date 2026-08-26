@@ -520,11 +520,13 @@ export default function App() {
   useEffect(() => {
     if (view === 'dashboard') {
       const steps = [
-        setTimeout(() => setPipelineStep(0), 800),
-        setTimeout(() => setPipelineStep(1), 1800),
-        setTimeout(() => setPipelineStep(2), 3000),
-        setTimeout(() => setPipelineStep(3), 4200),
-        setTimeout(() => setPipelineStep(4), 5600)
+        setTimeout(() => setPipelineStep(0), 600),
+        setTimeout(() => setPipelineStep(1), 1400),
+        setTimeout(() => setPipelineStep(2), 2200),
+        setTimeout(() => setPipelineStep(3), 3000),
+        setTimeout(() => setPipelineStep(4), 3800),
+        setTimeout(() => setPipelineStep(5), 4600),
+        setTimeout(() => setPipelineStep(6), 5400)
       ];
       return () => steps.forEach(clearTimeout);
     }
