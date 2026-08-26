@@ -994,7 +994,7 @@ export default function App() {
                           style={{ animation: `slideUp 0.5s ease-out ${(roadmapData.roadmapSteps.length) * 0.2}s both` }}
                         >
                           <div className="absolute -top-6 bg-purple-700 text-white px-3 py-1 title-text text-xs md:text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-purple-900 transition-colors">
-                            AFTER SEM 8 • CAPSTONE
+                            CAPSTONE PROJECT
                           </div>
                           
                           <div className="text-xs font-bold text-purple-800 bg-purple-100 px-2 py-0.5 border border-purple-300 mt-2 mb-2">
