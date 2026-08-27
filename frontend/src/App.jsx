@@ -260,10 +260,10 @@ export default function App() {
           ]);
           
           try {
-            const response = await fetch('http://localhost:8000/api/advising/pipeline', {
+            const response = await fetch('http://localhost:8000/api/orchestrator/advise', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ student_id: regNo, career_goal: userGoal })
+              body: JSON.stringify({ student_id: regNo, user_query: userGoal })
             });
             
             if (!response.ok) throw new Error('Pipeline failed');
@@ -829,8 +829,7 @@ export default function App() {
                              <option>What if I switch to Cybersecurity?</option>
                              <option>What if I take a semester off?</option>
                            </select>
-                           <button onClick={() => alert("Recomputing via Vector Agent...
-Path updated: +1 Semester, added Coursera bridging course.")} className="pixel-btn bg-black text-white px-6 border-4 border-purple-600">SIMULATE</button>
+                           <button onClick={() => alert("Recomputing via Vector Agent...\\nPath updated: +1 Semester, added Coursera bridging course.")} className="pixel-btn bg-black text-white px-6 border-4 border-purple-600">SIMULATE</button>
                         </div>
                      </div>
                   )}
@@ -866,3 +865,5 @@ Path updated: +1 Semester, added Coursera bridging course.")} className="pixel-b
     </div>
   );
 }
+
+
