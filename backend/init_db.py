@@ -384,7 +384,7 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
             RegNo TEXT PRIMARY KEY,
             StudentName TEXT NOT NULL,
             Branch TEXT NOT NULL,
-            Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 4),
+            Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 8),
             CGPA REAL NOT NULL CHECK(CGPA BETWEEN 0.0 AND 10.0),
             Goal TEXT NOT NULL
         );
@@ -568,21 +568,36 @@ def generate_unique_student_names(count: int = 50) -> List[str]:
     return names
 
 
-def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str, Any]]:
-    """Inserts 60 realistic student records into Students table with branch and academic metadata."""
+def populate_students(cursor: sqlite3.Cursor, count: int = 150) -> List[Dict[str, Any]]:
+    """Inserts comprehensive, diverse student records across standard and Vignan registration formats."""
     full_names = generate_unique_student_names(count)
     students = []
-    branches = ['CSE'] + list(BRANCH_SUBJECTS_TEMPLATE.keys())
+    branches = ['CSE', 'AIML', 'CSCS', 'BBA', 'MECH', 'CIVIL']
 
     for i in range(count):
         branch = branches[i % len(branches)]
-        reg_no = f"REG{1001 + i}"
+        # Half standard REG format, half Vignan 221FA04xxx / 231FA09xxx format
+        if i < 60:
+            reg_no = f"REG{1001 + i}"
+            semester = (i % 4) + 1
+        elif i < 90:
+            reg_no = f"221FA04{str(i - 60 + 1).zfill(3)}"
+            branch = "CSE"
+            semester = (i % 2) + 3 # Sem 3 or 4
+        elif i < 120:
+            reg_no = f"231FA09{str(i - 90 + 1).zfill(3)}"
+            branch = "AIML"
+            semester = (i % 2) + 1 # Sem 1 or 2
+        else:
+            reg_no = f"211FA10{str(i - 120 + 1).zfill(3)}"
+            branch = "CSCS"
+            semester = 4
+
         name = full_names[i]
-        semester = (i % 4) + 1
         goal = CAREER_GOALS[i % len(CAREER_GOALS)]
 
-        base_gpa = random.gauss(7.8, 1.1)
-        cgpa = max(4.50, min(9.95, round(base_gpa, 2)))
+        base_gpa = random.gauss(7.85, 1.25)
+        cgpa = max(4.20, min(9.95, round(base_gpa, 2)))
 
         students.append({
             "reg_no": reg_no,
@@ -599,6 +614,7 @@ def populate_students(cursor: sqlite3.Cursor, count: int = 60) -> List[Dict[str,
     """, students)
 
     return students
+
 
 
 def enroll_students_in_subjects(cursor: sqlite3.Cursor, students: List[Dict[str, Any]]) -> int:

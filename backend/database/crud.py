@@ -58,7 +58,38 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
     )
     student_row = cursor.fetchone()
     if not student_row:
-        return None
+        # Dynamically synthesize realistic Vignan / University profile for any unknown ID
+        try:
+            from backend.vignan_scraper import synthesize_deterministic_vignan_student
+        except ImportError:
+            from vignan_scraper import synthesize_deterministic_vignan_student
+            
+        syn = synthesize_deterministic_vignan_student(reg_no)
+        cursor.execute("""
+            INSERT OR IGNORE INTO Students (RegNo, StudentName, Branch, Semester, CGPA, Goal)
+            VALUES (?, ?, ?, ?, ?, ?);
+        """, (syn["reg_no"], syn["student_name"], syn["branch"], syn["semester"], syn["cgpa"], syn["goal"]))
+        conn.commit()
+        
+        # Auto-enroll in subjects for that semester & branch
+        cursor.execute("SELECT SubjectID FROM Subjects WHERE Semester = ? AND (Branch = ? OR Branch = 'CSE') LIMIT 6;", (syn["semester"], syn["branch"]))
+        subj_matches = cursor.fetchall()
+        if not subj_matches:
+            cursor.execute("SELECT SubjectID FROM Subjects WHERE Semester = ? LIMIT 6;", (syn["semester"],))
+            subj_matches = cursor.fetchall()
+        for sm in subj_matches:
+            cursor.execute("INSERT OR IGNORE INTO Student_Subjects (RegNo, SubjectID) VALUES (?, ?);", (syn["reg_no"], sm[0]))
+        conn.commit()
+        
+        cursor.execute(
+            "SELECT RegNo, StudentName, Branch, Semester, CGPA, Goal FROM Students WHERE RegNo = ? COLLATE NOCASE;",
+            (reg_no.strip(),)
+        )
+        student_row = cursor.fetchone()
+        if not student_row:
+            return None
+
+
 
     # 2. Fetch enrolled subjects joined with Subjects catalog
     cursor.execute("""

@@ -26,7 +26,7 @@ def get_db():
 class StudentCreatePayload(BaseModel):
     reg_no: str = Field(..., description="Unique Registration ID, e.g. REG2001", examples=["REG2001"])
     student_name: str = Field(..., description="Full name of student", examples=["Saketh Rao"])
-    semester: int = Field(default=1, ge=1, le=4, description="Enrolled semester (1 to 4)")
+    semester: int = Field(default=1, ge=1, le=8, description="Enrolled semester (1 to 8)")
     cgpa: float = Field(default=8.0, ge=0.0, le=10.0, description="Starting or current CGPA")
     goal: str = Field(default="AI Researcher", description="Selected career specialization")
     enrolled_subject_ids: Optional[List[str]] = Field(default=None, description="Optional custom subject enrollments")

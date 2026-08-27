@@ -448,17 +448,28 @@ export default function App() {
           const res = await fetch(`http://localhost:8000/api/students/${regNo.trim()}`);
           if (res.ok) {
             const data = await res.json();
+            const earnedCredits = (data.semester || 1) * 20;
+            const dynamicCgpa = typeof data.cgpa === 'number' ? data.cgpa : (typeof data.current_gpa === 'number' ? data.current_gpa : 8.4);
+            const dynamicDept = data.branch || data.department || 'CSE';
+            
             setStudentDetails({
-              cgpa: data.current_gpa || 8.4,
+              cgpa: dynamicCgpa,
               semester: data.semester || 1,
-              creditsEarned: data.enrolled_subjects?.reduce((acc, s) => acc + s.Credits, 0) || 90,
-              department: data.department || 'Computer Science'
+              creditsEarned: earnedCredits,
+              department: dynamicDept
             });
+            if (data.student_name) {
+              setName(data.student_name);
+            }
+            if (data.goal && !chatInput) {
+              setChatInput(data.goal);
+            }
           }
         } catch (err) {
           console.warn("Could not fetch student details, using fallback.");
         }
         setView('details');
+
       }
     }
   };
@@ -821,12 +832,40 @@ export default function App() {
                 </div>
               </div>
 
-              <button type="submit" className="pixel-btn bg-blue-600 text-white mt-6 flex items-center justify-center gap-3 text-2xl py-5 border-[4px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
+              {/* Interactive Demo Presets Selector */}
+              <div className="flex flex-col gap-2 bg-gray-50 p-4 border-2 border-black">
+                <span className="title-text text-xs text-gray-700">⚡ QUICK DEMO PRESETS (SAMPLE SPACE):</span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: 'REG1001', n: 'Sara Taylor', dept: 'CSE', gpa: '8.45' },
+                    { id: '221FA04001', n: 'Aarav Sharma', dept: 'CSE', gpa: '9.42' },
+                    { id: '231FA09015', n: 'Priya Patel', dept: 'AIML', gpa: '7.60' },
+                    { id: '211FA10008', n: 'Rohan Verma', dept: 'CSCS', gpa: '5.10' },
+                    { id: '221FA04045', n: 'Jasmine Rao', dept: 'BBA', gpa: '8.90' }
+                  ].map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setRegNo(p.id);
+                        setName(p.n);
+                        setRole('student');
+                      }}
+                      className="text-xs bg-white hover:bg-yellow-200 text-black px-2.5 py-1 border border-black shadow-[2px_2px_0_#000] active:translate-x-0.5 active:translate-y-0.5"
+                    >
+                      <strong>{p.id}</strong> ({p.n} • {p.dept} • {p.gpa})
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" className="pixel-btn bg-blue-600 text-white mt-4 flex items-center justify-center gap-3 text-2xl py-5 border-[4px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
                 ACCESS PORTAL <ArrowRight size={28} />
               </button>
             </form>
           </div>
         )}
+
 
         
         {/* VIEW: TEACHER DASHBOARD */}
