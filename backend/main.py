@@ -47,6 +47,9 @@ from backend.routes.waivers import router as waivers_router
 from backend.routes.rag import router as rag_router
 from backend.routes.substitutes import router as substitutes_router
 from backend.routes.orchestrator import router as orchestrator_router
+from backend.routes.teacher import router as teacher_router
+from backend.routes.external_courses import router as external_courses_router
+from backend.routes.counseling import router as counseling_router
 
 # Import Agent Core modules
 try:
@@ -129,6 +132,9 @@ app.include_router(waivers_router)
 app.include_router(rag_router)
 app.include_router(orchestrator_router)
 app.include_router(substitutes_router, prefix="/api/v1/substitutes", tags=["Substitutes"])
+app.include_router(teacher_router)
+app.include_router(external_courses_router)
+app.include_router(counseling_router)
 
 # Initialize Agent Singleton Instances
 nexus_agent = NexusAgent(db_path=DB_PATH)

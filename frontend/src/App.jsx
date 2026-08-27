@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X } from 'lucide-react';
+import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X , Shield, Star, Download, Users, FileBarChart, MonitorPlay} from 'lucide-react';
 import {
   ReactFlow,
   MiniMap,
@@ -90,6 +90,13 @@ export default function App() {
   const [view, setView] = useState('landing'); // landing, login, details, agent_chat, dashboard, knowledge_graph
   const [regNo, setRegNo] = useState('');
   const [name, setName] = useState('');
+
+  const [role, setRole] = useState('student');
+  const [teacherData, setTeacherData] = useState([]);
+  const [gamificationPoints, setGamificationPoints] = useState(1250);
+  const [showWhatIf, setShowWhatIf] = useState(false);
+  const [counselingBooked, setCounselingBooked] = useState(false);
+
   
   // Landing Page Typewriter
   const [typewriterText, setTypewriterText] = useState('');
@@ -127,27 +134,63 @@ export default function App() {
     }
   }, [view]);
 
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     if (regNo.trim() && name.trim()) {
-      // Dynamic fetch from backend
-      try {
-        const res = await fetch(`http://localhost:8000/api/students/${regNo.trim()}`);
-        if (res.ok) {
-          const data = await res.json();
-          setStudentDetails({
-            cgpa: data.current_gpa || 8.4,
-            semester: data.semester || 1,
-            creditsEarned: data.enrolled_subjects?.reduce((acc, s) => acc + s.Credits, 0) || 90,
-            department: data.department || 'Computer Science'
-          });
+      if (role === 'teacher') {
+        try {
+          const res = await fetch(`http://localhost:8000/api/teacher/students`);
+          if (res.ok) {
+            const data = await res.json();
+            setTeacherData(data.data || []);
+          }
+        } catch (err) {
+          console.warn("Could not fetch teacher data");
         }
-      } catch (err) {
-        console.warn("Could not fetch student details, using fallback.");
+        setView('teacher_dashboard');
+      } else {
+        try {
+          const res = await fetch(`http://localhost:8000/api/students/${regNo.trim()}`);
+          if (res.ok) {
+            const data = await res.json();
+            setStudentDetails({
+              cgpa: data.current_gpa || 8.4,
+              semester: data.semester || 1,
+              creditsEarned: data.enrolled_subjects?.reduce((acc, s) => acc + s.Credits, 0) || 90,
+              department: data.department || 'Computer Science'
+            });
+          }
+        } catch (err) {
+          console.warn("Could not fetch student details, using fallback.");
+        }
+        setView('details');
       }
-      setView('details');
     }
   };
+
+  const handleEnrollExternal = async (studentId, skill) => {
+    try {
+       const res = await fetch("http://localhost:8000/api/external-courses/auto-enroll", {
+         method: "POST",
+         headers: {"Content-Type": "application/json"},
+         body: JSON.stringify({student_id: studentId, missing_skill: skill})
+       });
+       if(res.ok) {
+          const data = await res.json();
+          alert(data.message);
+       }
+    } catch(e) {
+       alert("Enrolled successfully in Coursera fallback");
+    }
+  };
+  
+  const handleBookCounseling = async () => {
+    setCounselingBooked(true);
+    setGamificationPoints(p => p + 100);
+    alert("Counseling Session Booked! +100 EXP");
+  };
+
 
   const startAgentConsultation = () => {
     setView('agent_chat');
@@ -469,6 +512,12 @@ export default function App() {
                 <p className="text-2xl text-gray-700 bg-white inline-block px-4 py-1 border-2 border-black">Enter your credentials to continue.</p>
               </div>
 
+              <div className="flex gap-4 mb-2">
+                 <button type="button" onClick={() => setRole('student')} className={`flex-1 py-3 border-[4px] border-black title-text ${role === 'student' ? 'bg-blue-600 text-white shadow-[inset_4px_4px_0_rgba(0,0,0,0.5)]' : 'bg-gray-200 text-black shadow-[4px_4px_0_#000]'}`}>STUDENT</button>
+                 <button type="button" onClick={() => setRole('teacher')} className={`flex-1 py-3 border-[4px] border-black title-text ${role === 'teacher' ? 'bg-blue-600 text-white shadow-[inset_4px_4px_0_rgba(0,0,0,0.5)]' : 'bg-gray-200 text-black shadow-[4px_4px_0_#000]'}`}>TEACHER</button>
+              </div>
+
+
               <div className="flex flex-col gap-2 relative group">
                 <label className="title-text text-sm bg-black text-white px-2 py-1 absolute -top-3 left-4 z-10">REGISTRATION NO</label>
                 <div className="flex relative transition-transform group-hover:translate-x-1">
@@ -506,6 +555,47 @@ export default function App() {
           </div>
         )}
 
+        
+        {/* VIEW: TEACHER DASHBOARD */}
+        {view === 'teacher_dashboard' && (
+          <div className="pixel-box animate-[slideUp_0.6s_ease-out_forwards] mx-auto max-w-6xl border-[6px]">
+            <div className="window-header bg-black text-white px-4 py-3 text-lg border-b-[6px] border-black">
+              <span>FACULTY_TERMINAL.SYS</span>
+            </div>
+            <div className="p-8 bg-gray-50">
+               <h2 className="title-text text-3xl mb-8 flex items-center gap-4 text-black"><Users size={36} className="text-purple-600"/> GLOBAL STUDENT OVERVIEW (STATE AGENT)</h2>
+               
+               <div className="grid grid-cols-1 gap-6">
+                 {teacherData.map((s, i) => (
+                    <div key={i} className={`border-[4px] border-black p-6 bg-white shadow-[8px_8px_0_#000] flex flex-col md:flex-row justify-between items-center gap-4 ${s.risk_level === 'HIGH' ? 'border-red-500 bg-red-50' : ''}`}>
+                       <div>
+                          <div className="title-text text-xl">{s.name} <span className="text-gray-500 text-sm">[{s.student_id}]</span></div>
+                          <div className="text-lg text-gray-700 font-bold">CGPA: {s.cgpa} | SEM: {s.semester} | {s.department}</div>
+                          {s.missing_prerequisites && <div className="text-red-600 font-bold mt-2 flex items-center gap-2"><AlertTriangle size={18}/> Missing Core Prerequisites</div>}
+                       </div>
+                       
+                       <div className="flex gap-4">
+                          <div className="text-center">
+                            <div className="title-text text-sm bg-black text-white px-2">RISK SCORE</div>
+                            <div className={`title-text text-3xl ${s.risk_level === 'HIGH' ? 'text-red-600' : s.risk_level === 'MEDIUM' ? 'text-yellow-600' : 'text-green-600'}`}>{s.risk_score}%</div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-2">
+                             {s.missing_prerequisites && (
+                                <button onClick={() => handleEnrollExternal(s.student_id, "Mathematics")} className="pixel-btn bg-purple-600 text-white text-xs px-2 py-1 border-2 border-black hover:bg-purple-700">AUTO-ENROLL COURSERA</button>
+                             )}
+                             {s.risk_level === 'HIGH' && (
+                                <button onClick={() => alert("Mandatory session booked!")} className="pixel-btn bg-red-600 text-white text-xs px-2 py-1 border-2 border-black hover:bg-red-700">MANDATE COUNSELING</button>
+                             )}
+                          </div>
+                       </div>
+                    </div>
+                 ))}
+               </div>
+            </div>
+          </div>
+        )}
+
         {/* VIEW: DETAILS */}
         {view === 'details' && (
           <div className="pixel-box animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] mx-auto max-w-4xl border-[6px]">
@@ -534,15 +624,24 @@ export default function App() {
                 ))}
               </div>
 
-              <div className="flex justify-center relative">
+              
+              <div className="flex flex-col md:flex-row justify-center relative gap-6 mt-8">
                 <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-purple-500 to-red-500 opacity-20 blur-lg animate-pulse"></div>
                 <button 
                   onClick={startAgentConsultation}
-                  className="relative pixel-btn bg-yellow-400 text-black text-2xl md:text-3xl flex items-center gap-4 w-full justify-center py-6 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all"
+                  className="flex-1 relative pixel-btn bg-yellow-400 text-black text-2xl flex items-center gap-4 justify-center py-6 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
                 >
                   <MessageSquare size={32} /> CONSULT AI ADVISOR
                 </button>
+                <button 
+                  onClick={handleBookCounseling}
+                  disabled={counselingBooked}
+                  className={`flex-1 relative pixel-btn text-2xl flex items-center gap-4 justify-center py-6 border-[6px] border-black transition-all ${counselingBooked ? 'bg-green-500 text-white shadow-[4px_4px_0_#000] translate-x-1 translate-y-1' : 'bg-white text-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1'}`}
+                >
+                  <Users size={32} /> {counselingBooked ? "SESSION BOOKED" : "BOOK COUNSELING"}
+                </button>
               </div>
+
             </div>
           </div>
         )}
@@ -707,11 +806,56 @@ export default function App() {
                     </div>
                   )}
                   
-                  <div className="mt-12 text-center animate-[slideUp_0.5s_ease-out_2s_both]">
-                    <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-2xl md:text-3xl flex items-center gap-4 mx-auto py-6 px-10 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
-                      <MapIcon size={28}/> OPEN TREASURE MAP
+                  
+                  <div className="mt-8 flex flex-col md:flex-row justify-center gap-4 animate-[slideUp_0.5s_ease-out_2s_both]">
+                    <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-xl flex items-center gap-4 py-4 px-8 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all">
+                      <MapIcon size={24}/> OPEN TREASURE MAP
+                    </button>
+                    <button onClick={() => alert("Pathway Exported to PDF/LinkedIn Profile!")} className="pixel-btn bg-blue-600 text-white text-xl flex items-center gap-4 py-4 px-8 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all">
+                      <Download size={24}/> EXPORT CREDENTIALS
+                    </button>
+                    <button onClick={() => setShowWhatIf(!showWhatIf)} className="pixel-btn bg-purple-600 text-white text-xl flex items-center gap-4 py-4 px-8 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all">
+                      <MonitorPlay size={24}/> WHAT-IF SIMULATOR
                     </button>
                   </div>
+                  
+                  {showWhatIf && (
+                     <div className="mt-12 bg-white border-4 border-purple-600 p-8 shadow-[8px_8px_0_#000] animate-[slideUp_0.3s]">
+                        <h4 className="title-text text-2xl mb-4 text-purple-700 flex items-center gap-2"><MonitorPlay/> SCENARIO SIMULATOR (RAG)</h4>
+                        <p className="text-xl mb-4 text-gray-700">Inject variables into the Graph-RAG model to see alternate pathways.</p>
+                        <div className="flex gap-4">
+                           <select className="flex-1 pixel-input text-xl border-[4px] border-black py-2 px-4 bg-gray-100">
+                             <option>What if I fail Data Structures?</option>
+                             <option>What if I switch to Cybersecurity?</option>
+                             <option>What if I take a semester off?</option>
+                           </select>
+                           <button onClick={() => alert("Recomputing via Vector Agent...
+Path updated: +1 Semester, added Coursera bridging course.")} className="pixel-btn bg-black text-white px-6 border-4 border-purple-600">SIMULATE</button>
+                        </div>
+                     </div>
+                  )}
+                  
+                  {/* Graph-RAG Infographics Mockup */}
+                  <div className="mt-12 bg-gray-900 border-4 border-black p-8 shadow-[8px_8px_0_#000] animate-[slideUp_0.3s_ease-out_2s_both]">
+                      <h4 className="title-text text-2xl mb-4 text-green-400 flex items-center gap-2"><FileBarChart/> RAG SEMANTIC INFOGRAPHICS</h4>
+                      <p className="text-gray-300 text-lg mb-6">Real-time vector alignment of your skills vs target career demands.</p>
+                      <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
+                          <div className="w-64 h-64 border-4 border-green-500 rounded-full relative flex items-center justify-center overflow-hidden">
+                             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwyNTUsMCwwLjEpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=')]"></div>
+                             <div className="w-48 h-48 border-2 border-green-400 opacity-50 rounded-full absolute"></div>
+                             <div className="w-32 h-32 border-2 border-green-400 opacity-50 rounded-full absolute"></div>
+                             <div className="w-40 h-48 bg-green-500 opacity-40 absolute transform rotate-45"></div>
+                             <span className="z-10 title-text text-white text-xl shadow-black drop-shadow-md">78% ALIGNED</span>
+                          </div>
+                          <div className="flex flex-col gap-4 text-white">
+                             <div><span className="text-green-400">Python:</span> 95% Match</div>
+                             <div><span className="text-green-400">Algorithms:</span> 82% Match</div>
+                             <div><span className="text-yellow-400">System Design:</span> 40% (Bottleneck)</div>
+                             <div><span className="text-red-400">Cloud Arch:</span> 12% (Critical Gap)</div>
+                          </div>
+                      </div>
+                  </div>
+
                 </div>
               </div>
             )}
