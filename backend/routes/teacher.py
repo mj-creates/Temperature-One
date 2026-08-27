@@ -17,9 +17,10 @@ def get_all_students_overview():
     cursor = conn.cursor()
     
     try:
-        # Fetch basic student info
-        cursor.execute("SELECT student_id, name, department, current_gpa, semester FROM students")
+        # Fetch basic student info with correct database column mappings
+        cursor.execute("SELECT RegNo as student_id, StudentName as name, Branch as department, CGPA as current_gpa, Semester as semester, Goal as goal FROM Students")
         students = cursor.fetchall()
+
         
         result = []
         for s in students:
