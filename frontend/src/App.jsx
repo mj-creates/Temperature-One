@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X, Shield, Star, Download, Users, FileBarChart, MonitorPlay, Target, Lightbulb, Rocket, Lock, Eye, EyeOff, Globe, CheckCircle2, AlertCircle, RefreshCw, ShieldCheck, BookOpen } from 'lucide-react';
+
+// ── API base URL ─────────────────────────────────────────────────────────────
+// In production (Vercel) set VITE_API_URL to your Render backend URL.
+// Falls back to localhost for local development.
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 import {
   ReactFlow,
   MiniMap,
@@ -449,7 +454,7 @@ export default function App() {
     // Teacher route
     if (role === 'teacher') {
       try {
-        const res = await fetch(`http://localhost:8000/api/teacher/students`);
+        const res = await fetch(`${API_BASE}/api/teacher/students`);
         if (res.ok) {
           const data = await res.json();
           setTeacherData(data.data || []);
@@ -466,7 +471,7 @@ export default function App() {
       setIsLoadingErp(true);
       setErpStatusStep(`Authenticating ${cleanReg} with Vignan Student Portal...`);
 
-      const res = await fetch('http://localhost:8000/api/vignan/login', {
+      const res = await fetch(`${API_BASE}/api/vignan/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -496,7 +501,7 @@ export default function App() {
         setErpError(errMsg);
       }
     } catch (err) {
-      setErpError("Backend server connection failed. Please ensure FastAPI is running on http://localhost:8000.");
+      setErpError(`Backend server connection failed. Please check your connection. (${API_BASE})`);
     } finally {
       setIsLoadingErp(false);
     }
@@ -504,7 +509,7 @@ export default function App() {
 
   const handleEnrollExternal = async (studentId, skill) => {
     try {
-       const res = await fetch("http://localhost:8000/api/external-courses/auto-enroll", {
+       const res = await fetch(`${API_BASE}/api/external-courses/auto-enroll`, {
          method: "POST",
          headers: {"Content-Type": "application/json"},
          body: JSON.stringify({student_id: studentId, missing_skill: skill})
@@ -569,7 +574,7 @@ export default function App() {
           ]);
           
           try {
-            const response = await fetch('http://localhost:8000/api/orchestrator/advise', {
+            const response = await fetch(`${API_BASE}/api/orchestrator/advise`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ student_id: regNo, user_query: userGoal })
