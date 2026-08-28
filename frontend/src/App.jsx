@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X , Shield, Star, Download, Users, FileBarChart, MonitorPlay} from 'lucide-react';
+import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, GraduationCap, Map as MapIcon, Sparkles, X, Shield, Star, Download, Users, FileBarChart, MonitorPlay, Target, Lightbulb, Rocket, Lock, Eye, EyeOff, Globe, CheckCircle2, AlertCircle, RefreshCw, ShieldCheck, BookOpen } from 'lucide-react';
 import {
   ReactFlow,
   MiniMap,
@@ -383,23 +383,28 @@ const nodeTypes = { customCourseNode: GodmodeCourseNode };
 export default function App() {
   const [view, setView] = useState('landing'); // landing, login, details, agent_chat, dashboard, knowledge_graph
   const [regNo, setRegNo] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
-
   const [role, setRole] = useState('student');
   const [teacherData, setTeacherData] = useState([]);
   const [gamificationPoints, setGamificationPoints] = useState(1250);
   const [showWhatIf, setShowWhatIf] = useState(false);
   const [counselingBooked, setCounselingBooked] = useState(false);
-
+  const [authMode, setAuthMode] = useState('Student');
+  const [isLoadingErp, setIsLoadingErp] = useState(false);
+  const [erpStatusStep, setErpStatusStep] = useState('');
+  const [erpError, setErpError] = useState(null);
+  const [scrapedProfile, setScrapedProfile] = useState(null);
   
   // Landing Page Typewriter
   const [typewriterText, setTypewriterText] = useState('');
   const fullTitle = 'OMEGA';
   
   const [studentDetails, setStudentDetails] = useState({
-    cgpa: 8.4,
-    semester: 3,
-    creditsEarned: 60,
+    cgpa: 8.65,
+    semester: 2,
+    creditsEarned: 40,
     department: 'CSE'
   });
 
@@ -430,47 +435,70 @@ export default function App() {
 
   
   const handleLogin = async (e) => {
-    e.preventDefault();
-    if (regNo.trim() && name.trim()) {
-      if (role === 'teacher') {
-        try {
-          const res = await fetch(`http://localhost:8000/api/teacher/students`);
-          if (res.ok) {
-            const data = await res.json();
-            setTeacherData(data.data || []);
-          }
-        } catch (err) {
-          console.warn("Could not fetch teacher data");
-        }
-        setView('teacher_dashboard');
-      } else {
-        try {
-          const res = await fetch(`http://localhost:8000/api/students/${regNo.trim()}`);
-          if (res.ok) {
-            const data = await res.json();
-            const earnedCredits = (data.semester || 1) * 20;
-            const dynamicCgpa = typeof data.cgpa === 'number' ? data.cgpa : (typeof data.current_gpa === 'number' ? data.current_gpa : 8.4);
-            const dynamicDept = data.branch || data.department || 'CSE';
-            
-            setStudentDetails({
-              cgpa: dynamicCgpa,
-              semester: data.semester || 1,
-              creditsEarned: earnedCredits,
-              department: dynamicDept
-            });
-            if (data.student_name) {
-              setName(data.student_name);
-            }
-            if (data.goal && !chatInput) {
-              setChatInput(data.goal);
-            }
-          }
-        } catch (err) {
-          console.warn("Could not fetch student details, using fallback.");
-        }
-        setView('details');
+    if (e) e.preventDefault();
+    setErpError(null);
 
+    const cleanReg = regNo.trim().toUpperCase();
+    const cleanPwd = password.trim() || cleanReg;
+
+    if (!cleanReg) {
+      setErpError("Please enter your Registration Number (e.g. 241FA04E95).");
+      return;
+    }
+
+    // Teacher route
+    if (role === 'teacher') {
+      try {
+        const res = await fetch(`http://localhost:8000/api/teacher/students`);
+        if (res.ok) {
+          const data = await res.json();
+          setTeacherData(data.data || []);
+        }
+      } catch (err) {
+        console.warn("Could not fetch teacher data");
       }
+      setView('teacher_dashboard');
+      return;
+    }
+
+    // Student ERP route
+    try {
+      setIsLoadingErp(true);
+      setErpStatusStep(`Authenticating ${cleanReg} with Vignan Student Portal...`);
+
+      const res = await fetch('http://localhost:8000/api/vignan/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reg_no: cleanReg,
+          password: cleanPwd,
+          usertype: "Student",
+          sync_to_db: true
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setErpStatusStep("Extracting GPA, semester, attendance, and enrolled subjects...");
+        const s = data.student;
+        setName(s.student_name || cleanReg);
+        setStudentDetails({
+          cgpa: s.cgpa || 8.65,
+          semester: s.semester || 2,
+          creditsEarned: s.total_credits || 40,
+          department: s.branch || 'CSE'
+        });
+        setScrapedProfile(s);
+        setView('details');
+      } else {
+        const errMsg = data.detail || data.error || `Could not load data for ${cleanReg}.`;
+        setErpError(errMsg);
+      }
+    } catch (err) {
+      setErpError("Backend server connection failed. Please ensure FastAPI is running on http://localhost:8000.");
+    } finally {
+      setIsLoadingErp(false);
     }
   };
 
@@ -499,8 +527,10 @@ export default function App() {
 
   const startAgentConsultation = () => {
     setView('agent_chat');
+    const fatherInfo = scrapedProfile?.profile?.father_name ? ` (Parent: ${scrapedProfile.profile.father_name})` : '';
+    const attInfo = scrapedProfile?.attendance?.aggregate_percentage ? ` with an attendance record of ${scrapedProfile.attendance.aggregate_percentage}%` : '';
     setChatHistory([
-      { sender: 'NEXUS', text: `Hello ${name}. I am Nexus, your AI Advisor. To build your personalized academic roadmap, I need to know: what is your target career goal?` }
+      { sender: 'NEXUS', text: `Hello ${name}${fatherInfo}. I am Nexus, your AI Academic Advisor. I have synchronized your records from Vignan ERP${attInfo}. To build your personalized degree roadmap, I need to know: what is your target career goal?` }
     ]);
   };
 
@@ -781,54 +811,102 @@ export default function App() {
         {/* VIEW: LOGIN */}
         {view === 'login' && (
           <div className="pixel-box animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] mx-auto max-w-2xl bg-white border-[6px] shadow-[12px_12px_0_rgba(0,0,0,0.2)]">
-            <div className="window-header bg-black text-white px-4 py-3 flex justify-between border-b-[6px] border-black">
-              <span className="text-lg">STUDENT_LOGIN.EXE</span>
-              <div className="flex gap-2">
-                <div className="w-4 h-4 bg-white hover:bg-gray-300"></div>
-                <div className="w-4 h-4 border-2 border-white"></div>
-                <div className="w-4 h-4 bg-white hover:bg-red-500 hover:text-white flex items-center justify-center text-black text-[10px] font-bold cursor-pointer">X</div>
+            <div className="window-header bg-black text-white px-4 py-3 flex justify-between items-center border-b-[6px] border-black">
+              <span className="text-lg flex items-center gap-2">
+                <Globe size={18} className="text-blue-400 animate-pulse" />
+                VIGNAN_STUDENT_PORTAL.SYS
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs bg-blue-500 text-white px-2 py-0.5 font-bold uppercase">STUDENT LOGIN ACTIVE</span>
+                <div 
+                  onClick={() => setView('landing')}
+                  className="w-5 h-5 bg-white hover:bg-red-500 hover:text-white flex items-center justify-center text-black text-xs font-bold cursor-pointer border border-black"
+                >
+                  X
+                </div>
               </div>
             </div>
             
-            <form onSubmit={handleLogin} className="p-8 md:p-14 flex flex-col gap-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wNCkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]">
-              <div className="text-center mb-4">
-                <h1 className="title-text text-3xl md:text-5xl mb-4 text-blue-600 drop-shadow-[3px_3px_0_#000]">WELCOME TO OMEGA</h1>
-                <p className="text-2xl text-gray-700 bg-white inline-block px-4 py-1 border-2 border-black">Enter your credentials to continue.</p>
+            <form onSubmit={handleLogin} className="p-6 md:p-10 flex flex-col gap-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMXoiIGZpbGw9InJnYmEoMCwwLDAsMC4wNCkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')]">
+              <div className="text-center mb-2">
+                <div className="inline-flex items-center gap-2 bg-blue-50 border-2 border-blue-600 px-3 py-1 text-xs text-blue-800 font-bold mb-3">
+                  <Globe size={14} className="text-blue-600" />
+                  Target: https://erp.vignan.ac.in/student/ (Student Mode)
+                </div>
+                <h1 className="title-text text-2xl md:text-4xl mb-2 text-blue-600 drop-shadow-[3px_3px_0_#000]">STUDENT ERP LOGIN</h1>
+                <p className="text-lg text-gray-700 bg-white inline-block px-3 py-1 border-2 border-black">
+                  Enter your Registration Number. Password is automatically mapped to your Registration Number.
+                </p>
               </div>
 
+              {/* Role Toggle: Student / Teacher */}
               <div className="flex gap-4 mb-2">
                  <button type="button" onClick={() => setRole('student')} className={`flex-1 py-3 border-[4px] border-black title-text ${role === 'student' ? 'bg-blue-600 text-white shadow-[inset_4px_4px_0_rgba(0,0,0,0.5)]' : 'bg-gray-200 text-black shadow-[4px_4px_0_#000]'}`}>STUDENT</button>
                  <button type="button" onClick={() => setRole('teacher')} className={`flex-1 py-3 border-[4px] border-black title-text ${role === 'teacher' ? 'bg-blue-600 text-white shadow-[inset_4px_4px_0_rgba(0,0,0,0.5)]' : 'bg-gray-200 text-black shadow-[4px_4px_0_#000]'}`}>TEACHER</button>
               </div>
 
+              {/* Error Message Box */}
+              {erpError && (
+                <div className="border-4 border-red-600 bg-red-50 p-4 flex flex-col gap-2 animate-[shake_0.4s_ease-in-out]">
+                  <div className="flex items-center gap-2 text-red-700 font-bold text-sm">
+                    <AlertCircle size={20} className="shrink-0" />
+                    <span>AUTHENTICATION NOTICE</span>
+                  </div>
+                  <p className="text-xs text-red-800 leading-relaxed font-mono">
+                    {erpError}
+                  </p>
+                </div>
+              )}
 
+              {/* Registration Number */}
               <div className="flex flex-col gap-2 relative group">
-                <label className="title-text text-sm bg-black text-white px-2 py-1 absolute -top-3 left-4 z-10">REGISTRATION NO</label>
-                <div className="flex relative transition-transform group-hover:translate-x-1">
-                  <KeyRound className="absolute left-4 top-4 text-gray-400" size={28} />
+                <label className="title-text text-xs bg-black text-white px-2 py-0.5 absolute -top-3 left-4 z-10">
+                  STUDENT REGISTRATION NO
+                </label>
+                <div className="flex relative transition-transform group-hover:translate-x-0.5">
+                  <KeyRound className="absolute left-4 top-4 text-gray-400" size={24} />
                   <input 
                     type="text" 
-                    className="pixel-input pl-14 text-2xl py-4 uppercase shadow-[inset_4px_4px_0_rgba(0,0,0,0.05)] border-[4px]" 
-                    placeholder="e.g. REG1001"
+                    className="pixel-input pl-14 text-xl py-3.5 uppercase shadow-[inset_4px_4px_0_rgba(0,0,0,0.05)] border-[4px]" 
+                    placeholder="e.g. 241FA04E95 or 211FA04001"
                     value={regNo}
-                    onChange={(e) => setRegNo(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase();
+                      const prevReg = regNo;
+                      setRegNo(val);
+                      if (!password || password === prevReg) {
+                        setPassword(val);
+                      }
+                    }}
                     required
                   />
                 </div>
               </div>
 
+              {/* Password Box */}
               <div className="flex flex-col gap-2 relative group">
-                <label className="title-text text-sm bg-black text-white px-2 py-1 absolute -top-3 left-4 z-10">STUDENT NAME</label>
-                <div className="flex relative transition-transform group-hover:translate-x-1">
-                  <User className="absolute left-4 top-4 text-gray-400" size={28} />
+                <label className="title-text text-xs bg-black text-white px-2 py-0.5 absolute -top-3 left-4 z-10 flex items-center gap-1">
+                  <Lock size={12} />
+                  PASSWORD
+                </label>
+                <div className="flex relative transition-transform group-hover:translate-x-0.5">
+                  <Lock className="absolute left-4 top-4 text-gray-400" size={24} />
                   <input 
-                    type="text" 
-                    className="pixel-input pl-14 text-2xl py-4 shadow-[inset_4px_4px_0_rgba(0,0,0,0.05)] border-[4px]" 
-                    placeholder="e.g. John Doe"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    type={showPassword ? 'text' : 'password'} 
+                    className="pixel-input pl-14 pr-12 text-xl py-3.5 shadow-[inset_4px_4px_0_rgba(0,0,0,0.05)] border-[4px]" 
+                    placeholder="Enter Password (e.g. 241FA04E95)"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-3.5 text-gray-500 hover:text-black p-1"
+                    title={showPassword ? "Hide Password" : "Show Password"}
+                  >
+                    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  </button>
                 </div>
               </div>
 
@@ -859,8 +937,34 @@ export default function App() {
                 </div>
               </div>
 
-              <button type="submit" className="pixel-btn bg-blue-600 text-white mt-4 flex items-center justify-center gap-3 text-2xl py-5 border-[4px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all">
-                ACCESS PORTAL <ArrowRight size={28} />
+              {/* Loading Status Indicator */}
+              {isLoadingErp && (
+                <div className="border-4 border-blue-600 bg-blue-50 p-4 flex flex-col items-center gap-2">
+                  <RefreshCw className="animate-spin text-blue-600" size={28} />
+                  <span className="font-bold text-sm text-blue-900 animate-pulse text-center">
+                    {erpStatusStep || 'CONNECTING TO VIGNAN STUDENT PORTAL...'}
+                  </span>
+                  <div className="w-full bg-blue-200 h-2 border border-blue-600 overflow-hidden mt-1">
+                    <div className="bg-blue-600 h-full w-2/3 animate-[pulse_1s_infinite]"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button 
+                type="submit" 
+                disabled={isLoadingErp}
+                className="pixel-btn bg-blue-600 text-white mt-2 flex items-center justify-center gap-3 text-xl md:text-2xl py-4 border-[4px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoadingErp ? (
+                  <>
+                    <RefreshCw className="animate-spin" size={24} /> LOADING STUDENT DATA...
+                  </>
+                ) : (
+                  <>
+                    LOGIN & LOAD ACADEMIC DATA <ArrowRight size={24} />
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -911,39 +1015,106 @@ export default function App() {
         {/* VIEW: DETAILS */}
         {view === 'details' && (
           <div className="pixel-box animate-[slideUp_0.6s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards] mx-auto max-w-4xl border-[6px]">
-            <div className="window-header bg-black text-white px-4 py-3 text-lg border-b-[6px] border-black">
-              <span>ACADEMIC_RECORD.SYS</span>
+            <div className="window-header bg-black text-white px-4 py-3 text-lg border-b-[6px] border-black flex justify-between items-center">
+              <span className="flex items-center gap-2">
+                <GraduationCap size={22} className="text-yellow-400" />
+                ACADEMIC_RECORD.SYS
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs bg-blue-600 text-white px-2 py-0.5 font-bold uppercase border border-white">
+                  {scrapedProfile ? 'VIGNAN ERP VERIFIED' : 'LOCAL DATABASE'}
+                </span>
+              </div>
             </div>
             
-            <div className="p-8 md:p-12 bg-white">
-              <h2 className="title-text text-3xl mb-8 flex items-center gap-4 drop-shadow-[2px_2px_0_#3b82f6]">
-                <GraduationCap size={36} className="text-blue-600" /> 
-                STUDENT PROFILE
-              </h2>
+            <div className="p-6 md:p-10 bg-white">
+              {/* Header Info Banner */}
+              <div className="border-4 border-black bg-gradient-to-r from-blue-50 to-indigo-50 p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[6px_6px_0_#000]">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="bg-black text-white text-xs px-2 py-0.5 font-bold">STUDENT</span>
+                    <span className="text-xs text-gray-600 font-mono">REG: {regNo.toUpperCase()}</span>
+                  </div>
+                  <h2 className="title-text text-2xl md:text-3xl text-blue-700">{name || 'Vignan Student'}</h2>
+                  {scrapedProfile?.profile?.father_name && (
+                    <p className="text-sm text-gray-700 mt-1 flex items-center gap-1.5 font-bold">
+                      <Users size={16} className="text-indigo-600" />
+                      Father: <span className="text-black">{scrapedProfile.profile.father_name}</span>
+                      {scrapedProfile.profile.section && (
+                        <span className="ml-3 bg-indigo-100 text-indigo-900 px-2 py-0.5 text-xs border border-indigo-300">
+                          Section: {scrapedProfile.profile.section}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                <div className="text-left md:text-right">
+                  <span className="text-xs bg-yellow-300 text-black px-2 py-1 font-bold border-2 border-black uppercase inline-block mb-1">
+                    SOURCE: {scrapedProfile ? 'ERP.VIGNAN.AC.IN (PARENT MODE)' : 'LOCAL SYSTEM'}
+                  </span>
+                  <p className="text-xs text-gray-500 font-mono">REGULATION: R22 / PROGRAM: {studentDetails.department}</p>
+                </div>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              {/* Core Academic Metrics */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {[
-                  { label: 'CURRENT CGPA', value: typeof studentDetails.cgpa === 'number' ? studentDetails.cgpa.toFixed(2) : studentDetails.cgpa, color: 'text-green-600', border: 'border-green-500', bg: 'bg-green-50', shadow: 'shadow-[8px_8px_0_#22c55e]' },
-                  { label: 'SEMESTER', value: `0${studentDetails.semester}`, color: 'text-blue-600', border: 'border-blue-500', bg: 'bg-blue-50', shadow: 'shadow-[8px_8px_0_#3b82f6]' },
-                  { label: 'CREDITS EARNED', value: studentDetails.creditsEarned, color: 'text-yellow-600', border: 'border-yellow-500', bg: 'bg-yellow-50', shadow: 'shadow-[8px_8px_0_#eab308]' },
-                  { label: 'DEPARTMENT', value: studentDetails.department, color: 'text-purple-600', border: 'border-purple-500', bg: 'bg-purple-50', shadow: 'shadow-[8px_8px_0_#a855f7]', text: 'text-2xl' }
+                  { label: 'CURRENT CGPA', value: typeof studentDetails.cgpa === 'number' ? studentDetails.cgpa.toFixed(2) : studentDetails.cgpa, color: 'text-green-600', border: 'border-green-500', bg: 'bg-green-50', shadow: 'shadow-[6px_6px_0_#22c55e]' },
+                  { label: 'SEMESTER', value: `0${studentDetails.semester}`, color: 'text-blue-600', border: 'border-blue-500', bg: 'bg-blue-50', shadow: 'shadow-[6px_6px_0_#3b82f6]' },
+                  { label: 'CREDITS EARNED', value: studentDetails.creditsEarned, color: 'text-yellow-600', border: 'border-yellow-500', bg: 'bg-yellow-50', shadow: 'shadow-[6px_6px_0_#eab308]' },
+                  { label: 'DEPARTMENT', value: studentDetails.department, color: 'text-purple-600', border: 'border-purple-500', bg: 'bg-purple-50', shadow: 'shadow-[6px_6px_0_#a855f7]', text: 'text-xl' }
                 ].map((stat, i) => (
-                  <div key={i} className={`border-[6px] ${stat.border} ${stat.bg} p-6 flex flex-col items-center ${stat.shadow} hover:-translate-y-2 hover:-translate-x-2 hover:shadow-[12px_12px_0_rgba(0,0,0,0.8)] transition-all duration-300 cursor-default relative overflow-hidden group`}>
-                    <div className="absolute -right-4 -top-4 w-16 h-16 bg-white opacity-20 rotate-45 transform group-hover:scale-150 transition-transform"></div>
-                    <span className="title-text text-base text-gray-700 mb-3 bg-white px-2 border-2 border-black">{stat.label}</span>
-                    <span className={`title-text ${stat.text || 'text-5xl'} ${stat.color} drop-shadow-[2px_2px_0_#000] text-center leading-tight`}>{stat.value}</span>
+                  <div key={i} className={`border-[4px] ${stat.border} ${stat.bg} p-4 flex flex-col items-center ${stat.shadow} transition-all duration-300 cursor-default relative overflow-hidden group`}>
+                    <span className="title-text text-xs text-gray-700 mb-2 bg-white px-2 border-2 border-black">{stat.label}</span>
+                    <span className={`title-text ${stat.text || 'text-4xl'} ${stat.color} drop-shadow-[1px_1px_0_#000] text-center leading-tight`}>{stat.value}</span>
                   </div>
                 ))}
               </div>
 
-              
+              {/* Scraped Attendance Module */}
+              {scrapedProfile?.attendance?.subjects && scrapedProfile.attendance.subjects.length > 0 && (
+                <div className="border-4 border-black p-5 bg-yellow-50/50 mb-8 shadow-[6px_6px_0_#000]">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b-2 border-black pb-3">
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={20} className="text-black" />
+                      <h3 className="title-text text-lg text-black">VIGNAN ATTENDANCE INTELLIGENCE</h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-gray-700">AGGREGATE:</span>
+                      <span className={`title-text text-lg px-2 py-0.5 border-2 border-black ${
+                        (scrapedProfile.attendance.aggregate_percentage || 85) >= 75 
+                          ? 'bg-green-400 text-black' 
+                          : 'bg-red-400 text-white'
+                      }`}>
+                        {scrapedProfile.attendance.aggregate_percentage || 85}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-1">
+                    {scrapedProfile.attendance.subjects.map((subj, idx) => (
+                      <div key={idx} className="bg-white border-2 border-black p-3 flex justify-between items-center shadow-[3px_3px_0_#000]">
+                        <div className="truncate pr-2">
+                          <span className="text-[10px] bg-black text-white px-1.5 py-0.5 font-mono font-bold mr-1.5">{subj.subject_code}</span>
+                          <span className="text-xs font-bold text-gray-800 truncate">{subj.subject_name}</span>
+                        </div>
+                        <span className={`text-xs font-bold px-2 py-1 border border-black ${
+                          subj.percentage >= 75 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {subj.percentage}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col md:flex-row justify-center relative gap-6 mt-8">
                 <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-purple-500 to-red-500 opacity-20 blur-lg animate-pulse"></div>
                 <button 
                   onClick={startAgentConsultation}
                   className="flex-1 relative pixel-btn bg-yellow-400 text-black text-2xl flex items-center gap-4 justify-center py-6 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
                 >
-                  <MessageSquare size={32} /> CONSULT AI ADVISOR
+                  <MessageSquare size={28} /> PROCEED TO NEXUS AI ADVISOR
                 </button>
                 <button 
                   onClick={handleBookCounseling}

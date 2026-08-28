@@ -50,6 +50,7 @@ from backend.routes.orchestrator import router as orchestrator_router
 from backend.routes.teacher import router as teacher_router
 from backend.routes.external_courses import router as external_courses_router
 from backend.routes.counseling import router as counseling_router
+from backend.routes.erp import router as erp_router
 
 # Import Agent Core modules
 try:
@@ -131,6 +132,7 @@ app.include_router(analysis_router)
 app.include_router(waivers_router)
 app.include_router(rag_router)
 app.include_router(orchestrator_router)
+app.include_router(erp_router)
 app.include_router(substitutes_router, prefix="/api/v1/substitutes", tags=["Substitutes"])
 app.include_router(teacher_router)
 app.include_router(external_courses_router)
