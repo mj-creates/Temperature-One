@@ -242,42 +242,23 @@ class VignanERPScraper:
         """
         clean_reg = reg_no.strip().upper()
         
-        # 1. Determine semester from batch prefix (e.g. '24' -> Sem 2, '23' -> Sem 4, '22' -> Sem 6)
+        # 1. Semester derived dynamically from batch year — supports any year 19-28
         year_prefix = clean_reg[:2] if len(clean_reg) >= 2 and clean_reg[:2].isdigit() else "24"
-        if year_prefix == "24":
-            semester = 2
-            credits_earned = 40
-        elif year_prefix == "23":
-            semester = 4
-            credits_earned = 80
-        elif year_prefix == "22":
-            semester = 6
-            credits_earned = 120
-        elif year_prefix == "21":
-            semester = 8
-            credits_earned = 160
-        else:
-            semester = 2
-            credits_earned = 40
+        semester = self._semester_from_year_prefix(year_prefix)
+        credits_earned = semester * 20
 
-        # 2. Determine branch from branch code in reg no (04=CSE, 19=AIML, 20=CSCS, 12=IT, 05=ECE, 03=MECH, 01=CIVIL)
-        branch = "CSE"
-        if "19" in clean_reg or "AIML" in clean_reg:
-            branch = "AIML"
-        elif "20" in clean_reg or "CSCS" in clean_reg:
-            branch = "CSCS"
-        elif "12" in clean_reg or "IT" in clean_reg:
-            branch = "IT"
-        elif "03" in clean_reg or "MECH" in clean_reg:
-            branch = "MECH"
-        elif "01" in clean_reg or "CIVIL" in clean_reg:
-            branch = "CIVIL"
-        elif "04" in clean_reg or "CSE" in clean_reg:
-            branch = "CSE"
+        # 2. Determine branch from the FA<code> segment of the reg number
+        dept_code_fb = self._extract_dept_code(clean_reg)
+        branch_map = {
+            "01": "CIVIL", "02": "EEE", "03": "MECH", "04": "CSE",
+            "05": "ECE",   "06": "CHEM", "07": "IT",  "08": "BT",
+            "12": "IT",    "19": "AIML", "20": "CSCS", "21": "CSDS",
+            "22": "CSIOT"
+        }
+        branch = branch_map.get(dept_code_fb, "CSE")
 
-        # 3. Determine section from letter in roll sequence (e.g. E95 -> Section E)
-        sec_match = re.search(r"([A-Z])\d{2}$", clean_reg)
-        section = f"{branch}-{sec_match.group(1)}" if sec_match else f"{branch}-A"
+        # 3. Section extracted from reg number — just the letter, no branch prefix
+        section = self._extract_section(clean_reg)
 
         # 4. Standard semester subjects for Vignan R22 Curriculum
         subject_templates = {
@@ -342,8 +323,8 @@ class VignanERPScraper:
             "department": f"{branch} Engineering",
             "branch": branch,
             "semester": semester,
-            "section": sec_match.group(1) if sec_match else "",
-            "cgpa": 8.65,
+            "section": section,
+            "cgpa": 0.0,
             "total_credits": credits_earned,
             "goal": "Software Engineer",
             "profile": {
@@ -363,7 +344,7 @@ class VignanERPScraper:
                 "aggregate_percentage": avg_att
             },
             "marks": {
-                "cgpa": 8.65,
+                "cgpa": 0.0,
                 "total_credits": credits_earned,
                 "backlogs_count": 0,
                 "semester_results": []
@@ -420,9 +401,8 @@ class VignanERPScraper:
             semester = profile_data.get("semester") or self._extract_semester_from_marks(marks_data) or 0
             # Only fall back to regno-derived semester if ERP gave nothing
             if not semester or semester > 8:
-                sem_map = {"24": 2, "23": 4, "22": 6, "21": 8}
-                semester = sem_map.get(clean_reg[:2], 2)
-            cgpa = marks_data.get("cgpa") or profile_data.get("cgpa") or 8.65
+                semester = self._semester_from_year_prefix(clean_reg[:2])
+            cgpa = marks_data.get("cgpa") or profile_data.get("cgpa") or 0.0
             credits_earned = marks_data.get("total_credits") or (int(semester) * 20)
 
             # Structured fields derived from registration number
@@ -858,25 +838,43 @@ class VignanERPScraper:
             fees["paid_amount"] = paid_match.group(1).replace(",", "").strip()
         return fees
 
+    def _semester_from_year_prefix(self, year_prefix: str) -> int:
+        """
+        Derives the expected current semester from the 2-digit batch year prefix.
+        Supports any year from 19 to 28.
+        Formula: semesters_elapsed = (current_year - join_year) * 2 + 1 (odd-sem start)
+        Clamped to 1-8.
+        """
+        if not year_prefix.isdigit():
+            return 1
+        join_year = 2000 + int(year_prefix)
+        current_year = 2026
+        elapsed = (current_year - join_year) * 2 + 1
+        return max(1, min(8, elapsed))
+
     def _extract_dept_code(self, regno: str) -> str:
         """Extracts the 2-digit department code from a Vignan registration number.
-        Example: 241FA04424 -> '04', 241FA19B01 -> '19'"""
+        Pattern: <2-digit-year><1-digit-program>FA<2-digit-dept><section-letter><2-digit-roll>
+        Example: 241FA04E95 -> '04', 191FA19B01 -> '19'. Works for any batch 19-28."""
         match = re.search(r"FA(\d{2})", regno.upper())
         return match.group(1) if match else ""
 
     def _extract_year_of_join(self, regno: str) -> str:
         """Extracts the 4-digit year of joining from the 2-digit prefix.
-        Example: 241FA04424 -> '2024', 231FA19B01 -> '2023'"""
+        Supports years 2019-2028 (prefix 19-28).
+        Example: 241FA04E95 -> '2024', 191FA04B01 -> '2019'"""
         if len(regno) >= 2 and regno[:2].isdigit():
-            return "20" + regno[:2]
+            prefix = int(regno[:2])
+            if 19 <= prefix <= 28:
+                return f"20{regno[:2]}"
         return ""
 
     def _extract_section(self, regno: str, profile_section: str = "") -> str:
-        """Returns section from profile data if available, otherwise derives it from
-        the letter in the roll sequence part of the registration number.
-        Example: 241FA04E95 -> 'E'"""
-        if profile_section:
-            return profile_section
+        """Returns section from live profile data if available (single letter A-Z),
+        otherwise extracts the letter from the roll-number segment of the regno.
+        Example: 241FA04E95 -> 'E', 231FA19B01 -> 'B'"""
+        if profile_section and re.match(r"^[A-Z]$", profile_section.strip().upper()):
+            return profile_section.strip().upper()
         match = re.search(r"([A-Z])\d{2}$", regno.upper())
         return match.group(1) if match else ""
 

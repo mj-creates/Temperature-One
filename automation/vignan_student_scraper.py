@@ -484,12 +484,18 @@ class VignanERPScraper:
         return None
 
     def _calculate_semester_from_regno(self, regno: str) -> int:
-        """Estimates current semester from Vignan registration number year prefix (e.g. 24 -> Sem 2)"""
+        """
+        Derives the expected current semester from the 2-digit batch year prefix.
+        Supports any year from 19 to 28.
+        Formula: semesters_elapsed = (current_year - join_year) * 2 + 1 (odd-sem start).
+        Clamped to 1-8.
+        """
         if len(regno) >= 2 and regno[:2].isdigit():
-            year_prefix = regno[:2]
-            sem_map = {"24": 2, "23": 4, "22": 6, "21": 8}
-            return sem_map.get(year_prefix, 2)
-        return 2
+            join_year = 2000 + int(regno[:2])
+            current_year = 2026
+            elapsed = (current_year - join_year) * 2 + 1
+            return max(1, min(8, elapsed))
+        return 1
 
     def _derive_department_from_regno(self, regno: str) -> str:
         """Derives department from the middle branch code in the registration number (e.g. 241FA04E95 -> '04' -> CSE)"""
@@ -512,18 +518,20 @@ class VignanERPScraper:
 
     def _extract_year_of_join(self, regno: str) -> str:
         """Extracts the 4-digit year of joining from the 2-digit prefix.
-        Example: 241FA04424 -> '2024', 231FA19B01 -> '2023'"""
+        Supports years 2019-2028 (prefix 19-28).
+        Example: 241FA04E95 -> '2024', 191FA04B01 -> '2019'"""
         if len(regno) >= 2 and regno[:2].isdigit():
-            return "20" + regno[:2]
+            prefix = int(regno[:2])
+            if 19 <= prefix <= 28:
+                return f"20{regno[:2]}"
         return ""
 
     def _extract_section(self, regno: str, profile_section: str = "") -> str:
-        """Returns section from profile data if available, otherwise derives it from
-        the letter in the roll sequence of the registration number.
-        Example: 241FA04E95 -> 'E'"""
-        if profile_section:
-            return profile_section
-        # Roll number letter: last segment like E95, A01, B12
+        """Returns section from live profile data if available (single letter A-Z),
+        otherwise extracts the letter from the roll-number segment of the regno.
+        Example: 241FA04E95 -> 'E', 231FA19B01 -> 'B'"""
+        if profile_section and re.match(r"^[A-Z]$", profile_section.strip().upper()):
+            return profile_section.strip().upper()
         match = re.search(r"([A-Z])\d{2}$", regno.upper())
         return match.group(1) if match else ""
 
