@@ -53,7 +53,9 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
 
     # 1. Fetch Student metadata (case-insensitive lookup)
     cursor.execute(
-        "SELECT RegNo, StudentName, Branch, Semester, CGPA, Goal FROM Students WHERE RegNo = ? COLLATE NOCASE;",
+        """SELECT RegNo, StudentName, Branch, Semester, CGPA, Goal,
+                  TotalCredits, YearOfJoin, DeptCode, Section, Department
+           FROM Students WHERE RegNo = ? COLLATE NOCASE;""",
         (reg_no.strip(),)
     )
     student_row = cursor.fetchone()
@@ -82,7 +84,9 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
         conn.commit()
         
         cursor.execute(
-            "SELECT RegNo, StudentName, Branch, Semester, CGPA, Goal FROM Students WHERE RegNo = ? COLLATE NOCASE;",
+            """SELECT RegNo, StudentName, Branch, Semester, CGPA, Goal,
+                      TotalCredits, YearOfJoin, DeptCode, Section, Department
+               FROM Students WHERE RegNo = ? COLLATE NOCASE;""",
             (reg_no.strip(),)
         )
         student_row = cursor.fetchone()
@@ -120,14 +124,19 @@ def get_student_by_regno(conn: sqlite3.Connection, reg_no: str) -> Optional[Dict
     total_credits = sum(s["credits"] for s in enrolled_subjects)
 
     return {
-        "reg_no": student_row["RegNo"],
-        "student_name": student_row["StudentName"],
-        "branch": student_row["Branch"],
-        "semester": student_row["Semester"],
-        "cgpa": float(student_row["CGPA"]),
-        "goal": student_row["Goal"],
+        "reg_no":                  student_row["RegNo"],
+        "student_name":            student_row["StudentName"],
+        "branch":                  student_row["Branch"],
+        "semester":                student_row["Semester"],
+        "cgpa":                    float(student_row["CGPA"]),
+        "goal":                    student_row["Goal"],
+        "total_credits":           int(student_row["TotalCredits"] or 0),
+        "year_of_join":            student_row["YearOfJoin"] or "",
+        "dept_code":               student_row["DeptCode"] or "",
+        "section":                 student_row["Section"] or "",
+        "department":              student_row["Department"] or student_row["Branch"],
         "total_registered_credits": total_credits,
-        "enrolled_subjects": enrolled_subjects,
+        "enrolled_subjects":       enrolled_subjects,
     }
 
 

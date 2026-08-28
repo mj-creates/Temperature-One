@@ -14,12 +14,18 @@ class StudentSummary(BaseModel):
     """Summary representation of a student record."""
     model_config = ConfigDict(from_attributes=True)
 
-    reg_no: str = Field(..., description="Unique student registration number, e.g., REG1001", examples=["REG1001"])
-    student_name: str = Field(..., description="Full name of the student", examples=["Aarav Sharma"])
-    branch: str = Field(..., description="Academic branch or department", examples=["CSE"])
-    semester: int = Field(..., ge=1, le=8, description="Current semester of study (1 to 4)", examples=[2])
-    cgpa: float = Field(..., ge=0.0, le=10.0, description="Cumulative Grade Point Average", examples=[8.45])
-    goal: str = Field(..., description="Target career track or academic specialization", examples=["Data Scientist"])
+    reg_no:       str   = Field(..., description="Unique student registration number", examples=["221FA04001"])
+    student_name: str   = Field(..., description="Full name of the student",           examples=["Aarav Sharma"])
+    branch:       str   = Field(..., description="Academic branch code",                examples=["CSE"])
+    semester:     int   = Field(..., ge=1, le=8, description="Current semester",        examples=[4])
+    cgpa:         float = Field(..., ge=0.0, le=10.0, description="CGPA",              examples=[7.75])
+    goal:         str   = Field(..., description="Career goal",                         examples=["Software Engineer"])
+    # New fields — present for 22-25 batch scraped students
+    total_credits: int         = Field(default=0,  description="Total earned credits from finalmarks1.jsp")
+    year_of_join:  str         = Field(default="", description="Year of joining, e.g. 2022")
+    dept_code:     str         = Field(default="", description="2-digit dept code from regno, e.g. 04")
+    section:       str         = Field(default="", description="Section letter, e.g. A")
+    department:    str         = Field(default="", description="Full department name, e.g. CSE Engineering")
 
 
 class SubjectItem(BaseModel):
@@ -37,14 +43,21 @@ class StudentDetail(BaseModel):
     """Detailed student profile including current subject enrollments and total credits."""
     model_config = ConfigDict(from_attributes=True)
 
-    reg_no: str = Field(..., description="Unique student registration number", examples=["REG1001"])
-    student_name: str = Field(..., description="Full name of the student", examples=["Aarav Sharma"])
-    branch: str = Field(..., description="Academic branch or department", examples=["CSE"])
-    semester: int = Field(..., description="Current enrolled semester", examples=[2])
-    cgpa: float = Field(..., description="Current CGPA", examples=[8.45])
-    goal: str = Field(..., description="Declared career goal", examples=["AI Researcher"])
-    total_registered_credits: int = Field(..., description="Sum of credits for enrolled subjects", examples=[20])
-    enrolled_subjects: List[SubjectItem] = Field(default_factory=list, description="List of currently enrolled subjects")
+    reg_no:       str   = Field(..., description="Unique student registration number", examples=["221FA04001"])
+    student_name: str   = Field(..., description="Full name of the student",           examples=["Aarav Sharma"])
+    branch:       str   = Field(..., description="Branch code",                         examples=["CSE"])
+    semester:     int   = Field(..., description="Current enrolled semester",           examples=[4])
+    cgpa:         float = Field(..., description="Current CGPA",                        examples=[7.75])
+    goal:         str   = Field(..., description="Declared career goal",                examples=["Software Engineer"])
+    # Extended scraped fields
+    total_credits:  int  = Field(default=0,  description="Earned credits from all completed semesters")
+    year_of_join:   str  = Field(default="", description="Year of joining e.g. 2022")
+    dept_code:      str  = Field(default="", description="2-digit dept code e.g. 04")
+    section:        str  = Field(default="", description="Section letter e.g. A")
+    department:     str  = Field(default="", description="Full department name")
+    # Legacy computed field
+    total_registered_credits: int           = Field(default=0, description="Sum of credits for enrolled subjects")
+    enrolled_subjects:        List[SubjectItem] = Field(default_factory=list, description="Currently enrolled subjects")
 
 
 # ---------------------------------------------------------------------------

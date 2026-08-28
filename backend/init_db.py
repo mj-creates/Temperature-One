@@ -381,12 +381,17 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Students (
-            RegNo TEXT PRIMARY KEY,
+            RegNo       TEXT PRIMARY KEY,
             StudentName TEXT NOT NULL,
-            Branch TEXT NOT NULL,
-            Semester INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 8),
-            CGPA REAL NOT NULL CHECK(CGPA BETWEEN 0.0 AND 10.0),
-            Goal TEXT NOT NULL
+            Branch      TEXT NOT NULL,
+            Semester    INTEGER NOT NULL CHECK(Semester BETWEEN 1 AND 8),
+            CGPA        REAL    NOT NULL CHECK(CGPA BETWEEN 0.0 AND 10.0),
+            Goal        TEXT    NOT NULL,
+            TotalCredits INTEGER DEFAULT 0,
+            YearOfJoin   TEXT    DEFAULT '',
+            DeptCode     TEXT    DEFAULT '',
+            Section      TEXT    DEFAULT '',
+            Department   TEXT    DEFAULT ''
         );
     """)
 

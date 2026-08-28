@@ -169,33 +169,55 @@ def vignan_erp_status():
 
 def _sync_scraped_student_to_db(db: sqlite3.Connection, student_data: Dict[str, Any]):
     """
-    Inserts or updates the student row in the SQLite database.
+    Inserts or updates the student row in the SQLite database with all scraped fields:
+    Name, Branch, Semester, CGPA, TotalCredits, YearOfJoin, DeptCode, Section, Department.
     """
     cursor = db.cursor()
-    reg_no = student_data["reg_no"]
-    name = student_data["student_name"]
-    branch = student_data["branch"]
-    semester = int(student_data["semester"])
-    cgpa = float(student_data["cgpa"])
-    goal = student_data.get("goal", "Software Engineer")
+    reg_no       = student_data["reg_no"]
+    name         = student_data["student_name"]
+    branch       = student_data["branch"]
+    semester     = int(student_data["semester"])
+    cgpa         = float(student_data["cgpa"])
+    goal         = student_data.get("goal", "Software Engineer")
+    total_credits = int(student_data.get("total_credits") or 0)
+    year_of_join  = str(student_data.get("year_of_join") or "")
+    dept_code     = str(student_data.get("dept_code") or "")
+    section       = str(student_data.get("section") or "")
+    # Long-form department name from marks or branch fallback
+    department    = str(
+        student_data.get("department")
+        or student_data.get("marks", {}).get("department")
+        or f"{branch} Engineering"
+    )
 
-    # Check if student exists
     cursor.execute("SELECT RegNo FROM Students WHERE RegNo = ? COLLATE NOCASE;", (reg_no,))
     row = cursor.fetchone()
 
     if row:
-        # Update existing
         cursor.execute("""
-            UPDATE Students 
-            SET StudentName = ?, Branch = ?, Semester = ?, CGPA = ?, Goal = ?
+            UPDATE Students
+            SET StudentName  = ?,
+                Branch       = ?,
+                Semester     = ?,
+                CGPA         = ?,
+                Goal         = ?,
+                TotalCredits = ?,
+                YearOfJoin   = ?,
+                DeptCode     = ?,
+                Section      = ?,
+                Department   = ?
             WHERE RegNo = ? COLLATE NOCASE;
-        """, (name, branch, semester, cgpa, goal, reg_no))
+        """, (name, branch, semester, cgpa, goal,
+              total_credits, year_of_join, dept_code, section, department,
+              reg_no))
     else:
-        # Insert new
         cursor.execute("""
-            INSERT INTO Students (RegNo, StudentName, Branch, Semester, CGPA, Goal)
-            VALUES (?, ?, ?, ?, ?, ?);
-        """, (reg_no, name, branch, semester, cgpa, goal))
+            INSERT INTO Students
+                (RegNo, StudentName, Branch, Semester, CGPA, Goal,
+                 TotalCredits, YearOfJoin, DeptCode, Section, Department)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """, (reg_no, name, branch, semester, cgpa, goal,
+              total_credits, year_of_join, dept_code, section, department))
 
     # Enroll default subjects for their branch/semester if not already present
     cursor.execute("SELECT COUNT(*) FROM Student_Subjects WHERE RegNo = ? COLLATE NOCASE;", (reg_no,))
