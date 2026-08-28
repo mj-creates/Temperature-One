@@ -402,7 +402,7 @@ export default function App() {
   const fullTitle = 'OMEGA';
   
   const [studentDetails, setStudentDetails] = useState({
-    cgpa: 8.65,
+    cgpa: 0.0,
     semester: 2,
     creditsEarned: 40,
     department: 'CSE'
@@ -484,7 +484,7 @@ export default function App() {
         const s = data.student;
         setName(s.student_name || cleanReg);
         setStudentDetails({
-          cgpa: s.cgpa || 8.65,
+          cgpa: (typeof s.cgpa === 'number') ? s.cgpa : 0.0,
           semester: s.semester || 2,
           creditsEarned: s.total_credits || 40,
           department: s.branch || 'CSE'
