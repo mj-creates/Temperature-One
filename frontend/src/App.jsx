@@ -1006,15 +1006,10 @@ export default function App() {
                     <span className="text-xs text-gray-600 font-mono">REG: {regNo.toUpperCase()}</span>
                   </div>
                   <h2 className="title-text text-2xl md:text-3xl text-blue-700">{name || 'Vignan Student'}</h2>
-                  {scrapedProfile?.profile?.father_name && (
+                  {(scrapedProfile?.section || scrapedProfile?.profile?.section) && (
                     <p className="text-sm text-gray-700 mt-1 flex items-center gap-1.5 font-bold">
-                      <Users size={16} className="text-indigo-600" />
-                      Father: <span className="text-black">{scrapedProfile.profile.father_name}</span>
-                      {scrapedProfile.profile.section && (
-                        <span className="ml-3 bg-indigo-100 text-indigo-900 px-2 py-0.5 text-xs border border-indigo-300">
-                          Section: {scrapedProfile.profile.section}
-                        </span>
-                      )}
+                      <GraduationCap size={16} className="text-indigo-600" />
+                      Section: <span className="text-black">{scrapedProfile.section || scrapedProfile.profile.section}</span>
                     </p>
                   )}
                 </div>
