@@ -846,11 +846,6 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Role Toggle: Student / Teacher */}
-              <div className="flex gap-4 mb-2">
-                 <button type="button" onClick={() => setRole('student')} className={`flex-1 py-3 border-[4px] border-black title-text ${role === 'student' ? 'bg-blue-600 text-white shadow-[inset_4px_4px_0_rgba(0,0,0,0.5)]' : 'bg-gray-200 text-black shadow-[4px_4px_0_#000]'}`}>STUDENT</button>
-                 <button type="button" onClick={() => setRole('teacher')} className={`flex-1 py-3 border-[4px] border-black title-text ${role === 'teacher' ? 'bg-blue-600 text-white shadow-[inset_4px_4px_0_rgba(0,0,0,0.5)]' : 'bg-gray-200 text-black shadow-[4px_4px_0_#000]'}`}>TEACHER</button>
-              </div>
 
               {/* Error Message Box */}
               {erpError && (
@@ -917,32 +912,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Interactive Demo Presets Selector */}
-              <div className="flex flex-col gap-2 bg-gray-50 p-4 border-2 border-black">
-                <span className="title-text text-xs text-gray-700">⚡ QUICK DEMO PRESETS (SAMPLE SPACE):</span>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: 'REG1001', n: 'Sara Taylor', dept: 'CSE', gpa: '8.45' },
-                    { id: '221FA04001', n: 'Aarav Sharma', dept: 'CSE', gpa: '9.42' },
-                    { id: '231FA09015', n: 'Priya Patel', dept: 'AIML', gpa: '7.60' },
-                    { id: '211FA10008', n: 'Rohan Verma', dept: 'CSCS', gpa: '5.10' },
-                    { id: '221FA04045', n: 'Jasmine Rao', dept: 'BBA', gpa: '8.90' }
-                  ].map((p, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setRegNo(p.id);
-                        setName(p.n);
-                        setRole('student');
-                      }}
-                      className="text-xs bg-white hover:bg-yellow-200 text-black px-2.5 py-1 border border-black shadow-[2px_2px_0_#000] active:translate-x-0.5 active:translate-y-0.5"
-                    >
-                      <strong>{p.id}</strong> ({p.n} • {p.dept} • {p.gpa})
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               {/* Loading Status Indicator */}
               {isLoadingErp && (
