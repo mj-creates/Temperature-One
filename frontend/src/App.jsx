@@ -4,7 +4,9 @@ import { User, KeyRound, ArrowRight, Brain, Cpu, MessageSquare, Briefcase, Gradu
 // ── API base URL ─────────────────────────────────────────────────────────────
 // In production (Vercel) set VITE_API_URL to your Render backend URL.
 // Falls back to localhost for local development.
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const _RAW_API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Strip accidental markdown link syntax e.g. [url](url) and trailing slash
+const API_BASE = _RAW_API.replace(/^\[.*?\]\((.*?)\)$/, '$1').replace(/\/$/, '');
 import {
   ReactFlow,
   MiniMap,
