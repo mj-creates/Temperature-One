@@ -435,6 +435,7 @@ export default function App() {
   const [goalSet, setGoalSet] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [pipelineStep, setPipelineStep] = useState(-1);
+  const [activeAgentIdx, setActiveAgentIdx] = useState(-1); // which agent spotlight is showing (-1 = none)
   const [pipelineData, setPipelineData] = useState(null); // Full Backend Response
 
   // React Flow State
@@ -621,14 +622,16 @@ export default function App() {
 
   useEffect(() => {
     if (view === 'dashboard') {
+      // Each agent gets 2s spotlight, then steps advance. Total ~14s for all 6 agents.
+      const STEP = 2200; // ms per agent
       const steps = [
-        setTimeout(() => setPipelineStep(0), 600),
-        setTimeout(() => setPipelineStep(1), 1400),
-        setTimeout(() => setPipelineStep(2), 2200),
-        setTimeout(() => setPipelineStep(3), 3000),
-        setTimeout(() => setPipelineStep(4), 3800),
-        setTimeout(() => setPipelineStep(5), 4600),
-        setTimeout(() => setPipelineStep(6), 5400)
+        setTimeout(() => { setPipelineStep(0); setActiveAgentIdx(0); }, 400),
+        setTimeout(() => { setPipelineStep(1); setActiveAgentIdx(1); }, 400 + STEP),
+        setTimeout(() => { setPipelineStep(2); setActiveAgentIdx(2); }, 400 + STEP*2),
+        setTimeout(() => { setPipelineStep(3); setActiveAgentIdx(3); }, 400 + STEP*3),
+        setTimeout(() => { setPipelineStep(4); setActiveAgentIdx(4); }, 400 + STEP*4),
+        setTimeout(() => { setPipelineStep(5); setActiveAgentIdx(5); }, 400 + STEP*5),
+        setTimeout(() => { setPipelineStep(6); setActiveAgentIdx(-1); }, 400 + STEP*6),
       ];
       return () => steps.forEach(clearTimeout);
     }
@@ -1164,209 +1167,307 @@ export default function App() {
         {/* VIEW: DASHBOARD (SWARM & VISUAL PATHWAY) */}
         {view === 'dashboard' && (
           <div className="flex flex-col items-center gap-12 w-full">
-            
-            {/* The Swarm Process Window */}
-            <div className="pixel-box w-full bg-white border-[6px]">
-              <div className="window-header bg-black text-white px-4 py-3 border-b-[6px] border-black text-lg flex justify-between">
-                <span>SWARM_ORCHESTRATOR.SYS</span>
-                <span className="text-yellow-400 animate-pulse">STATUS: COMPUTING DYNAMIC PATH</span>
-              </div>
-              
-              <div className="p-8 md:p-12">
-                <h2 className="title-text text-3xl mb-8 flex items-center justify-between">
-                  <span>SWARM ACTIVE: 6 NODES SYNCED</span>
-                  <span className="text-sm font-normal bg-black text-white px-3 py-1 border-2 border-white">TARGET: {chatInput}</span>
-                </h2>
 
-                {/* Inline CSS keyframes for each agent's role-specific animation */}
-                <style>{`
-                  @keyframes nexus-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-                  @keyframes matrix-scan { 0%,100%{transform:translateY(-110%)} 50%{transform:translateY(110%)} }
-                  @keyframes matrix-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-                  @keyframes state-bar { 0%{width:0%} 100%{width:100%} }
-                  @keyframes codex-pulse { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
-                  @keyframes sentinel-shield { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
-                  @keyframes sentinel-lock { 0%,85%{transform:translateY(0)} 90%{transform:translateY(-5px)} 100%{transform:translateY(0)} }
-                  @keyframes done-pop { 0%{opacity:0;transform:scale(0.4)} 60%{transform:scale(1.2)} 100%{opacity:1;transform:scale(1)} }
-                  @keyframes card-glow { 0%,100%{box-shadow:6px 6px 0 #3b82f6} 50%{box-shadow:6px 6px 0 #60a5fa,0 0 18px rgba(59,130,246,0.35)} }
-                  @keyframes vector-travel { 0%{offset-distance:0%} 100%{offset-distance:100%} }
-                `}</style>
+            {/* ── AGENT SPOTLIGHT PAGES ─────────────────────────────── */}
+            {/* Full-screen dedicated animation page for the currently active agent */}
+            <style>{`
+              @keyframes ag-ring-spin  { to { transform: rotate(360deg); } }
+              @keyframes ag-ring-spin2 { to { transform: rotate(-360deg); } }
+              @keyframes ag-ping-ring  { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(2.2);opacity:0} }
+              @keyframes ag-float      { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-16px)} }
+              @keyframes ag-scan       { 0%,100%{top:0%} 50%{top:85%} }
+              @keyframes ag-bar1       { 0%,100%{height:30%} 50%{height:90%} }
+              @keyframes ag-bar2       { 0%,100%{height:60%} 50%{height:25%} }
+              @keyframes ag-bar3       { 0%,100%{height:45%} 50%{height:80%} }
+              @keyframes ag-bar4       { 0%,100%{height:70%} 50%{height:35%} }
+              @keyframes ag-bar5       { 0%,100%{height:20%} 50%{height:65%} }
+              @keyframes ag-shield-pulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.4);opacity:0} }
+              @keyframes ag-lock-up    { 0%,70%{transform:translateY(0)} 80%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
+              @keyframes ag-fade-in    { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+              @keyframes ag-ticker     { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+              @keyframes ag-done-burst { 0%{transform:scale(0);opacity:1} 100%{transform:scale(3);opacity:0} }
+              @keyframes ag-check-draw { to{stroke-dashoffset:0} }
+            `}</style>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {[
-                    // NEXUS — Orchestrator: spinning hub + orbiting dot (coordinating)
-                    {
-                      id: 0, name: 'NEXUS', role: 'Orchestrator',
-                      anim: (active, done) => (
-                        <svg viewBox="0 0 64 64" className="w-full h-full p-3">
-                          <circle cx="32" cy="32" r="22" fill="none"
-                            stroke={done?'#16a34a':active?'#bfdbfe':'#e5e7eb'} strokeWidth="1.5" strokeDasharray="5 3"/>
-                          <circle cx="32" cy="32" r="10" fill="none"
-                            stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="3"
-                            style={active&&!done?{animation:'nexus-spin 1.6s linear infinite',transformOrigin:'32px 32px'}:{}}/>
-                          <circle cx="32" cy="32" r="4" fill={done?'#22c55e':active?'#3b82f6':'#9ca3af'}/>
-                          {active&&!done&&(
-                            <g style={{animation:'nexus-spin 1.6s linear infinite',transformOrigin:'32px 32px'}}>
-                              <circle cx="32" cy="10" r="5" fill="#3b82f6"/>
-                            </g>
-                          )}
-                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round"
-                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
-                        </svg>
-                      )
-                    },
-                    // MATRIX — Pathfinder: horizontal scan line over grid (searching)
-                    {
-                      id: 1, name: 'MATRIX', role: 'Pathfinder',
-                      anim: (active, done) => (
-                        <svg viewBox="0 0 64 64" className="w-full h-full p-2" style={{overflow:'hidden'}}>
-                          <defs><clipPath id="mc"><rect x="2" y="2" width="60" height="60"/></clipPath></defs>
-                          {[10,20,30,40,50,60].map(x=><line key={'v'+x} x1={x} y1="2" x2={x} y2="62" stroke={done?'#86efac':active?'#bfdbfe':'#e5e7eb'} strokeWidth="1"/>)}
-                          {[10,20,30,40,50,60].map(y=><line key={'h'+y} x1="2" y1={y} x2="62" y2={y} stroke={done?'#86efac':active?'#bfdbfe':'#e5e7eb'} strokeWidth="1"/>)}
-                          {active&&!done&&(
-                            <rect x="2" y="0" width="60" height="10" fill="rgba(59,130,246,0.3)" clipPath="url(#mc)"
-                              style={{animation:'matrix-scan 1.1s ease-in-out infinite'}}/>
-                          )}
-                          {active&&!done&&<rect x="27" y="27" width="10" height="10" fill="#3b82f6"
-                            style={{animation:'matrix-blink 0.7s step-start infinite'}}/>}
-                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round"
-                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
-                        </svg>
-                      )
-                    },
-                    // VECTOR — Trajectory: animated dot moving along curved path (charting course)
-                    {
-                      id: 2, name: 'VECTOR', role: 'Trajectory',
-                      anim: (active, done) => (
-                        <svg viewBox="0 0 64 64" className="w-full h-full p-3">
-                          <path id="vpath" d="M6 54 C16 54 20 32 32 32 C44 32 48 10 58 10"
-                            fill="none" stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="3" strokeLinecap="round"/>
-                          {active&&!done&&(
-                            <>
-                              <circle r="6" fill="#3b82f6">
-                                <animateMotion dur="1.4s" repeatCount="indefinite" path="M6 54 C16 54 20 32 32 32 C44 32 48 10 58 10" rotate="auto"/>
-                              </circle>
-                              <polygon points="58,4 64,12 52,12" fill="#3b82f6"/>
-                            </>
-                          )}
-                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round"
-                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
-                        </svg>
-                      )
-                    },
-                    // STATE — Auditor: cascading progress bars (auditing/checking)
-                    {
-                      id: 3, name: 'STATE', role: 'Auditor',
-                      anim: (active, done) => (
-                        <svg viewBox="0 0 64 64" className="w-full h-full p-2">
-                          {[10,22,34,46].map((y,i)=>(
-                            <g key={y}>
-                              <rect x="4" y={y} width="56" height="9" rx="2"
-                                fill={done?'#dcfce7':active?'#dbeafe':'#f3f4f6'}
-                                stroke={done?'#22c55e':active?'#93c5fd':'#d1d5db'} strokeWidth="1.5"/>
-                              {(active||done)&&(
-                                <rect x="4" y={y} width={done?56:0} height="9" rx="2"
-                                  fill={done?'#22c55e':'#3b82f6'}
-                                  style={active&&!done?{animation:`state-bar ${0.7+i*0.25}s ease-out ${i*0.2}s infinite alternate`}:{width:done?56:0}}/>
-                              )}
-                            </g>
-                          ))}
-                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
-                            style={{animation:'done-pop 0.5s ease-out 0.1s forwards'}}/>}
-                        </svg>
-                      )
-                    },
-                    // CODEX — Policy RAG: animated equalizer bars (retrieving/processing knowledge)
-                    {
-                      id: 4, name: 'CODEX', role: 'Policy RAG',
-                      anim: (active, done) => (
-                        <svg viewBox="0 0 64 64" className="w-full h-full p-2">
-                          {[6,16,26,36,46,56].map((x,i)=>{
-                            const maxH=[24,38,30,44,20,36][i];
-                            return(
-                              <rect key={x} x={x} y={64-maxH} width="7" height={maxH} rx="2"
-                                fill={done?'#22c55e':active?['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#3b82f6','#2563eb'][i]:'#d1d5db'}
-                                style={active&&!done?{animation:`codex-pulse ${0.35+i*0.08}s ease-in-out ${i*0.06}s infinite alternate`,transformOrigin:`${x+3}px 64px`}:{}}/>
-                            );
-                          })}
-                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
-                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
-                        </svg>
-                      )
-                    },
-                    // SENTINEL — Verifier: pulsing shield + animated lock (verifying/securing)
-                    {
-                      id: 5, name: 'SENTINEL', role: 'Verifier',
-                      anim: (active, done) => (
-                        <svg viewBox="0 0 64 64" className="w-full h-full p-2">
-                          <path d="M32 4 L56 13 L56 32 Q56 50 32 60 Q8 50 8 32 L8 13 Z"
-                            fill={done?'#dcfce7':active?'#dbeafe':'#f9fafb'}
-                            stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="2.5"
-                            style={active&&!done?{animation:'sentinel-shield 1.2s ease-in-out infinite',transformOrigin:'32px 32px'}:{}}/>
-                          <g style={active&&!done?{animation:'sentinel-lock 2.2s ease-in-out infinite'}:{}}>
-                            <rect x="23" y="32" width="18" height="14" rx="3"
-                              fill={done?'#22c55e':active?'#3b82f6':'#9ca3af'}/>
-                            <path d="M27 32 Q27 23 32 23 Q37 23 37 32" fill="none"
-                              stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="3" strokeLinecap="round"/>
-                            <circle cx="32" cy="39" r="2.5" fill="white"/>
-                          </g>
-                          {active&&!done&&[0,1,2].map(i=>(
-                            <circle key={i} cx={[32,54,10][i]} cy={[6,14,14][i]} r="3"
-                              fill="rgba(59,130,246,0.45)"
-                              style={{animation:`sentinel-shield ${0.6+i*0.2}s ease-in-out ${i*0.15}s infinite`,transformOrigin:'32px 32px'}}/>
-                          ))}
-                          {done&&<path d="M21 36 L28 43 L43 28" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
-                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
-                        </svg>
-                      )
-                    },
-                  ].map((agent) => {
-                    const isActive = pipelineStep >= agent.id;
-                    const isDone = pipelineStep > agent.id;
-                    return (
-                      <div key={agent.id}
-                        className={`border-[5px] border-black p-4 flex flex-col items-center text-center transition-all duration-700
-                          ${isActive ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-35 grayscale'}
-                          ${isDone ? 'bg-green-50 shadow-[6px_6px_0_#22c55e]'
-                              : isActive ? 'bg-white'
-                              : 'bg-gray-100 shadow-[6px_6px_0_#000]'}`}
-                        style={isActive&&!isDone ? {animation:'card-glow 1.8s ease-in-out infinite'} : {}}
-                      >
-                        {/* Role-specific SVG animation */}
-                        <div className={`w-18 h-18 border-[3px] mb-2 transition-colors duration-700 overflow-hidden
-                          ${isDone ? 'border-green-500 bg-green-50' : isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
-                          style={{width:'72px',height:'72px'}}>
-                          {agent.anim(isActive, isDone)}
+            {/* Agent definitions — same order as pipeline */}
+            {(() => {
+              const AGENTS = [
+                {
+                  id: 0, name: 'NEXUS', role: 'Orchestrator',
+                  img: '/assets/nexus.png',
+                  color: '#3b82f6', glow: 'rgba(59,130,246,0.55)',
+                  bg: 'from-[#0f1c3f] to-[#0a0f1e]',
+                  task: 'INITIALISING MULTI-AGENT SWARM PIPELINE...',
+                  // Spinning concentric rings behind image
+                  decoration: (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      {[160,220,280,340].map((s,i)=>(
+                        <div key={s} className="absolute rounded-full border-2 border-blue-500/30"
+                          style={{width:s,height:s,animation:`ag-ring-spin ${3+i*0.8}s linear infinite ${i%2===1?',ag-ring-spin2 0s linear infinite':''}`}}/>
+                      ))}
+                      <div className="absolute w-32 h-32 rounded-full bg-blue-500/10"
+                        style={{animation:'ag-ping-ring 1.8s ease-out infinite'}}/>
+                    </div>
+                  )
+                },
+                {
+                  id: 1, name: 'MATRIX', role: 'Pathfinder',
+                  img: '/assets/matrix.png',
+                  color: '#a855f7', glow: 'rgba(168,85,247,0.55)',
+                  bg: 'from-[#1a0b2e] to-[#0d0718]',
+                  task: 'SCANNING PREREQUISITE GRAPH — MAPPING OPTIMAL PATHWAYS...',
+                  // Horizontal scan line sweeping over a dot grid
+                  decoration: (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      {/* Dot grid */}
+                      <svg className="absolute inset-0 w-full h-full opacity-20">
+                        <defs>
+                          <pattern id="dotp" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <circle cx="20" cy="20" r="2" fill="#a855f7"/>
+                          </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#dotp)"/>
+                      </svg>
+                      {/* Scan line */}
+                      <div className="absolute left-0 right-0 h-1 bg-purple-400/70"
+                        style={{boxShadow:'0 0 20px 6px rgba(168,85,247,0.6)', top:'0%', animation:'ag-scan 2.2s ease-in-out infinite'}}/>
+                    </div>
+                  )
+                },
+                {
+                  id: 2, name: 'VECTOR', role: 'Trajectory Agent',
+                  img: '/assets/vector.png',
+                  color: '#06b6d4', glow: 'rgba(6,182,212,0.55)',
+                  bg: 'from-[#051b20] to-[#020d10]',
+                  task: 'COMPUTING ACADEMIC TRAJECTORY & CAREER ALIGNMENT VECTORS...',
+                  // Concentric pulsing circles (sonar)
+                  decoration: (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      {[0,1,2,3].map(i=>(
+                        <div key={i} className="absolute rounded-full border border-cyan-400/40"
+                          style={{width:120+i*80,height:120+i*80,animation:`ag-ping-ring 2s ease-out ${i*0.5}s infinite`}}/>
+                      ))}
+                      <div className="absolute w-4 h-4 rounded-full bg-cyan-400"
+                        style={{boxShadow:'0 0 16px 6px rgba(6,182,212,0.8)'}}/>
+                    </div>
+                  )
+                },
+                {
+                  id: 3, name: 'STATE', role: 'Auditor',
+                  img: '/assets/state.png',
+                  color: '#f59e0b', glow: 'rgba(245,158,11,0.55)',
+                  bg: 'from-[#1c1200] to-[#0f0900]',
+                  task: 'AUDITING STUDENT ACADEMIC STATE & IDENTIFYING RISK FLAGS...',
+                  // Animated vertical equalizer bars (data processing)
+                  decoration: (
+                    <div className="absolute inset-0 flex items-end justify-center gap-3 px-8 pb-8 pointer-events-none overflow-hidden">
+                      {['ag-bar1','ag-bar2','ag-bar3','ag-bar4','ag-bar5','ag-bar2','ag-bar4','ag-bar1','ag-bar3','ag-bar5'].map((anim,i)=>(
+                        <div key={i} className="w-6 rounded-t-sm bg-amber-400/25 border border-amber-500/30 relative overflow-hidden flex-shrink-0"
+                          style={{height:'60%'}}>
+                          <div className="absolute bottom-0 left-0 right-0 bg-amber-400/50 rounded-t-sm"
+                            style={{animation:`${anim} ${0.7+i*0.08}s ease-in-out ${i*0.05}s infinite`}}/>
                         </div>
+                      ))}
+                    </div>
+                  )
+                },
+                {
+                  id: 4, name: 'CODEX', role: 'Policy RAG',
+                  img: '/assets/codex.png',
+                  color: '#10b981', glow: 'rgba(16,185,129,0.55)',
+                  bg: 'from-[#011a0f] to-[#000d06]',
+                  task: 'RETRIEVING ACADEMIC POLICY CITATIONS FROM KNOWLEDGE GRAPH...',
+                  // Cascading text particles (knowledge retrieval)
+                  decoration: (
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+                      {['PREREQ','CREDIT','WAIVER','R22','GRADE','SGPA','CGPA','POLICY','TRACK','ELECTIVE'].map((word,i)=>(
+                        <div key={i} className="absolute text-green-400 font-mono text-xs whitespace-nowrap"
+                          style={{
+                            left:`${(i*17+5)%90}%`,
+                            top:`${(i*23+10)%90}%`,
+                            animation:`ag-float ${1.8+i*0.3}s ease-in-out ${i*0.2}s infinite`
+                          }}>
+                          {word}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                },
+                {
+                  id: 5, name: 'SENTINEL', role: 'Verifier',
+                  img: '/assets/sentinel.png',
+                  color: '#ef4444', glow: 'rgba(239,68,68,0.55)',
+                  bg: 'from-[#1a0505] to-[#0d0202]',
+                  task: 'VERIFYING CONSTRAINTS — RESOLVING CONFLICTS & SECURING PATHWAY...',
+                  // Pulsing shield rings
+                  decoration: (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      {[1,2,3].map(i=>(
+                        <div key={i} className="absolute"
+                          style={{
+                            width: 160+i*80, height: 160+i*80,
+                            clipPath:'polygon(50% 0%, 90% 20%, 100% 60%, 75% 100%, 25% 100%, 0% 60%, 10% 20%)',
+                            border: '2px solid rgba(239,68,68,0.3)',
+                            animation:`ag-shield-pulse ${1.2+i*0.4}s ease-out ${i*0.35}s infinite`
+                          }}/>
+                      ))}
+                    </div>
+                  )
+                },
+              ];
 
-                        <div className="title-text text-sm mb-0.5 bg-black text-white px-2 w-full truncate">{agent.name}</div>
-                        <div className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wide">{agent.role}</div>
+              const current = activeAgentIdx >= 0 ? AGENTS[activeAgentIdx] : null;
 
-                        <div className="mt-auto w-full">
-                          {!isActive && (
-                            <div className="border-2 border-gray-400 bg-gray-200 text-gray-500 py-1 text-xs font-bold flex items-center justify-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400"/>STANDBY
-                            </div>
-                          )}
-                          {isActive && !isDone && (
-                            <div className="border-2 border-blue-500 bg-blue-600 text-white py-1 text-xs font-bold flex items-center justify-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-white" style={{animation:'matrix-blink 0.5s step-start infinite'}}/>
-                              ACTIVE
-                            </div>
-                          )}
-                          {isDone && (
-                            <div className="border-2 border-green-600 bg-green-500 text-white py-1 text-xs font-bold flex items-center justify-center gap-1"
-                              style={{animation:'done-pop 0.4s ease-out forwards'}}>
-                              ✓ DONE
-                            </div>
-                          )}
+              if (!current) return null; // all done — show the grid below
+
+              return (
+                <div className="fixed inset-0 z-50 flex flex-col overflow-hidden"
+                  style={{
+                    background: `linear-gradient(to bottom right, ${current.bg.replace('from-[','').replace('] to-[','',).replace(']','')})`,
+                    backgroundImage: `linear-gradient(135deg, ${current.bg.split('from-[')[1]?.split(']')[0] || '#0f1c3f'}, ${current.bg.split('to-[')[1]?.split(']')[0] || '#0a0f1e'})`,
+                    animation: 'ag-fade-in 0.5s ease-out forwards'
+                  }}>
+
+                  {/* Background decoration */}
+                  {current.decoration}
+
+                  {/* Top bar */}
+                  <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor:current.color}}/>
+                      <span className="font-mono text-sm text-white/60 uppercase tracking-widest">OMEGA — SWARM ORCHESTRATOR</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {AGENTS.map((a,i)=>(
+                        <div key={i} className="w-2 h-2 rounded-full transition-all duration-500"
+                          style={{
+                            backgroundColor: pipelineStep > i ? '#22c55e' : i === activeAgentIdx ? current.color : 'rgba(255,255,255,0.2)',
+                            transform: i === activeAgentIdx ? 'scale(1.6)' : 'scale(1)',
+                            boxShadow: i === activeAgentIdx ? `0 0 8px ${current.color}` : 'none'
+                          }}/>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Main content */}
+                  <div className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 px-8 py-6">
+
+                    {/* Agent image — large, floating, glowing */}
+                    <div className="relative flex-shrink-0">
+                      {/* Glow halo */}
+                      <div className="absolute inset-0 rounded-full blur-3xl scale-125"
+                        style={{backgroundColor: current.glow, animation:'ag-ping-ring 2.5s ease-out infinite'}}/>
+                      {/* Image */}
+                      <img
+                        src={current.img}
+                        alt={current.name}
+                        className="relative w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl"
+                        style={{
+                          imageRendering: 'pixelated',
+                          filter: `drop-shadow(0 0 24px ${current.color})`,
+                          animation: 'ag-float 3s ease-in-out infinite'
+                        }}
+                      />
+                    </div>
+
+                    {/* Agent info panel */}
+                    <div className="flex flex-col items-center md:items-start gap-4 max-w-lg">
+                      {/* Agent number */}
+                      <div className="font-mono text-xs tracking-[0.3em] uppercase"
+                        style={{color: current.color}}>
+                        AGENT {String(current.id + 1).padStart(2,'0')} / 06
+                      </div>
+
+                      {/* Name */}
+                      <div className="title-text text-5xl md:text-7xl text-white drop-shadow-lg leading-none"
+                        style={{textShadow:`0 0 30px ${current.color}`}}>
+                        {current.name}
+                      </div>
+
+                      {/* Role badge */}
+                      <div className="px-4 py-1.5 border text-sm font-bold uppercase tracking-widest"
+                        style={{borderColor: current.color, color: current.color, boxShadow:`0 0 12px ${current.glow}`}}>
+                        {current.role}
+                      </div>
+
+                      {/* Task description */}
+                      <p className="font-mono text-sm text-white/50 leading-relaxed text-center md:text-left">
+                        {current.task}
+                      </p>
+
+                      {/* Live status strip */}
+                      <div className="w-full border border-white/10 bg-black/40 px-4 py-3 flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                          style={{backgroundColor:current.color, boxShadow:`0 0 8px ${current.color}`, animation:'ag-ping-ring 1s ease-out infinite'}}/>
+                        <div className="overflow-hidden flex-1">
+                          <div className="font-mono text-xs whitespace-nowrap"
+                            style={{color:current.color, animation:'ag-ticker 8s linear infinite'}}>
+                            {`● ACTIVE ● ${current.task} ● AGENT ${current.id+1}/6 ONLINE ● TARGET: ${chatInput.toUpperCase()} ● SWARM PROCESSING ● `}
+                            {`● ACTIVE ● ${current.task} ● AGENT ${current.id+1}/6 ONLINE ● TARGET: ${chatInput.toUpperCase()} ● SWARM PROCESSING ● `}
+                          </div>
                         </div>
                       </div>
-                    );
-                  })}
+
+                      {/* Previously completed agents */}
+                      {current.id > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {AGENTS.slice(0, current.id).map(a=>(
+                            <div key={a.id} className="flex items-center gap-1.5 px-2 py-1 bg-green-900/40 border border-green-500/40 text-green-400 text-xs font-bold">
+                              ✓ {a.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom progress bar */}
+                  <div className="relative z-10 px-6 pb-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="font-mono text-xs text-white/40">PIPELINE PROGRESS</span>
+                      <span className="font-mono text-xs ml-auto" style={{color:current.color}}>
+                        {Math.round(((current.id) / 6) * 100)}% COMPLETE
+                      </span>
+                    </div>
+                    <div className="h-1 w-full bg-white/10 rounded overflow-hidden">
+                      <div className="h-full rounded transition-all duration-700"
+                        style={{
+                          width: `${((current.id) / 6) * 100}%`,
+                          backgroundColor: current.color,
+                          boxShadow: `0 0 10px ${current.color}`
+                        }}/>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+            {/* ── END AGENT SPOTLIGHT ──────────────────────────────── */}
+
+            {/* Mini agent tracker — shown below spotlight (hidden while spotlight is up) */}
+            {activeAgentIdx === -1 && pipelineStep > 0 && (
+              <div className="pixel-box w-full bg-white border-[6px]">
+                <div className="window-header bg-black text-white px-4 py-3 border-b-[6px] border-black text-lg flex justify-between">
+                  <span>SWARM_ORCHESTRATOR.SYS</span>
+                  <span className="text-green-400">✓ ALL 6 AGENTS SYNCED</span>
+                </div>
+                <div className="p-6 flex flex-wrap gap-3 justify-center">
+                  {[
+                    {name:'NEXUS',img:'/assets/nexus.png'},
+                    {name:'MATRIX',img:'/assets/matrix.png'},
+                    {name:'VECTOR',img:'/assets/vector.png'},
+                    {name:'STATE',img:'/assets/state.png'},
+                    {name:'CODEX',img:'/assets/codex.png'},
+                    {name:'SENTINEL',img:'/assets/sentinel.png'},
+                  ].map((a,i)=>(
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-green-50 border-[3px] border-green-500 shadow-[3px_3px_0_#22c55e]">
+                      <img src={a.img} alt={a.name} className="w-8 h-8 object-contain" style={{imageRendering:'pixelated'}}/>
+                      <span className="title-text text-sm text-green-800">{a.name}</span>
+                      <span className="text-green-600 font-bold text-sm">✓</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* The Visual Path Output: OPTIMAL_PATHWAY_GENERATED.DAT */}
             {pipelineStep >= 4 && (
