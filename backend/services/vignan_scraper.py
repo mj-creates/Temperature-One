@@ -800,132 +800,125 @@ class VignanERPScraper:
 
 
     # Vignan grade letter → grade point (R22 regulations)
-    # Used when GP column is absent or to validate parsed values
     _GRADE_TO_GP: Dict[str, float] = {
         "O": 10.0, "A+": 9.0, "A": 8.0, "B+": 7.0, "B": 6.0,
-        "C": 5.0,  "P":  4.0, "F": 0.0, "Ab": 0.0, "W": 0.0,
-        # Vignan also uses single-letter S (Satisfactory) ≈ A  
-        "S": 8.0,
+        "C": 5.0,  "P":  4.0, "M": 4.0, "F": 0.0,  "Ab": 0.0,
+        "W": 0.0,  "R":  0.0, "S": 8.0,
+        # '-' = not graded (sports/yoga/co-curricular) → skip from SGPA calc
     }
+
+    # Subjects with these grades are excluded from SGPA/CGPA calculation
+    _SKIP_GRADES = {"-", ""}
 
     def _parse_marks_html(self, html: str) -> Dict[str, Any]:
         """
-        Parses finalmarks1.jsp to extract per-semester subject grades and
-        compute SGPA and CGPA.
+        Parses finalmarks1.jsp.
 
-        Real HTML structure of finalmarks1.jsp (confirmed from live portal):
-        -----------------------------------------------------------------------
-        <!--<table ...><tr>-->          ← outer table opener is in a comment
-        </tr><tr>
-          <td valign='top'>
-            <fieldset>
-              <legend>I YEAR - I SEMESTER</legend>
-              <table>
-                <tr><th>S.NO.<th>SUBJECT CODE<th>SUBJECT NAME<th>CR<th>LG<th>GP<th>MONTH & YEAR
-                <tr><td>1<td>22CS103<td>IT WORKSHOP...<td>3<td>S<td>8.57<td>JANUARY-2023
-                ...
-              </table>
-            </fieldset>
-          </td>
-          <td valign='top'>            ← second column = second semester
-            <fieldset>
-              <legend>I YEAR - II SEMESTER</legend>
-              ...
-            </fieldset>
-          </td>
-        </tr><tr>                      ← next row = Year 2 semesters
-          ...
-        -----------------------------------------------------------------------
+        CRITICAL: The portal packs ALL subjects for a semester into a single <tr>.
+        Each group of 7 consecutive cells = one subject:
+            [S.NO, SUBJECT_CODE, SUBJECT_NAME, CREDITS, LETTER_GRADE, GRADE_POINTS, MONTH_YEAR]
 
-        Columns: S.NO | SUBJECT CODE | SUBJECT NAME | CR | LG | GP | MONTH & YEAR
-                  0       1               2             3    4    5       6
+        Subjects with grade '-' (sports, yoga, electives) are excluded from
+        SGPA/CGPA computation per Vignan R22 regulations.
 
-        SGPA  = Σ(CR_i × GP_i) / Σ(CR_i)     [per semester]
-        CGPA  = Σ(CR_j × GP_j) / Σ(CR_j)     [across all completed semesters]
+        SGPA  = Σ(CR_i × GP_i) / Σ(CR_i)    [only graded subjects]
+        CGPA  = Σ(CR_j × GP_j) / Σ(CR_j)    [across all completed semesters]
         """
         if not BeautifulSoup or not html.strip():
             return {"semester_results": [], "cgpa": 0.0, "total_credits": 0, "backlogs_count": 0}
 
         soup = BeautifulSoup(html, "html.parser")
-
         semester_results = []
-        all_cp = 0.0   # cumulative Σ(CR × GP)
-        all_c  = 0     # cumulative Σ(CR)
+        all_cp = 0.0
+        all_c  = 0
         total_backlogs = 0
 
-        # Each <fieldset> = one semester block
         for fieldset in soup.find_all("fieldset"):
             legend = fieldset.find("legend")
             if not legend:
                 continue
+            legend_text = legend.get_text(" ", strip=True)
+            sem_num = self._legend_to_semester(legend_text.upper())
 
-            legend_text = legend.get_text(" ", strip=True).upper()
-
-            # Parse semester number from legend: "I YEAR - I SEMESTER", "II YEAR - II SEMESTER", etc.
-            sem_num = self._legend_to_semester(legend_text)
-
-            # Find the marks table inside this fieldset
             marks_table = fieldset.find("table")
             if not marks_table:
                 continue
 
+            # Collect ALL cell values across ALL rows in this table into one flat list
+            # BUT stop at the first row that contains a valid subject — that row already
+            # has all subjects packed into it. Subsequent rows repeat the same data.
+            target_row_cells: List[str] = []
+            for row in marks_table.find_all("tr"):
+                row_cells = [td.get_text(" ", strip=True).strip()
+                             for td in row.find_all(["td", "th"])]
+                # Skip header rows
+                if row_cells and row_cells[0].upper() in ("S.NO.", "S.NO", "SNO", "#"):
+                    continue
+                # Take the first row that starts with a serial number '1'
+                if row_cells and row_cells[0] == "1":
+                    target_row_cells = row_cells
+                    break
+
+            if not target_row_cells:
+                continue
+
+            # Slide through target row in groups of 7: [sno, code, name, cr, lg, gp, date]
             courses = []
-            rows = marks_table.find_all("tr")
+            all_cells = target_row_cells
+            i = 0
+            while i + 6 < len(all_cells):
+                sno   = all_cells[i].strip()
+                code  = all_cells[i+1].strip()
+                name  = all_cells[i+2].strip().lstrip()
+                cr_s  = all_cells[i+3].strip()
+                lg    = all_cells[i+4].strip()
+                gp_s  = all_cells[i+5].strip()
+                # all_cells[i+6] = month/year — skip
 
-            for row in rows:
-                cells = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
-                # Need at least: sno, code, name, credits, grade, gp
-                if len(cells) < 5:
-                    continue
-                # Skip header rows (contain "SUBJECT" or "S.NO" or "CR" as text)
-                if any(h in cells[0].upper() for h in ("S.NO", "SUBJECT", "SEM", "SGPA", "TOTAL")):
-                    continue
-                # First cell should be a serial number
-                if not cells[0].strip().isdigit():
+                # Validate: sno must be a digit, code must look like a subject code
+                if not sno.isdigit() or not re.match(r"^\d{2}[A-Z]{2}\d{3}$", code, re.I):
+                    i += 1
                     continue
 
-                subject_code = cells[1].strip()
-                subject_name = cells[2].strip().lstrip()
-                # Credits
+                # Parse credits
                 try:
-                    credits = int(cells[3].strip())
+                    credits = int(cr_s)
                 except ValueError:
-                    credits = 3  # default
-                # Letter grade
-                letter_grade = cells[4].strip() if len(cells) > 4 else ""
-                # Grade points — column 5
+                    credits = 3
+
+                # Parse grade points
                 gp: Optional[float] = None
-                if len(cells) > 5:
+                if gp_s and gp_s not in ("-", ""):
                     try:
-                        gp = float(cells[5].strip())
+                        gp = float(gp_s)
                     except ValueError:
-                        pass
-                # Fallback: look up letter grade
-                if gp is None:
-                    gp = self._GRADE_TO_GP.get(letter_grade)
+                        gp = self._GRADE_TO_GP.get(lg)
+                elif lg in self._SKIP_GRADES:
+                    gp = None  # excluded from calculation
+                else:
+                    gp = self._GRADE_TO_GP.get(lg)
 
-                if not subject_code:
-                    continue
-
-                is_backlog = letter_grade in ("F", "Ab") or (gp is not None and gp == 0.0 and letter_grade not in ("", "-"))
+                is_backlog = lg in ("F", "Ab", "R") or (gp == 0.0 and lg not in self._SKIP_GRADES and lg != "")
                 if is_backlog:
                     total_backlogs += 1
 
                 courses.append({
-                    "subject_code":  subject_code,
-                    "subject_name":  subject_name,
+                    "subject_code":  code,
+                    "subject_name":  name,
                     "credits":       credits,
-                    "letter_grade":  letter_grade,
+                    "letter_grade":  lg,
                     "grade_points":  gp,
                 })
+                i += 7  # advance by one full subject record
 
             if not courses:
                 continue
 
-            # Compute SGPA for this semester
-            valid = [(c["credits"], c["grade_points"]) for c in courses if c["grade_points"] is not None]
-            cp_sum = sum(cr * gp for cr, gp in valid)
-            c_sum  = sum(cr for cr, _ in valid)
+            # SGPA — only graded subjects (gp is not None)
+            graded = [(c["credits"], c["grade_points"]) for c in courses
+                      if c["grade_points"] is not None]
+            cp_sum = sum(cr * gp for cr, gp in graded)
+            c_sum  = sum(cr for cr, _ in graded)
             sgpa   = round(cp_sum / c_sum, 2) if c_sum > 0 else 0.0
 
             all_cp += cp_sum
@@ -933,15 +926,13 @@ class VignanERPScraper:
 
             semester_results.append({
                 "semester":       sem_num,
-                "legend":         legend.get_text(" ", strip=True),
+                "legend":         legend_text,
                 "courses":        courses,
                 "sgpa":           sgpa,
                 "credits_earned": c_sum,
             })
 
-        # Sort by semester number
         semester_results.sort(key=lambda x: x["semester"])
-
         cgpa = round(all_cp / all_c, 2) if all_c > 0 else 0.0
 
         return {
@@ -952,34 +943,25 @@ class VignanERPScraper:
         }
 
     def _legend_to_semester(self, legend: str) -> int:
-        """
-        Converts a fieldset legend like 'I YEAR - II SEMESTER' to semester number 1–8.
-        Also handles 'II-I', '3-2', 'SEM 3', 'SEMESTER 4' etc.
-        """
-        roman = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8}
-
-        # Pattern: "X YEAR - Y SEMESTER"
-        m = re.search(r"(I{1,3}V?|IV|V?I{0,3})\s+YEAR\s*[-–]\s*(I{1,3}V?|IV|V?I{0,3})\s+SEM", legend, re.I)
+        """Converts 'I YEAR - II SEMESTER' → 2, 'III YEAR - I SEMESTER' → 5, etc."""
+        roman = {"I": 1, "II": 2, "III": 3, "IV": 4}
+        m = re.search(
+            r"\b(IV|III|II|I)\s+YEAR\s*[-–]\s*(IV|III|II|I)\s+SEM",
+            legend, re.I
+        )
         if m:
-            year_r = m.group(1).upper()
-            sem_r  = m.group(2).upper()
-            y = roman.get(year_r, 0)
-            s = roman.get(sem_r,  0)
+            y = roman.get(m.group(1).upper(), 0)
+            s = roman.get(m.group(2).upper(), 0)
             if y and s:
                 return (y - 1) * 2 + s
-
-        # Pattern: plain semester number "SEM 3", "SEMESTER 4"
         m2 = re.search(r"SEM(?:ESTER)?\s*(\d+)", legend, re.I)
         if m2:
             return int(m2.group(1))
-
-        # Pattern: "3-1", "3-2"
         m3 = re.search(r"(\d)\s*[-–]\s*(\d)", legend)
         if m3:
             y, s = int(m3.group(1)), int(m3.group(2))
             if 1 <= y <= 4 and 1 <= s <= 2:
                 return (y - 1) * 2 + s
-
         return 0
 
     def _parse_fee_html(self, html: str) -> Dict[str, Any]:
