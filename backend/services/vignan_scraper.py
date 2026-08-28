@@ -194,33 +194,29 @@ class VignanERPScraper:
 
     def scrape_marks(self) -> Dict[str, Any]:
         """
-        Scrapes semester marks, grades, SGPA/CGPA from finalmarks1.jsp and stumidmarks1.jsp.
+        Scrapes semester-wise external marks from finalmarks1.jsp, computes SGPA
+        per semester and overall CGPA using the Vignan R22 formula:
+
+            SGPA  = sum(C_i * GP_i) / sum(C_i)   [per semester]
+            CGPA  = sum(C_j * GP_j) / sum(C_j)   [across all semesters]
+
+        The finalmarks1.jsp page embeds results directly in the HTML body
+        (the outer table opening tag is inside an HTML comment, but the data
+        rows come immediately after it and are fully parseable).
         """
-        results: Dict[str, Any] = {
-            "semester_results": [],
-            "cgpa": 0.0,
-            "total_credits": 0,
-            "backlogs_count": 0
-        }
         try:
             resp = self.session.get(self.FINAL_MARKS_URL, timeout=self.timeout)
             if resp.status_code == 200 and "signin.jsp" not in resp.text.lower():
-                final_data = self._parse_marks_html(resp.text)
-                results.update(final_data)
+                return self._parse_marks_html(resp.text)
         except Exception as e:
             logger.error(f"Error scraping finalmarks1.jsp: {e}")
 
-        # Also attempt mid marks
-        try:
-            resp_mid = self.session.get(self.INTERNAL_MARKS_URL, timeout=self.timeout)
-            if resp_mid.status_code == 200 and "signin.jsp" not in resp_mid.text.lower():
-                mid_data = self._parse_marks_html(resp_mid.text)
-                if not results.get("cgpa") and mid_data.get("cgpa"):
-                    results["cgpa"] = mid_data["cgpa"]
-        except Exception as e:
-            logger.error(f"Error scraping stumidmarks1.jsp: {e}")
-
-        return results
+        return {
+            "semester_results": [],
+            "cgpa": 0.0,
+            "total_credits": 0,
+            "backlogs_count": 0,
+        }
 
     def scrape_fee_details(self) -> Dict[str, Any]:
         """
@@ -803,29 +799,188 @@ class VignanERPScraper:
         return result
 
 
-    def _parse_marks_html(self, html: str) -> Dict[str, Any]:
-        """Extracts SGPA, CGPA, and semester grades from finalmarks1.jsp."""
-        semesters = []
-        cgpa = self._parse_cgpa_from_html(html)
-        total_credits = 0
-        backlogs = 0
+    # Vignan grade letter → grade point (R22 regulations)
+    # Used when GP column is absent or to validate parsed values
+    _GRADE_TO_GP: Dict[str, float] = {
+        "O": 10.0, "A+": 9.0, "A": 8.0, "B+": 7.0, "B": 6.0,
+        "C": 5.0,  "P":  4.0, "F": 0.0, "Ab": 0.0, "W": 0.0,
+        # Vignan also uses single-letter S (Satisfactory) ≈ A  
+        "S": 8.0,
+    }
 
-        if BeautifulSoup:
-            soup = BeautifulSoup(html, "html.parser")
-            tables = soup.find_all("table")
-            for table in tables:
-                rows = table.find_all("tr")
-                for row in rows:
-                    text = row.get_text()
-                    if "Fail" in text or "F" in text.split():
-                        backlogs += 1
+    def _parse_marks_html(self, html: str) -> Dict[str, Any]:
+        """
+        Parses finalmarks1.jsp to extract per-semester subject grades and
+        compute SGPA and CGPA.
+
+        Real HTML structure of finalmarks1.jsp (confirmed from live portal):
+        -----------------------------------------------------------------------
+        <!--<table ...><tr>-->          ← outer table opener is in a comment
+        </tr><tr>
+          <td valign='top'>
+            <fieldset>
+              <legend>I YEAR - I SEMESTER</legend>
+              <table>
+                <tr><th>S.NO.<th>SUBJECT CODE<th>SUBJECT NAME<th>CR<th>LG<th>GP<th>MONTH & YEAR
+                <tr><td>1<td>22CS103<td>IT WORKSHOP...<td>3<td>S<td>8.57<td>JANUARY-2023
+                ...
+              </table>
+            </fieldset>
+          </td>
+          <td valign='top'>            ← second column = second semester
+            <fieldset>
+              <legend>I YEAR - II SEMESTER</legend>
+              ...
+            </fieldset>
+          </td>
+        </tr><tr>                      ← next row = Year 2 semesters
+          ...
+        -----------------------------------------------------------------------
+
+        Columns: S.NO | SUBJECT CODE | SUBJECT NAME | CR | LG | GP | MONTH & YEAR
+                  0       1               2             3    4    5       6
+
+        SGPA  = Σ(CR_i × GP_i) / Σ(CR_i)     [per semester]
+        CGPA  = Σ(CR_j × GP_j) / Σ(CR_j)     [across all completed semesters]
+        """
+        if not BeautifulSoup or not html.strip():
+            return {"semester_results": [], "cgpa": 0.0, "total_credits": 0, "backlogs_count": 0}
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        semester_results = []
+        all_cp = 0.0   # cumulative Σ(CR × GP)
+        all_c  = 0     # cumulative Σ(CR)
+        total_backlogs = 0
+
+        # Each <fieldset> = one semester block
+        for fieldset in soup.find_all("fieldset"):
+            legend = fieldset.find("legend")
+            if not legend:
+                continue
+
+            legend_text = legend.get_text(" ", strip=True).upper()
+
+            # Parse semester number from legend: "I YEAR - I SEMESTER", "II YEAR - II SEMESTER", etc.
+            sem_num = self._legend_to_semester(legend_text)
+
+            # Find the marks table inside this fieldset
+            marks_table = fieldset.find("table")
+            if not marks_table:
+                continue
+
+            courses = []
+            rows = marks_table.find_all("tr")
+
+            for row in rows:
+                cells = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
+                # Need at least: sno, code, name, credits, grade, gp
+                if len(cells) < 5:
+                    continue
+                # Skip header rows (contain "SUBJECT" or "S.NO" or "CR" as text)
+                if any(h in cells[0].upper() for h in ("S.NO", "SUBJECT", "SEM", "SGPA", "TOTAL")):
+                    continue
+                # First cell should be a serial number
+                if not cells[0].strip().isdigit():
+                    continue
+
+                subject_code = cells[1].strip()
+                subject_name = cells[2].strip().lstrip()
+                # Credits
+                try:
+                    credits = int(cells[3].strip())
+                except ValueError:
+                    credits = 3  # default
+                # Letter grade
+                letter_grade = cells[4].strip() if len(cells) > 4 else ""
+                # Grade points — column 5
+                gp: Optional[float] = None
+                if len(cells) > 5:
+                    try:
+                        gp = float(cells[5].strip())
+                    except ValueError:
+                        pass
+                # Fallback: look up letter grade
+                if gp is None:
+                    gp = self._GRADE_TO_GP.get(letter_grade)
+
+                if not subject_code:
+                    continue
+
+                is_backlog = letter_grade in ("F", "Ab") or (gp is not None and gp == 0.0 and letter_grade not in ("", "-"))
+                if is_backlog:
+                    total_backlogs += 1
+
+                courses.append({
+                    "subject_code":  subject_code,
+                    "subject_name":  subject_name,
+                    "credits":       credits,
+                    "letter_grade":  letter_grade,
+                    "grade_points":  gp,
+                })
+
+            if not courses:
+                continue
+
+            # Compute SGPA for this semester
+            valid = [(c["credits"], c["grade_points"]) for c in courses if c["grade_points"] is not None]
+            cp_sum = sum(cr * gp for cr, gp in valid)
+            c_sum  = sum(cr for cr, _ in valid)
+            sgpa   = round(cp_sum / c_sum, 2) if c_sum > 0 else 0.0
+
+            all_cp += cp_sum
+            all_c  += c_sum
+
+            semester_results.append({
+                "semester":       sem_num,
+                "legend":         legend.get_text(" ", strip=True),
+                "courses":        courses,
+                "sgpa":           sgpa,
+                "credits_earned": c_sum,
+            })
+
+        # Sort by semester number
+        semester_results.sort(key=lambda x: x["semester"])
+
+        cgpa = round(all_cp / all_c, 2) if all_c > 0 else 0.0
 
         return {
-            "semester_results": semesters,
-            "cgpa": cgpa,
-            "total_credits": total_credits,
-            "backlogs_count": backlogs
+            "semester_results": semester_results,
+            "cgpa":             cgpa,
+            "total_credits":    all_c,
+            "backlogs_count":   total_backlogs,
         }
+
+    def _legend_to_semester(self, legend: str) -> int:
+        """
+        Converts a fieldset legend like 'I YEAR - II SEMESTER' to semester number 1–8.
+        Also handles 'II-I', '3-2', 'SEM 3', 'SEMESTER 4' etc.
+        """
+        roman = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8}
+
+        # Pattern: "X YEAR - Y SEMESTER"
+        m = re.search(r"(I{1,3}V?|IV|V?I{0,3})\s+YEAR\s*[-–]\s*(I{1,3}V?|IV|V?I{0,3})\s+SEM", legend, re.I)
+        if m:
+            year_r = m.group(1).upper()
+            sem_r  = m.group(2).upper()
+            y = roman.get(year_r, 0)
+            s = roman.get(sem_r,  0)
+            if y and s:
+                return (y - 1) * 2 + s
+
+        # Pattern: plain semester number "SEM 3", "SEMESTER 4"
+        m2 = re.search(r"SEM(?:ESTER)?\s*(\d+)", legend, re.I)
+        if m2:
+            return int(m2.group(1))
+
+        # Pattern: "3-1", "3-2"
+        m3 = re.search(r"(\d)\s*[-–]\s*(\d)", legend)
+        if m3:
+            y, s = int(m3.group(1)), int(m3.group(2))
+            if 1 <= y <= 4 and 1 <= s <= 2:
+                return (y - 1) * 2 + s
+
+        return 0
 
     def _parse_fee_html(self, html: str) -> Dict[str, Any]:
         """Extracts fee status from stufeedetails1.jsp."""
