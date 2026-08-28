@@ -395,9 +395,7 @@ export default function App() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('student');
   const [teacherData, setTeacherData] = useState([]);
-  const [gamificationPoints, setGamificationPoints] = useState(1250);
   const [showWhatIf, setShowWhatIf] = useState(false);
-  const [counselingBooked, setCounselingBooked] = useState(false);
   const [authMode, setAuthMode] = useState('Student');
   const [isLoadingErp, setIsLoadingErp] = useState(false);
   const [erpStatusStep, setErpStatusStep] = useState('');
@@ -525,11 +523,6 @@ export default function App() {
     }
   };
   
-  const handleBookCounseling = async () => {
-    setCounselingBooked(true);
-    setGamificationPoints(p => p + 100);
-    alert("Counseling Session Booked! +100 EXP");
-  };
 
 
   const startAgentConsultation = () => {
@@ -1085,20 +1078,13 @@ export default function App() {
                 </div>
               )}
 
-              <div className="flex flex-col md:flex-row justify-center relative gap-6 mt-8">
+              <div className="flex justify-center relative mt-8">
                 <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-purple-500 to-red-500 opacity-20 blur-lg animate-pulse"></div>
                 <button 
                   onClick={startAgentConsultation}
-                  className="flex-1 relative pixel-btn bg-yellow-400 text-black text-2xl flex items-center gap-4 justify-center py-6 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
+                  className="relative pixel-btn bg-yellow-400 text-black text-2xl flex items-center gap-4 justify-center py-6 px-12 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all"
                 >
                   <MessageSquare size={28} /> PROCEED TO NEXUS AI ADVISOR
-                </button>
-                <button 
-                  onClick={handleBookCounseling}
-                  disabled={counselingBooked}
-                  className={`flex-1 relative pixel-btn text-2xl flex items-center gap-4 justify-center py-6 border-[6px] border-black transition-all ${counselingBooked ? 'bg-green-500 text-white shadow-[4px_4px_0_#000] translate-x-1 translate-y-1' : 'bg-white text-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1'}`}
-                >
-                  <Users size={32} /> {counselingBooked ? "SESSION BOOKED" : "BOOK COUNSELING"}
                 </button>
               </div>
 
