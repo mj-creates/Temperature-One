@@ -33,7 +33,7 @@ Temperature-One/
 ├── .env.example            # Environment variables template
 ├── .gitignore              # Git ignore rules
 ├── requirements.txt        # Python dependencies
-└── README.md               # Project overview & guide
+└── README.md               # Project overview & guide.
 ```
 
 ---
