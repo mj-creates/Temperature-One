@@ -316,7 +316,7 @@ class VignanERPScraper:
             "student_name": f"Student ({clean_reg})",
             "year_of_join": "20" + clean_reg[:2] if clean_reg[:2].isdigit() else "",
             "dept_code": re.search(r"FA(\d{2})", clean_reg).group(1) if re.search(r"FA(\d{2})", clean_reg) else "",
-            "department": f"{branch} Engineering",
+            "department": self._branch_display_name(branch),
             "branch": branch,
             "semester": semester,
             "section": section,
@@ -328,7 +328,7 @@ class VignanERPScraper:
                 "reg_no": clean_reg,
                 "name": f"Student ({clean_reg})",
                 "student_name": f"Student ({clean_reg})",
-                "department": f"{branch} Engineering",
+                "department": self._branch_display_name(branch),
                 "branch": branch,
                 "semester": semester,
                 "section": section,
@@ -434,7 +434,7 @@ class VignanERPScraper:
                         "student_name": student_name,
                         "year_of_join": year_of_join,
                         "dept_code": dept_code,
-                        "department": f"{branch} Engineering",
+                        "department": self._branch_display_name(branch),
                         "branch": branch,
                         "semester": int(semester),
                         "section": section,
@@ -1015,22 +1015,54 @@ class VignanERPScraper:
         match = re.search(r"([A-Z])\d{2}$", regno.upper())
         return match.group(1) if match else ""
 
+    # Short branch code → human-readable full department name
+    _BRANCH_FULL_NAMES = {
+        "CSE":   "Computer Science & Engineering",
+        "AIML":  "AI & Machine Learning",
+        "CSCS":  "Cyber Security",
+        "CSDS":  "Data Science",
+        "CSIOT": "IoT",
+        "IT":    "Information Technology",
+        "ECE":   "Electronics & Communication",
+        "EEE":   "Electrical & Electronics",
+        "MECH":  "Mechanical Engineering",
+        "CIVIL": "Civil Engineering",
+        "CHEM":  "Chemical Engineering",
+        "BT":    "Biotechnology",
+    }
+
     def _normalize_branch(self, raw_branch: str) -> str:
-        """Normalizes department/branch name to known codes (CSE, AIML, CSCS, IT, MECH, CIVIL)."""
+        """Normalizes a raw branch/department string to a known short code."""
         upper = raw_branch.upper()
-        if "ARTIFICIAL" in upper or "AIML" in upper or "AI & ML" in upper:
+        if "ARTIFICIAL" in upper or "AIML" in upper or "AI & ML" in upper or "AI AND ML" in upper:
             return "AIML"
-        elif "CYBER" in upper or "CSCS" in upper:
+        elif "DATA SCIENCE" in upper or "CSDS" in upper:
+            return "CSDS"
+        elif "IOT" in upper or "CSIOT" in upper:
+            return "CSIOT"
+        elif "CYBER" in upper or "CSCS" in upper or "SECURITY" in upper:
             return "CSCS"
-        elif "INFORMATION" in upper or upper == "IT":
+        elif "INFORMATION" in upper or upper in ("IT", "INFORMATION TECHNOLOGY"):
             return "IT"
-        elif "MECHANICAL" in upper or upper == "MECH" or upper == "ME":
+        elif "MECHANICAL" in upper or upper in ("MECH", "ME"):
             return "MECH"
         elif "CIVIL" in upper or upper == "CE":
             return "CIVIL"
+        elif "ELECTRONICS" in upper and "COMMUNICATION" in upper or "ECE" in upper:
+            return "ECE"
+        elif "ELECTRICAL" in upper or "EEE" in upper:
+            return "EEE"
+        elif "CHEMICAL" in upper or "CHEM" in upper:
+            return "CHEM"
+        elif "BIO" in upper or "BT" in upper:
+            return "BT"
         elif "COMPUTER" in upper or "CSE" in upper:
             return "CSE"
         return "CSE"
+
+    def _branch_display_name(self, branch_code: str) -> str:
+        """Returns the full human-readable department name for a branch code."""
+        return self._BRANCH_FULL_NAMES.get(branch_code, f"{branch_code} Engineering")
 
     def _extract_semester_from_marks(self, marks_data: Dict[str, Any]) -> int:
         """Derives current semester number from completed semester records."""

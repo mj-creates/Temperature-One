@@ -389,6 +389,24 @@ const nodeTypes = { customCourseNode: GodmodeCourseNode };
 
 export default function App() {
   const [view, setView] = useState('landing'); // landing, login, details, agent_chat, dashboard, knowledge_graph
+  const [viewHistory, setViewHistory] = useState([]); // navigation stack for back button
+
+  // Navigate forward — pushes current view onto history stack
+  const navigateTo = (nextView) => {
+    setViewHistory(prev => [...prev, view]);
+    setView(nextView);
+  };
+
+  // Navigate back — pops previous view from history stack
+  const goBack = () => {
+    setViewHistory(prev => {
+      if (prev.length === 0) return prev;
+      const previous = prev[prev.length - 1];
+      setView(previous);
+      return prev.slice(0, -1);
+    });
+  };
+
   const [regNo, setRegNo] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -462,7 +480,7 @@ export default function App() {
       } catch (err) {
         console.warn("Could not fetch teacher data");
       }
-      setView('teacher_dashboard');
+      navigateTo('teacher_dashboard');
       return;
     }
 
@@ -492,10 +510,10 @@ export default function App() {
           cgpa: (typeof s.cgpa === 'number') ? s.cgpa : 0.0,
           semester: s.semester || 2,
           creditsEarned: s.total_credits || 40,
-          department: s.branch || 'CSE'
+          department: s.department || s.branch || 'CSE'
         });
         setScrapedProfile(s);
-        setView('details');
+        navigateTo('details');
       } else {
         const errMsg = data.detail || data.error || `Could not load data for ${cleanReg}.`;
         setErpError(errMsg);
@@ -526,7 +544,7 @@ export default function App() {
 
 
   const startAgentConsultation = () => {
-    setView('agent_chat');
+    navigateTo('agent_chat');
     const fatherInfo = scrapedProfile?.profile?.father_name ? ` (Parent: ${scrapedProfile.profile.father_name})` : '';
     const attInfo = scrapedProfile?.attendance?.aggregate_percentage ? ` with an attendance record of ${scrapedProfile.attendance.aggregate_percentage}%` : '';
     setChatHistory([
@@ -585,7 +603,7 @@ export default function App() {
             ]);
             
             setTimeout(() => {
-              setView('dashboard');
+              navigateTo('dashboard');
             }, 2500);
           } catch (err) {
             setChatHistory(prev => [
@@ -593,7 +611,7 @@ export default function App() {
               { sender: 'NEXUS', text: `Connected offline. Synthesizing academic roadmap locally for ${userGoal}...` }
             ]);
             setTimeout(() => {
-              setView('dashboard');
+              navigateTo('dashboard');
             }, 2500);
           }
         }
@@ -617,7 +635,7 @@ export default function App() {
   }, [view]);
 
   const openKnowledgeGraph = () => {
-    setView('knowledge_graph');
+    navigateTo('knowledge_graph');
     
     try {
       if (pipelineData && pipelineData.degree_pathway && pipelineData.degree_pathway.path_sequence) {
@@ -734,11 +752,21 @@ export default function App() {
             <Brain size={32} className="text-blue-600 animate-pulse" />
             <span className="title-text text-2xl text-black drop-shadow-[2px_2px_0_#3b82f6]">OMEGA ADVISOR</span>
           </div>
-          {name && view !== 'login' && (
-            <div className="title-text text-sm md:text-base flex items-center gap-2 bg-yellow-300 px-4 py-2 border-4 border-black shadow-[4px_4px_0_#000] transform hover:-rotate-2 transition-transform cursor-default">
-              <User size={18}/> {name} <span className="text-gray-600">[{regNo} • {studentDetails.department}]</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {viewHistory.length > 0 && (
+              <button
+                onClick={goBack}
+                className="pixel-btn bg-white text-black text-sm flex items-center gap-2 px-3 py-2 border-[3px] border-black shadow-[3px_3px_0_#000] hover:shadow-[1px_1px_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+              >
+                <ArrowRight size={14} className="rotate-180" /> BACK
+              </button>
+            )}
+            {name && view !== 'login' && (
+              <div className="title-text text-sm md:text-base flex items-center gap-2 bg-yellow-300 px-4 py-2 border-4 border-black shadow-[4px_4px_0_#000] transform hover:-rotate-2 transition-transform cursor-default">
+                <User size={18}/> {name} <span className="text-gray-600">[{regNo} • {studentDetails.department}]</span>
+              </div>
+            )}
+          </div>
         </header>
       )}
 
