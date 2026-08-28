@@ -107,21 +107,12 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# CORS Configuration
+# CORS Configuration — allow all origins so deployed Vercel frontend connects
 # ---------------------------------------------------------------------------
-import os as _os
-
-_FRONTEND_URL = _os.getenv("FRONTEND_URL", "https://omega-nine-tau.vercel.app")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://omega-nine-tau.vercel.app",   # deployed Vercel frontend
-        _FRONTEND_URL,                          # override via env var if needed
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,   # must be False when allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
