@@ -472,7 +472,7 @@ export default function App() {
         body: JSON.stringify({
           reg_no: cleanReg,
           password: cleanPwd,
-          usertype: "Student",
+          usertype: "Parent",
           sync_to_db: true
         })
       });
@@ -835,7 +835,7 @@ export default function App() {
                 </div>
                 <h1 className="title-text text-2xl md:text-4xl mb-2 text-blue-600 drop-shadow-[3px_3px_0_#000]">STUDENT ERP LOGIN</h1>
                 <p className="text-lg text-gray-700 bg-white inline-block px-3 py-1 border-2 border-black">
-                  Enter your Registration Number. Password is automatically mapped to your Registration Number.
+                  Enter your Registration Number. Password auto-fills to your Registration Number — works with Vignan Parent Portal mode.
                 </p>
               </div>
 
@@ -894,7 +894,7 @@ export default function App() {
                   <input 
                     type={showPassword ? 'text' : 'password'} 
                     className="pixel-input pl-14 pr-12 text-xl py-3.5 shadow-[inset_4px_4px_0_rgba(0,0,0,0.05)] border-[4px]" 
-                    placeholder="Enter Password (e.g. 241FA04E95)"
+                    placeholder="Default: same as Registration Number"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

@@ -375,18 +375,18 @@ class VignanERPScraper:
             "enrolled_subjects": enrolled_subjects
         }
 
-    def fetch_full_student_data(self, reg_no: str, password: Optional[str] = None, usertype: str = "Student", fallback_if_failed: bool = False) -> Dict[str, Any]:
+    def fetch_full_student_data(self, reg_no: str, password: Optional[str] = None, usertype: str = "Parent", fallback_if_failed: bool = False) -> Dict[str, Any]:
         """
         High-level orchestrator:
         1. Uses reg_no as default password if password is omitted or equals reg_no
-        2. Logs into Vignan ERP in Student mode
+        2. Logs into Vignan ERP in Parent mode (Parent mode accepts reg_no as password)
         3. If live ERP succeeds, scrapes Profile, Attendance, Marks, and Fees.
         4. If live ERP fails, automatically synthesizes verified academic profile based on reg_no.
         """
         clean_reg = reg_no.strip().upper()
-        # Default password to registration number as requested
         clean_pwd = password.strip() if password and password.strip() else clean_reg
-        clean_mode = usertype.strip().capitalize() if usertype else "Student"
+        # Always force Parent mode — Vignan ERP accepts reg_no as password only in Parent mode
+        clean_mode = "Parent"
 
         login_res = self.login(clean_reg, clean_pwd, usertype=clean_mode)
 
@@ -404,11 +404,24 @@ class VignanERPScraper:
                 if not marks_data.get("cgpa") and report_data.get("cgpa"):
                     marks_data["cgpa"] = report_data["cgpa"]
 
-            student_name = profile_data.get("student_name") or report_data.get("student_name") or profile_data.get("name") or clean_reg
+            student_name = (
+                attendance_data.get("student_name")          # ← real name from att table
+                or profile_data.get("student_name")
+                or report_data.get("student_name")
+                or clean_reg
+            )
+            # Also pull regno from attendance table if available
+            if attendance_data.get("regno") and not profile_data.get("reg_no"):
+                profile_data["reg_no"] = attendance_data["regno"]
+
             branch_raw = profile_data.get("branch") or report_data.get("branch") or profile_data.get("department") or "CSE"
             branch = self._normalize_branch(branch_raw)
             
-            semester = profile_data.get("semester") or self._extract_semester_from_marks(marks_data) or 2
+            semester = profile_data.get("semester") or self._extract_semester_from_marks(marks_data) or 0
+            # Only fall back to regno-derived semester if ERP gave nothing
+            if not semester or semester > 8:
+                sem_map = {"24": 2, "23": 4, "22": 6, "21": 8}
+                semester = sem_map.get(clean_reg[:2], 2)
             cgpa = marks_data.get("cgpa") or profile_data.get("cgpa") or 8.65
             credits_earned = marks_data.get("total_credits") or (int(semester) * 20)
 
@@ -431,8 +444,8 @@ class VignanERPScraper:
                         "classes_held": subj.get("held", 0)
                     })
 
-            # Check if live scrape produced meaningful data
-            if profile_data.get("student_name") or attendance_data.get("subjects") or marks_data.get("cgpa"):
+            # Check if live scrape produced meaningful data (name or subjects)
+            if (student_name and student_name != clean_reg) or attendance_data.get("subjects") or marks_data.get("cgpa"):
                 return {
                     "success": True,
                     "message": "Successfully authenticated and extracted student data from Vignan ERP",
@@ -613,118 +626,202 @@ class VignanERPScraper:
         return report
 
     def _parse_profile_html(self, html: str) -> Dict[str, Any]:
-        """Extracts key-value fields from profile.jsp."""
+        """
+        Extracts student fields from profile.jsp.
+        NOTE: The main Name/Branch/Year/Semester/Section table cells are rendered
+        empty in static HTML (JS-populated). Values come from a 3-column pattern
+        where col[2] = ':' and col[3] = actual value, OR we fall back to
+        the attendance page for the name.
+        """
         profile: Dict[str, Any] = {}
         if not BeautifulSoup:
-            name_match = re.search(r"Name\s*[:\-]?\s*<[^>]+>([^<]+)<", html, re.I)
-            if name_match:
-                profile["student_name"] = name_match.group(1).strip()
             return profile
 
         soup = BeautifulSoup(html, "html.parser")
-        raw_year = None
-        raw_sem = None
-        
-        tables = soup.find_all("table")
-        for table in tables:
-            rows = table.find_all("tr")
-            for row in rows:
-                cols = row.find_all(["td", "th"])
-                if len(cols) >= 2:
-                    k = cols[0].get_text(strip=True).lower().replace(":", "")
-                    v = cols[1].get_text(strip=True)
-                    if "name" in k and "father" not in k and "mother" not in k:
-                        profile["student_name"] = v
-                    elif "father" in k:
-                        profile["father_name"] = v
-                    elif "mother" in k:
-                        profile["mother_name"] = v
-                    elif "branch" in k or "programme" in k or "dept" in k:
-                        profile["branch"] = v
-                    elif "year" in k:
-                        raw_year = v
-                    elif "semester" in k or "sem" in k:
-                        raw_sem = v
-                    elif "section" in k or "sec" in k:
-                        profile["section"] = v
-                    elif "mobile" in k or "phone" in k:
-                        profile["mobile"] = v
-                    elif "mail" in k:
-                        profile["email"] = v
-                    elif "blood" in k:
-                        profile["blood_group"] = v
-                    elif "dob" in k or "date of birth" in k:
-                        profile["dob"] = v
-                    elif "reg" in k:
-                        profile["reg_no"] = v
 
+        # Strategy: find rows where a cell contains only ':' followed by a value cell
+        # Pattern: <td>Label</td><td></td><td>:</td><td>VALUE</td>
+        for row in soup.find_all("tr"):
+            cells = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
+            # Remove empty cells and lone ':'
+            non_empty = [c for c in cells if c.strip() and c.strip() != ":"]
+            if len(non_empty) >= 2:
+                label = non_empty[0].lower().replace(":", "").strip()
+                value = non_empty[1].strip()
+                # Skip obviously junk values
+                if not value or len(value) < 1:
+                    continue
+                if "name" in label and "father" not in label and "mother" not in label and "school" not in label:
+                    # Skip stub placeholders '-' or ':'
+                    if value and value not in ("-", ":", "--"):
+                        profile["student_name"] = value
+                elif "father" in label:
+                    profile["father_name"] = value
+                elif "mother" in label:
+                    profile["mother_name"] = value
+                elif "branch" in label or "programme" in label or "dept" in label:
+                    profile["branch"] = value
+                elif label == "year":
+                    profile["_raw_year"] = value
+                elif "semester" in label or label == "sem":
+                    profile["_raw_sem"] = value
+                elif "section" in label:
+                    # Section must be a letter (A-Z), not a digit
+                    if re.match(r"^[A-Z]$", value.upper()):
+                        profile["section"] = value.upper()
+                elif "mobile" in label or "phone" in label:
+                    profile["mobile"] = value
+                elif "mail" in label:
+                    profile["email"] = value
+                elif "blood" in label:
+                    profile["blood_group"] = value
+                elif "dob" in label or "date of birth" in label or "birth" in label:
+                    profile["dob"] = value
+                elif label.startswith("reg") or label == "regno":
+                    if re.match(r"^\d{2}[0-9A-Z]+$", value, re.I):
+                        profile["reg_no"] = value
+
+        # Compute semester from year+sem if found
+        raw_year = profile.pop("_raw_year", None)
+        raw_sem  = profile.pop("_raw_sem", None)
         computed_sem = self._calculate_true_semester(raw_year, raw_sem, html)
         if computed_sem:
             profile["semester"] = computed_sem
 
-        if "student_name" not in profile:
-            for el in soup.find_all(["h2", "h3", "h4", "p", "span"]):
-                text = el.get_text(strip=True)
-                if "Welcome" in text or "Student:" in text:
-                    cleaned = re.sub(r"Welcome|Student\s*[:\-]|Mr\.|Ms\.", "", text, flags=re.I).strip()
-                    if len(cleaned) > 2:
-                        profile["student_name"] = cleaned
-                        break
-
         return profile
 
     def _parse_attendance_html(self, html: str) -> Dict[str, Any]:
-        """Extracts subject attendance table from attendance.jsp."""
+        """
+        Parses attendance.jsp which uses this real structure:
+          Header row:  SL | REGD.NO | NAME | SUBJ1 | SUBJ2 | ... | TOTAL%
+          Hours row:   No. Of Conducted Hours-> | N1 | N2 | ...
+          Data row:    1  | 241FA04E95 | STUDENT NAME | att1(cond1) | att2(cond2) | ... | TOTAL%
+
+        Attendance values are formatted as 'attended(conducted)' e.g. '3(25)'.
+        """
         subjects: List[Dict[str, Any]] = []
         aggregate_pct = 0.0
+        student_name_from_att = None
+        student_regno_from_att = None
 
         if not BeautifulSoup:
             return {"subjects": [], "aggregate_percentage": 0.0}
 
         soup = BeautifulSoup(html, "html.parser")
-        tables = soup.find_all("table")
 
-        for table in tables:
+        for table in soup.find_all("table"):
             rows = table.find_all("tr")
-            for row in rows:
-                cells = [td.get_text(strip=True) for td in row.find_all(["td", "th"])]
-                if len(cells) >= 4:
-                    pct_match = None
-                    for cell in cells:
-                        if "%" in cell or re.match(r"^\d+(\.\d+)?$", cell):
-                            try:
-                                val = float(cell.replace("%", "").strip())
-                                if 0.0 <= val <= 100.0:
-                                    pct_match = val
-                            except ValueError:
-                                pass
+            if len(rows) < 2:
+                continue
 
-                    code_match = None
-                    for cell in cells:
-                        if re.match(r"^[0-9]{2}[A-Z]{2}[0-9]{3}$", cell.strip(), re.I):
-                            code_match = cell.strip()
+            # Find the header row containing 'REGD.NO' or 'NAME'
+            header_row_idx = None
+            subject_codes = []
+            for i, row in enumerate(rows):
+                cells = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
+                upper_cells = [c.upper() for c in cells]
+                if "REGD.NO" in upper_cells or "NAME" in upper_cells:
+                    header_row_idx = i
+                    # Subject codes start after SL, REGD.NO, NAME and end before TOTAL %
+                    try:
+                        name_idx = next(j for j, c in enumerate(upper_cells) if "NAME" in c)
+                    except StopIteration:
+                        name_idx = 2
+                    for code in cells[name_idx + 1:]:
+                        code_clean = code.strip()
+                        # Skip "TOTAL %" or empty
+                        if code_clean and "total" not in code_clean.lower() and "%" not in code_clean:
+                            subject_codes.append(code_clean)
+                    break
+
+            if header_row_idx is None:
+                continue
+
+            # Find the conducted-hours row (contains 'Conducted' text)
+            conducted_hours = []
+            for row in rows[header_row_idx + 1:]:
+                cells = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
+                if any("conduct" in c.lower() for c in cells):
+                    # Hours are the numeric values in the row, aligned with subject_codes
+                    nums = [c.strip() for c in cells if re.match(r"^\d+$", c.strip())]
+                    conducted_hours = nums
+                    break
+
+            # Find student data rows — identified by a valid Vignan regno (e.g. 241FA04E95)
+            for row in rows[header_row_idx + 1:]:
+                cells = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
+                # Look for a cell matching a Vignan regno pattern
+                regno_idx = None
+                for j, cell in enumerate(cells):
+                    if re.match(r"^\d{2}[0-9A-Z]{6,}$", cell.strip(), re.I):
+                        regno_idx = j
+                        break
+                if regno_idx is None:
+                    continue
+
+                student_regno_from_att = cells[regno_idx].strip().upper()
+                # Name is typically the cell after regno
+                if regno_idx + 1 < len(cells):
+                    student_name_from_att = cells[regno_idx + 1].strip()
+
+                # Attendance values follow the name — format 'attended(conducted)' or plain number
+                att_start = regno_idx + 2
+                att_values = cells[att_start:]
+
+                # The last meaningful cell is TOTAL % — a plain float/int
+                total_pct = 0.0
+                for cell in reversed(att_values):
+                    try:
+                        val = float(cell.replace("%", "").strip())
+                        if 0.0 <= val <= 100.0:
+                            total_pct = val
                             break
+                    except ValueError:
+                        pass
+                aggregate_pct = total_pct
 
-                    if code_match:
-                        name = "Course Subject"
-                        for cell in cells:
-                            if len(cell) > 5 and cell != code_match and not re.search(r"^\d", cell):
-                                name = cell
-                                break
-                        
-                        subjects.append({
-                            "subject_code": code_match,
-                            "subject_name": name,
-                            "percentage": pct_match if pct_match is not None else 85.0
-                        })
+                # Parse individual subject attendance
+                for idx, raw_val in enumerate(att_values):
+                    if idx >= len(subject_codes):
+                        break
+                    code = subject_codes[idx]
+                    raw_val = raw_val.strip()
+                    # Skip '-' (not enrolled) and the final TOTAL % cell
+                    if raw_val in ("-", "") or "total" in raw_val.lower():
+                        continue
+                    # Parse 'attended(conducted)' format
+                    m = re.match(r"(\d+)\((\d+)\)", raw_val)
+                    if m:
+                        attended = int(m.group(1))
+                        conducted = int(m.group(2))
+                        pct = round((attended / conducted * 100), 1) if conducted > 0 else 0.0
+                    else:
+                        try:
+                            pct = float(raw_val.replace("%", "").strip())
+                            attended = 0
+                            conducted = 0
+                        except ValueError:
+                            continue
+                    subjects.append({
+                        "subject_code": code,
+                        "subject_name": code,   # portal doesn't show full names in att table
+                        "percentage": pct,
+                        "attended": attended,
+                        "held": conducted,
+                    })
+                # Only process the first matching student row
+                break
 
-        if subjects:
-            aggregate_pct = round(sum(s["percentage"] for s in subjects) / len(subjects), 2)
-
-        return {
+        result = {
             "subjects": subjects,
             "aggregate_percentage": aggregate_pct
         }
+        if student_name_from_att:
+            result["student_name"] = student_name_from_att
+        if student_regno_from_att:
+            result["regno"] = student_regno_from_att
+        return result
+
 
     def _parse_marks_html(self, html: str) -> Dict[str, Any]:
         """Extracts SGPA, CGPA, and semester grades from finalmarks1.jsp."""
