@@ -1320,99 +1320,113 @@ export default function App() {
 
               if (!current) return null; // all done — show the grid below
 
+              // Per-agent accent colour for borders/shadows only — bg stays white
+              const ACCENT_CLASSES = [
+                'border-blue-600 shadow-[12px_12px_0_#2563eb]',   // NEXUS
+                'border-purple-600 shadow-[12px_12px_0_#7c3aed]', // MATRIX
+                'border-cyan-600 shadow-[12px_12px_0_#0891b2]',   // VECTOR
+                'border-yellow-500 shadow-[12px_12px_0_#d97706]', // STATE
+                'border-green-600 shadow-[12px_12px_0_#16a34a]',  // CODEX
+                'border-red-600 shadow-[12px_12px_0_#dc2626]',    // SENTINEL
+              ];
+              const HEADER_CLASSES = [
+                'bg-blue-600',   // NEXUS
+                'bg-purple-700', // MATRIX
+                'bg-cyan-700',   // VECTOR
+                'bg-yellow-500 text-black', // STATE
+                'bg-green-700',  // CODEX
+                'bg-red-700',    // SENTINEL
+              ];
+
               return (
-                <div className="fixed inset-0 z-50 flex flex-col overflow-hidden"
-                  style={{
-                    background: `linear-gradient(to bottom right, ${current.bg.replace('from-[','').replace('] to-[','',).replace(']','')})`,
-                    backgroundImage: `linear-gradient(135deg, ${current.bg.split('from-[')[1]?.split(']')[0] || '#0f1c3f'}, ${current.bg.split('to-[')[1]?.split(']')[0] || '#0a0f1e'})`,
-                    animation: 'ag-fade-in 0.5s ease-out forwards'
-                  }}>
+                <div className={`fixed inset-0 z-50 flex flex-col bg-white border-[8px] border-black ${ACCENT_CLASSES[current.id]}`}
+                  style={{animation:'ag-fade-in 0.4s ease-out forwards'}}>
 
-                  {/* Background decoration */}
-                  {current.decoration}
+                  {/* Background decoration — subtle, behind content */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.04]">
+                    {current.decoration}
+                  </div>
 
-                  {/* Top bar */}
-                  <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-white/10">
+                  {/* ── WINDOW HEADER BAR (matches app's window-header style) */}
+                  <div className={`relative z-10 flex items-center justify-between px-4 py-3 border-b-[6px] border-black ${HEADER_CLASSES[current.id]} text-white flex-shrink-0`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor:current.color}}/>
-                      <span className="font-mono text-sm text-white/60 uppercase tracking-widest">OMEGA — SWARM ORCHESTRATOR</span>
+                      <span className="title-text text-lg">SWARM_ORCHESTRATOR.SYS</span>
+                      <span className="text-xs bg-black text-white px-2 py-0.5 font-bold uppercase border border-white animate-pulse">
+                        AGENT {current.id+1}/6 ACTIVE
+                      </span>
                     </div>
+                    {/* Step dots */}
                     <div className="flex items-center gap-2">
                       {AGENTS.map((a,i)=>(
-                        <div key={i} className="w-2 h-2 rounded-full transition-all duration-500"
-                          style={{
-                            backgroundColor: pipelineStep > i ? '#22c55e' : i === activeAgentIdx ? current.color : 'rgba(255,255,255,0.2)',
-                            transform: i === activeAgentIdx ? 'scale(1.6)' : 'scale(1)',
-                            boxShadow: i === activeAgentIdx ? `0 0 8px ${current.color}` : 'none'
-                          }}/>
+                        <div key={i}
+                          className={`w-5 h-5 border-2 border-black flex items-center justify-center text-[10px] font-black transition-all duration-300
+                            ${pipelineStep > i ? 'bg-green-400 text-black' : i === activeAgentIdx ? 'bg-white text-black scale-125' : 'bg-gray-300 text-gray-500'}`}>
+                          {pipelineStep > i ? '✓' : i+1}
+                        </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Main content */}
-                  <div className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 px-8 py-6">
+                  {/* ── MAIN CONTENT ── */}
+                  <div className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-6 py-6 overflow-hidden crt godmode-bg">
 
-                    {/* Agent image — large, floating, glowing */}
+                    {/* Agent image — large, floating, pixel-styled frame */}
                     <div className="relative flex-shrink-0">
-                      {/* Glow halo */}
-                      <div className="absolute inset-0 rounded-full blur-3xl scale-125"
-                        style={{backgroundColor: current.glow, animation:'ag-ping-ring 2.5s ease-out infinite'}}/>
-                      {/* Image */}
-                      <img
-                        src={current.img}
-                        alt={current.name}
-                        className="relative w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl"
-                        style={{
-                          imageRendering: 'pixelated',
-                          filter: `drop-shadow(0 0 24px ${current.color})`,
-                          animation: 'ag-float 3s ease-in-out infinite'
-                        }}
-                      />
+                      {/* Hard pixel shadow frame */}
+                      <div className={`absolute inset-0 border-[6px] border-black translate-x-3 translate-y-3`}
+                        style={{backgroundColor: current.color, opacity: 0.25}}/>
+                      <div className={`relative border-[6px] border-black bg-white p-4 shadow-[8px_8px_0_#000]`}>
+                        <img
+                          src={current.img}
+                          alt={current.name}
+                          className="w-40 h-40 md:w-52 md:h-52 object-contain"
+                          style={{
+                            imageRendering: 'pixelated',
+                            animation: 'ag-float 3s ease-in-out infinite'
+                          }}
+                        />
+                      </div>
                     </div>
 
-                    {/* Agent info panel */}
-                    <div className="flex flex-col items-center md:items-start gap-4 max-w-lg">
-                      {/* Agent number */}
-                      <div className="font-mono text-xs tracking-[0.3em] uppercase"
-                        style={{color: current.color}}>
-                        AGENT {String(current.id + 1).padStart(2,'0')} / 06
-                      </div>
+                    {/* Agent info — full pixel card */}
+                    <div className="flex flex-col gap-4 max-w-lg w-full">
 
-                      {/* Name */}
-                      <div className="title-text text-5xl md:text-7xl text-white drop-shadow-lg leading-none"
-                        style={{textShadow:`0 0 30px ${current.color}`}}>
-                        {current.name}
+                      {/* Agent name header */}
+                      <div className="border-[6px] border-black bg-black text-white px-6 py-3 shadow-[6px_6px_0_#000]">
+                        <div className="title-text text-xs text-gray-400 mb-1">AGENT {String(current.id+1).padStart(2,'0')} / 06</div>
+                        <div className="title-text text-4xl md:text-5xl text-white leading-none">{current.name}</div>
                       </div>
 
                       {/* Role badge */}
-                      <div className="px-4 py-1.5 border text-sm font-bold uppercase tracking-widest"
-                        style={{borderColor: current.color, color: current.color, boxShadow:`0 0 12px ${current.glow}`}}>
-                        {current.role}
+                      <div className={`border-[4px] border-black px-4 py-2 inline-flex items-center gap-2 shadow-[4px_4px_0_#000] ${HEADER_CLASSES[current.id]} text-white w-fit`}>
+                        <div className="w-2 h-2 bg-white animate-pulse"/>
+                        <span className="title-text text-sm uppercase">{current.role}</span>
                       </div>
 
-                      {/* Task description */}
-                      <p className="font-mono text-sm text-white/50 leading-relaxed text-center md:text-left">
-                        {current.task}
-                      </p>
+                      {/* Task box */}
+                      <div className="border-[4px] border-black bg-gray-50 p-4 shadow-[4px_4px_0_#000]">
+                        <div className="title-text text-xs bg-black text-white px-2 py-0.5 inline-block mb-2">CURRENT TASK</div>
+                        <p className="font-mono text-sm text-gray-800 leading-relaxed">{current.task}</p>
+                      </div>
 
-                      {/* Live status strip */}
-                      <div className="w-full border border-white/10 bg-black/40 px-4 py-3 flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                          style={{backgroundColor:current.color, boxShadow:`0 0 8px ${current.color}`, animation:'ag-ping-ring 1s ease-out infinite'}}/>
-                        <div className="overflow-hidden flex-1">
-                          <div className="font-mono text-xs whitespace-nowrap"
-                            style={{color:current.color, animation:'ag-ticker 8s linear infinite'}}>
-                            {`● ACTIVE ● ${current.task} ● AGENT ${current.id+1}/6 ONLINE ● TARGET: ${chatInput.toUpperCase()} ● SWARM PROCESSING ● `}
-                            {`● ACTIVE ● ${current.task} ● AGENT ${current.id+1}/6 ONLINE ● TARGET: ${chatInput.toUpperCase()} ● SWARM PROCESSING ● `}
-                          </div>
+                      {/* Scrolling ticker strip */}
+                      <div className="border-[4px] border-black bg-black overflow-hidden shadow-[4px_4px_0_#000]">
+                        <div className="py-2 px-0 whitespace-nowrap"
+                          style={{animation:'ag-ticker 10s linear infinite'}}>
+                          <span className={`title-text text-xs px-4`} style={{color:current.color}}>
+                            {`● PROCESSING ● ${current.task} ● TARGET: ${chatInput.toUpperCase()} ● AGENT ${current.id+1}/6 ● OMEGA SWARM ACTIVE ● `}
+                            {`● PROCESSING ● ${current.task} ● TARGET: ${chatInput.toUpperCase()} ● AGENT ${current.id+1}/6 ● OMEGA SWARM ACTIVE ● `}
+                          </span>
                         </div>
                       </div>
 
                       {/* Previously completed agents */}
                       {current.id > 0 && (
                         <div className="flex flex-wrap gap-2">
+                          <span className="title-text text-xs bg-black text-white px-2 py-0.5">COMPLETED:</span>
                           {AGENTS.slice(0, current.id).map(a=>(
-                            <div key={a.id} className="flex items-center gap-1.5 px-2 py-1 bg-green-900/40 border border-green-500/40 text-green-400 text-xs font-bold">
+                            <div key={a.id} className="flex items-center gap-1.5 px-3 py-1 bg-green-400 border-[3px] border-black shadow-[2px_2px_0_#000] text-black text-xs font-black">
+                              <img src={a.img} alt={a.name} className="w-5 h-5 object-contain" style={{imageRendering:'pixelated'}}/>
                               ✓ {a.name}
                             </div>
                           ))}
@@ -1421,22 +1435,17 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Bottom progress bar */}
-                  <div className="relative z-10 px-6 pb-6">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-mono text-xs text-white/40">PIPELINE PROGRESS</span>
-                      <span className="font-mono text-xs ml-auto" style={{color:current.color}}>
-                        {Math.round(((current.id) / 6) * 100)}% COMPLETE
-                      </span>
-                    </div>
-                    <div className="h-1 w-full bg-white/10 rounded overflow-hidden">
-                      <div className="h-full rounded transition-all duration-700"
+                  {/* ── BOTTOM PROGRESS BAR ── */}
+                  <div className="relative z-10 border-t-[6px] border-black bg-white px-6 py-3 flex items-center gap-4 flex-shrink-0">
+                    <span className="title-text text-xs text-black">PIPELINE:</span>
+                    <div className="flex-1 h-5 border-[3px] border-black bg-gray-100 overflow-hidden shadow-[3px_3px_0_#000]">
+                      <div className="h-full transition-all duration-700 border-r-[3px] border-black"
                         style={{
                           width: `${((current.id) / 6) * 100}%`,
                           backgroundColor: current.color,
-                          boxShadow: `0 0 10px ${current.color}`
                         }}/>
                     </div>
+                    <span className="title-text text-sm text-black">{Math.round(((current.id)/6)*100)}%</span>
                   </div>
                 </div>
               );
