@@ -1034,12 +1034,7 @@ export default function App() {
                     <span className="text-xs text-gray-600 font-mono">REG: {regNo.toUpperCase()}</span>
                   </div>
                   <h2 className="title-text text-2xl md:text-3xl text-blue-700">{name || 'Vignan Student'}</h2>
-                  {(scrapedProfile?.section || scrapedProfile?.profile?.section) && (
-                    <p className="text-sm text-gray-700 mt-1 flex items-center gap-1.5 font-bold">
-                      <GraduationCap size={16} className="text-indigo-600" />
-                      Section: <span className="text-black">{scrapedProfile.section || scrapedProfile.profile.section}</span>
-                    </p>
-                  )}
+                  
                 </div>
                 <div className="text-left md:text-right">
                   <span className="text-xs bg-yellow-300 text-black px-2 py-1 font-bold border-2 border-black uppercase inline-block mb-1">
