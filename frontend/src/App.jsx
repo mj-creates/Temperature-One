@@ -1178,32 +1178,188 @@ export default function App() {
                   <span className="text-sm font-normal bg-black text-white px-3 py-1 border-2 border-white">TARGET: {chatInput}</span>
                 </h2>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                {/* Inline CSS keyframes for each agent's role-specific animation */}
+                <style>{`
+                  @keyframes nexus-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+                  @keyframes matrix-scan { 0%,100%{transform:translateY(-110%)} 50%{transform:translateY(110%)} }
+                  @keyframes matrix-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+                  @keyframes state-bar { 0%{width:0%} 100%{width:100%} }
+                  @keyframes codex-pulse { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
+                  @keyframes sentinel-shield { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+                  @keyframes sentinel-lock { 0%,85%{transform:translateY(0)} 90%{transform:translateY(-5px)} 100%{transform:translateY(0)} }
+                  @keyframes done-pop { 0%{opacity:0;transform:scale(0.4)} 60%{transform:scale(1.2)} 100%{opacity:1;transform:scale(1)} }
+                  @keyframes card-glow { 0%,100%{box-shadow:6px 6px 0 #3b82f6} 50%{box-shadow:6px 6px 0 #60a5fa,0 0 18px rgba(59,130,246,0.35)} }
+                  @keyframes vector-travel { 0%{offset-distance:0%} 100%{offset-distance:100%} }
+                `}</style>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {[
-                    { id: 0, name: 'NEXUS', role: 'Orchestrator', avatar: '/assets/nexus.png' },
-                    { id: 1, name: 'MATRIX', role: 'Pathfinder', avatar: '/assets/matrix.png' },
-                    { id: 2, name: 'VECTOR', role: 'Trajectory', avatar: '/assets/vector.png' },
-                    { id: 3, name: 'STATE', role: 'Auditor', avatar: '/assets/state.png' },
-                    { id: 4, name: 'CODEX', role: 'Policy RAG', avatar: '/assets/codex.png' },
-                    { id: 5, name: 'SENTINEL', role: 'Verifier', avatar: '/assets/sentinel.png' },
+                    // NEXUS — Orchestrator: spinning hub + orbiting dot (coordinating)
+                    {
+                      id: 0, name: 'NEXUS', role: 'Orchestrator',
+                      anim: (active, done) => (
+                        <svg viewBox="0 0 64 64" className="w-full h-full p-3">
+                          <circle cx="32" cy="32" r="22" fill="none"
+                            stroke={done?'#16a34a':active?'#bfdbfe':'#e5e7eb'} strokeWidth="1.5" strokeDasharray="5 3"/>
+                          <circle cx="32" cy="32" r="10" fill="none"
+                            stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="3"
+                            style={active&&!done?{animation:'nexus-spin 1.6s linear infinite',transformOrigin:'32px 32px'}:{}}/>
+                          <circle cx="32" cy="32" r="4" fill={done?'#22c55e':active?'#3b82f6':'#9ca3af'}/>
+                          {active&&!done&&(
+                            <g style={{animation:'nexus-spin 1.6s linear infinite',transformOrigin:'32px 32px'}}>
+                              <circle cx="32" cy="10" r="5" fill="#3b82f6"/>
+                            </g>
+                          )}
+                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round"
+                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
+                        </svg>
+                      )
+                    },
+                    // MATRIX — Pathfinder: horizontal scan line over grid (searching)
+                    {
+                      id: 1, name: 'MATRIX', role: 'Pathfinder',
+                      anim: (active, done) => (
+                        <svg viewBox="0 0 64 64" className="w-full h-full p-2" style={{overflow:'hidden'}}>
+                          <defs><clipPath id="mc"><rect x="2" y="2" width="60" height="60"/></clipPath></defs>
+                          {[10,20,30,40,50,60].map(x=><line key={'v'+x} x1={x} y1="2" x2={x} y2="62" stroke={done?'#86efac':active?'#bfdbfe':'#e5e7eb'} strokeWidth="1"/>)}
+                          {[10,20,30,40,50,60].map(y=><line key={'h'+y} x1="2" y1={y} x2="62" y2={y} stroke={done?'#86efac':active?'#bfdbfe':'#e5e7eb'} strokeWidth="1"/>)}
+                          {active&&!done&&(
+                            <rect x="2" y="0" width="60" height="10" fill="rgba(59,130,246,0.3)" clipPath="url(#mc)"
+                              style={{animation:'matrix-scan 1.1s ease-in-out infinite'}}/>
+                          )}
+                          {active&&!done&&<rect x="27" y="27" width="10" height="10" fill="#3b82f6"
+                            style={{animation:'matrix-blink 0.7s step-start infinite'}}/>}
+                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round"
+                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
+                        </svg>
+                      )
+                    },
+                    // VECTOR — Trajectory: animated dot moving along curved path (charting course)
+                    {
+                      id: 2, name: 'VECTOR', role: 'Trajectory',
+                      anim: (active, done) => (
+                        <svg viewBox="0 0 64 64" className="w-full h-full p-3">
+                          <path id="vpath" d="M6 54 C16 54 20 32 32 32 C44 32 48 10 58 10"
+                            fill="none" stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="3" strokeLinecap="round"/>
+                          {active&&!done&&(
+                            <>
+                              <circle r="6" fill="#3b82f6">
+                                <animateMotion dur="1.4s" repeatCount="indefinite" path="M6 54 C16 54 20 32 32 32 C44 32 48 10 58 10" rotate="auto"/>
+                              </circle>
+                              <polygon points="58,4 64,12 52,12" fill="#3b82f6"/>
+                            </>
+                          )}
+                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round"
+                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
+                        </svg>
+                      )
+                    },
+                    // STATE — Auditor: cascading progress bars (auditing/checking)
+                    {
+                      id: 3, name: 'STATE', role: 'Auditor',
+                      anim: (active, done) => (
+                        <svg viewBox="0 0 64 64" className="w-full h-full p-2">
+                          {[10,22,34,46].map((y,i)=>(
+                            <g key={y}>
+                              <rect x="4" y={y} width="56" height="9" rx="2"
+                                fill={done?'#dcfce7':active?'#dbeafe':'#f3f4f6'}
+                                stroke={done?'#22c55e':active?'#93c5fd':'#d1d5db'} strokeWidth="1.5"/>
+                              {(active||done)&&(
+                                <rect x="4" y={y} width={done?56:0} height="9" rx="2"
+                                  fill={done?'#22c55e':'#3b82f6'}
+                                  style={active&&!done?{animation:`state-bar ${0.7+i*0.25}s ease-out ${i*0.2}s infinite alternate`}:{width:done?56:0}}/>
+                              )}
+                            </g>
+                          ))}
+                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
+                            style={{animation:'done-pop 0.5s ease-out 0.1s forwards'}}/>}
+                        </svg>
+                      )
+                    },
+                    // CODEX — Policy RAG: animated equalizer bars (retrieving/processing knowledge)
+                    {
+                      id: 4, name: 'CODEX', role: 'Policy RAG',
+                      anim: (active, done) => (
+                        <svg viewBox="0 0 64 64" className="w-full h-full p-2">
+                          {[6,16,26,36,46,56].map((x,i)=>{
+                            const maxH=[24,38,30,44,20,36][i];
+                            return(
+                              <rect key={x} x={x} y={64-maxH} width="7" height={maxH} rx="2"
+                                fill={done?'#22c55e':active?['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#3b82f6','#2563eb'][i]:'#d1d5db'}
+                                style={active&&!done?{animation:`codex-pulse ${0.35+i*0.08}s ease-in-out ${i*0.06}s infinite alternate`,transformOrigin:`${x+3}px 64px`}:{}}/>
+                            );
+                          })}
+                          {done&&<path d="M21 32 L28 40 L43 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
+                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
+                        </svg>
+                      )
+                    },
+                    // SENTINEL — Verifier: pulsing shield + animated lock (verifying/securing)
+                    {
+                      id: 5, name: 'SENTINEL', role: 'Verifier',
+                      anim: (active, done) => (
+                        <svg viewBox="0 0 64 64" className="w-full h-full p-2">
+                          <path d="M32 4 L56 13 L56 32 Q56 50 32 60 Q8 50 8 32 L8 13 Z"
+                            fill={done?'#dcfce7':active?'#dbeafe':'#f9fafb'}
+                            stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="2.5"
+                            style={active&&!done?{animation:'sentinel-shield 1.2s ease-in-out infinite',transformOrigin:'32px 32px'}:{}}/>
+                          <g style={active&&!done?{animation:'sentinel-lock 2.2s ease-in-out infinite'}:{}}>
+                            <rect x="23" y="32" width="18" height="14" rx="3"
+                              fill={done?'#22c55e':active?'#3b82f6':'#9ca3af'}/>
+                            <path d="M27 32 Q27 23 32 23 Q37 23 37 32" fill="none"
+                              stroke={done?'#22c55e':active?'#3b82f6':'#9ca3af'} strokeWidth="3" strokeLinecap="round"/>
+                            <circle cx="32" cy="39" r="2.5" fill="white"/>
+                          </g>
+                          {active&&!done&&[0,1,2].map(i=>(
+                            <circle key={i} cx={[32,54,10][i]} cy={[6,14,14][i]} r="3"
+                              fill="rgba(59,130,246,0.45)"
+                              style={{animation:`sentinel-shield ${0.6+i*0.2}s ease-in-out ${i*0.15}s infinite`,transformOrigin:'32px 32px'}}/>
+                          ))}
+                          {done&&<path d="M21 36 L28 43 L43 28" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
+                            style={{animation:'done-pop 0.5s ease-out forwards'}}/>}
+                        </svg>
+                      )
+                    },
                   ].map((agent) => {
                     const isActive = pipelineStep >= agent.id;
                     const isDone = pipelineStep > agent.id;
-                    
                     return (
-                      <div key={agent.id} className={`border-[6px] border-black p-5 flex flex-col items-center text-center transition-all duration-500 transform ${isActive ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-50 grayscale'} ${isDone ? 'bg-green-100 shadow-[8px_8px_0_#22c55e]' : (isActive ? 'bg-white shadow-[8px_8px_0_#3b82f6] animate-pulse-border' : 'bg-gray-200 shadow-[8px_8px_0_#000]')}`}>
-                        
-                        <div className={`w-24 h-24 border-[4px] border-black mb-4 overflow-hidden bg-white shadow-[4px_4px_0_#000] ${isActive && !isDone ? 'animate-bounce' : ''}`}>
-                          <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
+                      <div key={agent.id}
+                        className={`border-[5px] border-black p-4 flex flex-col items-center text-center transition-all duration-700
+                          ${isActive ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-35 grayscale'}
+                          ${isDone ? 'bg-green-50 shadow-[6px_6px_0_#22c55e]'
+                              : isActive ? 'bg-white'
+                              : 'bg-gray-100 shadow-[6px_6px_0_#000]'}`}
+                        style={isActive&&!isDone ? {animation:'card-glow 1.8s ease-in-out infinite'} : {}}
+                      >
+                        {/* Role-specific SVG animation */}
+                        <div className={`w-18 h-18 border-[3px] mb-2 transition-colors duration-700 overflow-hidden
+                          ${isDone ? 'border-green-500 bg-green-50' : isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
+                          style={{width:'72px',height:'72px'}}>
+                          {agent.anim(isActive, isDone)}
                         </div>
-                        
-                        <div className="title-text text-lg mb-1 bg-black text-white px-2">{agent.name}</div>
-                        <div className="text-lg text-gray-700 mb-4 font-bold">{agent.role}</div>
-                        
+
+                        <div className="title-text text-sm mb-0.5 bg-black text-white px-2 w-full truncate">{agent.name}</div>
+                        <div className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wide">{agent.role}</div>
+
                         <div className="mt-auto w-full">
-                          {!isActive && <div className="border-4 border-gray-400 bg-gray-300 text-gray-500 py-2 title-text text-sm">STANDBY</div>}
-                          {isActive && !isDone && <div className="border-4 border-blue-600 bg-blue-100 text-blue-600 py-2 title-text text-sm animate-pulse">COMPUTING</div>}
-                          {isDone && <div className="border-4 border-green-600 bg-green-500 text-white py-2 title-text text-sm">SYNCED</div>}
+                          {!isActive && (
+                            <div className="border-2 border-gray-400 bg-gray-200 text-gray-500 py-1 text-xs font-bold flex items-center justify-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400"/>STANDBY
+                            </div>
+                          )}
+                          {isActive && !isDone && (
+                            <div className="border-2 border-blue-500 bg-blue-600 text-white py-1 text-xs font-bold flex items-center justify-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-white" style={{animation:'matrix-blink 0.5s step-start infinite'}}/>
+                              ACTIVE
+                            </div>
+                          )}
+                          {isDone && (
+                            <div className="border-2 border-green-600 bg-green-500 text-white py-1 text-xs font-bold flex items-center justify-center gap-1"
+                              style={{animation:'done-pop 0.4s ease-out forwards'}}>
+                              ✓ DONE
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
