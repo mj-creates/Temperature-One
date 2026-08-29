@@ -740,94 +740,144 @@ export default function App() {
 
   const openKnowledgeGraph = () => {
     navigateTo('knowledge_graph');
-    
-    try {
-      if (pipelineData && pipelineData.degree_pathway && pipelineData.degree_pathway.path_sequence) {
-        const tNodes = [];
-        const tEdges = [];
-        const stepXOffset = 380;
-        const nodeYOffset = 180;
-        
-        let lastStepNodes = ['start'];
-        let maxSem = 1;
-        
-        tNodes.push({ id: 'start', type: 'customCourseNode', position: { x: 50, y: 300 }, data: { subject_id: 'START', label: `${name} [${studentDetails.department}]`, credits: 0, semester: studentDetails.semester || 1, status: 'COMPLETED' } });
-        
-        pipelineData.degree_pathway.path_sequence.forEach((step, stepIndex) => {
-          const stepX = (stepIndex + 1) * stepXOffset + 50;
-          const currentStepNodes = [];
-          
-          step.nodes_details.forEach((node, idx) => {
-            const nodeId = node.id || `node-${stepIndex}-${idx}`;
-            currentStepNodes.push(nodeId);
-            if (node.semester > maxSem) maxSem = node.semester;
-            
-            const totalInStep = step.nodes_details.length;
-            const startY = 300 - ((totalInStep - 1) * nodeYOffset) / 2;
-            const nodeY = startY + idx * nodeYOffset;
-            
-            tNodes.push({
-              id: nodeId,
-              type: 'customCourseNode',
-              position: { x: stepX, y: nodeY },
-              data: {
-                subject_id: node.id,
-                label: node.name,
-                credits: node.credits,
-                semester: node.semester,
-                status: 'AVAILABLE',
-                is_bottleneck: pipelineData.degree_pathway.bottlenecks?.includes(node.id)
-              }
-            });
-            
-            if (node.prerequisites && node.prerequisites.length > 0) {
-               node.prerequisites.forEach(prereq => {
-                   tEdges.push({
-                     id: `e-${prereq}-${nodeId}`,
-                     source: prereq,
-                     target: nodeId,
-                     type: 'step',
-                     style: { strokeWidth: 5, strokeDasharray: '8,8', stroke: '#78350f' },
-                     animated: true
-                   });
-               });
-            } else {
-               const fallbackSource = lastStepNodes[idx % lastStepNodes.length];
-               tEdges.push({
-                 id: `e-${fallbackSource}-${nodeId}`,
-                 source: fallbackSource,
-                 target: nodeId,
-                 type: 'step',
-                 style: { strokeWidth: 5, strokeDasharray: '8,8', stroke: '#78350f' },
-                 animated: true
-               });
-            }
-          });
-          
-          if (currentStepNodes.length > 0) {
-            lastStepNodes = currentStepNodes;
-          }
-        });
-        
-        const sources = new Set(tEdges.map(e => e.source));
-        const finalX = (pipelineData.degree_pathway.path_sequence.length + 1) * stepXOffset + 150;
-        
-        tNodes.push({ id: 'treasure', type: 'customCourseNode', position: { x: finalX, y: 300 }, data: { subject_id: 'X_MARKS_SPOT', label: chatInput || 'Ultimate Goal', credits: 0, semester: maxSem + 1, status: 'TREASURE' } });
-        
-        tNodes.forEach(n => {
-          if (n.id !== 'start' && n.id !== 'treasure' && !sources.has(n.id)) {
-            tEdges.push({ id: `e-win-${n.id}`, source: n.id, target: 'treasure', type: 'step', style: { strokeWidth: 8, strokeDasharray: '10,10', stroke: '#eab308' }, animated: true });
-          }
-        });
-        
-        setNodes(tNodes);
-        setEdges(tEdges);
-        return;
+
+    // Build the complete Sem 1 → Sem 8 graph from roadmapData (always available)
+    // plus the student's current semester as context.
+    const tNodes = [];
+    const tEdges = [];
+    const X_GAP = 320;
+    const Y_GAP = 160;
+    const curSem = studentDetails.semester || 1;
+
+    // Use the full curriculum for the student's department
+    const normDept = (studentDetails.department || 'CSE').toUpperCase();
+    let deptKey = 'CSE';
+    if (normDept.includes('AI') || normDept.includes('MACHINE')) deptKey = 'AIML';
+    else if (normDept.includes('CYBER') || normDept.includes('CSCS') || normDept.includes('SECURITY')) deptKey = 'CSCS';
+    else if (normDept.includes('INFO') || normDept === 'IT') deptKey = 'IT';
+    else if (normDept.includes('MECH')) deptKey = 'MECH';
+    else if (normDept.includes('CIVIL')) deptKey = 'CIVIL';
+    else if (normDept.includes('ECE') || normDept.includes('COMMUNICATION')) deptKey = 'ECE';
+    else if (normDept.includes('EEE') || normDept.includes('ELECTRICAL')) deptKey = 'EEE';
+    else if (normDept.includes('BBA') || normDept.includes('BUSINESS')) deptKey = 'BBA';
+    else if (DEPARTMENT_CURRICULA[normDept]) deptKey = normDept;
+
+    const curriculum = DEPARTMENT_CURRICULA[deptKey] || DEPARTMENT_CURRICULA['CSE'];
+    const goal = (chatInput || 'Software Engineer').toLowerCase();
+    const goalProfile = getGoalProfile(goal);
+
+    // Score each subject for goal relevance — low scorers become bottlenecks
+    function scoreForGoal(sub) {
+      let sc = 0;
+      for (const tag of sub.tags) {
+        if (goal.includes(tag) || tag.split(' ').some(w => w.length > 3 && goal.includes(w))) sc += 10;
       }
-      throw new Error("No pipeline data");
-    } catch (err) {
-      console.warn("Could not build graph from pipeline, using fallback...", err);
+      for (const skill of (goalProfile.required || [])) {
+        if (sub.name.toLowerCase().includes(skill) || sub.tags.some(t => t.includes(skill))) sc += 12;
+      }
+      return sc;
     }
+
+    // START node
+    tNodes.push({
+      id: 'start',
+      type: 'customCourseNode',
+      position: { x: 60, y: 300 },
+      data: {
+        subject_id: 'START',
+        label: `${name || 'Student'} · Sem ${curSem}`,
+        credits: 0,
+        semester: curSem,
+        status: 'COMPLETED',
+        is_bottleneck: false,
+      }
+    });
+
+    let prevColIds = ['start'];
+
+    // One column per semester (1-8)
+    for (let sem = 1; sem <= 8; sem++) {
+      const semSubjects = curriculum.semesters[sem] || [];
+      if (semSubjects.length === 0) continue;
+
+      const colX = sem * X_GAP + 60;
+      const colIds = [];
+
+      semSubjects.forEach((sub, idx) => {
+        const nodeId = `s${sem}_${sub.code}`;
+        const score = scoreForGoal(sub);
+        const isPast = sem <= curSem;
+        const isBottleneck = !isPast && score === 0; // not relevant to goal = bottleneck
+
+        const totalInCol = semSubjects.length;
+        const startY = 300 - ((totalInCol - 1) * Y_GAP) / 2;
+        const nodeY = startY + idx * Y_GAP;
+
+        tNodes.push({
+          id: nodeId,
+          type: 'customCourseNode',
+          position: { x: colX, y: nodeY },
+          data: {
+            subject_id: sub.code,
+            label: sub.name,
+            credits: sub.credits,
+            semester: sem,
+            status: isPast ? 'COMPLETED' : score > 10 ? 'ENROLLED' : 'AVAILABLE',
+            is_bottleneck: isBottleneck,
+          }
+        });
+        colIds.push(nodeId);
+
+        // Connect from previous column: each node in this col connects from the nearest prev node
+        const srcId = prevColIds[idx % prevColIds.length];
+        const isHighValue = score > 15;
+        tEdges.push({
+          id: `e-${srcId}-${nodeId}`,
+          source: srcId,
+          target: nodeId,
+          type: 'smoothstep',
+          animated: isHighValue,
+          style: {
+            strokeWidth: isHighValue ? 4 : 2,
+            stroke: isPast ? '#22c55e' : isBottleneck ? '#ef4444' : isHighValue ? '#3b82f6' : '#a8a29e',
+            strokeDasharray: isBottleneck ? '6 4' : undefined,
+          }
+        });
+      });
+
+      prevColIds = colIds;
+    }
+
+    // GOAL node
+    const finalX = 9 * X_GAP + 60;
+    tNodes.push({
+      id: 'treasure',
+      type: 'customCourseNode',
+      position: { x: finalX, y: 300 },
+      data: {
+        subject_id: '★ GOAL',
+        label: chatInput || 'Career Goal',
+        credits: 0,
+        semester: 9,
+        status: 'TREASURE',
+        is_bottleneck: false,
+      }
+    });
+
+    // Connect last semester to goal
+    prevColIds.forEach((id, i) => {
+      tEdges.push({
+        id: `e-goal-${id}`,
+        source: id,
+        target: 'treasure',
+        type: 'smoothstep',
+        animated: true,
+        style: { strokeWidth: 4, stroke: '#eab308' }
+      });
+    });
+
+    setNodes(tNodes);
+    setEdges(tEdges);
   };
 
   const chatEndRef = useRef(null);
@@ -897,6 +947,38 @@ export default function App() {
           >
             <X size={24}/> CLOSE TREASURE MAP
           </button>
+
+          {/* Legend */}
+          <div className="absolute top-28 right-8 z-50 bg-[#fef3c7] border-[4px] border-[#451a03] shadow-[4px_4px_0_#78350f] p-3 flex flex-col gap-1.5 text-xs font-bold">
+            <div className="title-text text-xs text-[#451a03] mb-1">LEGEND</div>
+            {[
+              { color: '#22c55e', label: 'COMPLETED (past sems)' },
+              { color: '#3b82f6', label: 'HIGH RELEVANCE to goal', animated: true },
+              { color: '#a8a29e', label: 'LOW RELEVANCE' },
+              { color: '#ef4444', label: 'BOTTLENECK (not aligned)', dashed: true },
+              { color: '#eab308', label: '→ GOAL', animated: true },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-8 h-1.5 rounded-sm flex-shrink-0" style={{
+                  backgroundColor: item.color,
+                  border: item.dashed ? '1px dashed #ef4444' : 'none',
+                }}/>
+                <span className="text-[#451a03]">{item.label}</span>
+              </div>
+            ))}
+            <div className="border-t border-[#451a03]/30 mt-1 pt-1 flex flex-col gap-1">
+              {[
+                { bg: '#bbf7d0', label: 'Completed subject' },
+                { bg: '#bfdbfe', label: 'Goal-relevant subject' },
+                { bg: '#fecaca', label: 'Bottleneck subject' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-[#451a03] flex-shrink-0" style={{ backgroundColor: item.bg }}/>
+                  <span className="text-[#451a03]">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
