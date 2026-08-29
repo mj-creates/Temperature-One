@@ -210,6 +210,96 @@ const DEPARTMENT_CURRICULA = {
   }
 };
 
+// --- GOAL SKILL REQUIREMENTS & COURSERA GAP ANALYSIS ---
+const GOAL_SKILL_MAP = {
+  // Software / Fullstack
+  'software engineer':     { required: ['algorithms','data structures','web','database','system design','os','networking'], coursera: [
+    { title: 'Meta Back-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-back-end-developer', why: 'REST APIs, Django, databases — core backend skills' },
+    { title: 'Google UX Design', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/google-ux-design', why: 'Product thinking and design for full-stack engineers' },
+  ]},
+  'fullstack':             { required: ['react','node','database','api','web','devops','docker'], coursera: [
+    { title: 'IBM Full Stack Software Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-full-stack-cloud-developer', why: 'React, Node.js, cloud deployment end-to-end' },
+    { title: 'Meta Front-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-front-end-developer', why: 'React, JavaScript, responsive design mastery' },
+  ]},
+  'frontend':              { required: ['javascript','react','css','html','ux','accessibility','performance'], coursera: [
+    { title: 'Meta Front-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-front-end-developer', why: 'React, JavaScript, UI/UX from Meta engineers' },
+    { title: 'Google UX Design', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/google-ux-design', why: 'User research, wireframing, prototyping' },
+  ]},
+  'backend':               { required: ['api','microservices','database','sql','caching','messaging','authentication'], coursera: [
+    { title: 'Meta Back-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-back-end-developer', why: 'APIs, databases, Django — production-grade backend' },
+    { title: 'IBM Back-End Development', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-backend-development', why: 'Node.js, Express, Docker, Kubernetes for backend' },
+  ]},
+  // Data / AI / ML
+  'data scientist':        { required: ['python','statistics','machine learning','sql','data visualisation','feature engineering','model deployment'], coursera: [
+    { title: 'IBM Data Science', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-data-science', why: 'Python, SQL, ML, data visualisation — complete data science path' },
+    { title: 'DeepLearning.AI TensorFlow Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/tensorflow-in-practice', why: 'Build and deploy DL models with TensorFlow' },
+  ]},
+  'machine learning':      { required: ['python','linear algebra','statistics','neural networks','tensorflow','mlops','feature engineering'], coursera: [
+    { title: 'Machine Learning Specialisation (Andrew Ng)', platform: 'Coursera', url: 'https://www.coursera.org/specializations/machine-learning-introduction', why: 'Foundational ML algorithms from the creator of ML education' },
+    { title: 'MLOps Specialisation — DeepLearning.AI', platform: 'Coursera', url: 'https://www.coursera.org/specializations/machine-learning-engineering-for-production-mlops', why: 'Production ML pipelines, monitoring, deployment' },
+  ]},
+  'ai':                    { required: ['python','neural networks','nlp','computer vision','reinforcement learning','llm','prompt engineering'], coursera: [
+    { title: 'Deep Learning Specialisation (Andrew Ng)', platform: 'Coursera', url: 'https://www.coursera.org/specializations/deep-learning', why: 'CNN, RNN, transformers — complete deep learning curriculum' },
+    { title: 'Generative AI with LLMs — DeepLearning.AI', platform: 'Coursera', url: 'https://www.coursera.org/learn/generative-ai-with-llms', why: 'LLMs, prompt engineering, fine-tuning, RLHF' },
+  ]},
+  // Cyber / Security
+  'cybersecurity':         { required: ['networking','ethical hacking','cryptography','forensics','penetration testing','incident response','siem'], coursera: [
+    { title: 'Google Cybersecurity', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/google-cybersecurity', why: 'SIEM, network security, Python for security automation' },
+    { title: 'IBM Cybersecurity Analyst', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-cybersecurity-analyst', why: 'Threat intelligence, vulnerability management, SIEM tools' },
+  ]},
+  'ethical hacker':        { required: ['networking','penetration testing','web app hacking','kali linux','oscp prep','reverse engineering'], coursera: [
+    { title: 'IBM Cybersecurity Analyst', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-cybersecurity-analyst', why: 'Hands-on security tools, incident response, threat intelligence' },
+    { title: 'Offensive Security Concepts — SANS', platform: 'Coursera', url: 'https://www.coursera.org/learn/cyber-threats-and-attack-vectors', why: 'Attack vectors, red teaming methodology' },
+  ]},
+  // Cloud / DevOps
+  'cloud engineer':        { required: ['aws','azure','gcp','kubernetes','docker','terraform','iac','networking','monitoring'], coursera: [
+    { title: 'Google Cloud Professional Data Engineer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/gcp-data-engineering', why: 'GCP architecture, BigQuery, Dataflow at scale' },
+    { title: 'AWS Cloud Solutions Architect', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/aws-cloud-solutions-architect', why: 'AWS core services, architecture best practices, SAA-C03 prep' },
+  ]},
+  'devops':                { required: ['ci/cd','docker','kubernetes','linux','terraform','ansible','monitoring','git'], coursera: [
+    { title: 'IBM DevOps and Software Engineering', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/devops-and-software-engineering', why: 'CI/CD, Docker, Kubernetes, Agile — complete DevOps path' },
+    { title: 'Site Reliability Engineering — Google', platform: 'Coursera', url: 'https://www.coursera.org/learn/site-reliability-engineering-slos', why: 'SLOs, error budgets, SRE practices from Google' },
+  ]},
+  // Mechanical
+  'mechanical engineer':   { required: ['cad','fea','thermodynamics','fluid mechanics','manufacturing','robotics'], coursera: [
+    { title: 'Digital Manufacturing & Design Technology', platform: 'Coursera', url: 'https://www.coursera.org/specializations/digital-manufacturing-design-technology', why: 'Industry 4.0, CAD/CAM, additive manufacturing' },
+    { title: 'Robotics Specialisation — Penn', platform: 'Coursera', url: 'https://www.coursera.org/specializations/robotics', why: 'Aerial robotics, estimation, perception, manipulation' },
+  ]},
+  // Civil
+  'civil engineer':        { required: ['structural analysis','concrete design','surveying','gis','bim','project management'], coursera: [
+    { title: 'BIM Fundamentals for Engineers', platform: 'Coursera', url: 'https://www.coursera.org/learn/bim-fundamentals-for-engineers', why: 'BIM workflows, Revit, collaborative construction design' },
+    { title: 'Construction Project Management — Columbia', platform: 'Coursera', url: 'https://www.coursera.org/specializations/construction-project-management', why: 'Scheduling, cost control, contract management' },
+  ]},
+  // ECE
+  'embedded systems':      { required: ['microcontrollers','rtos','c programming','pcb design','iot','arm architecture'], coursera: [
+    { title: 'Embedded Systems — Colorado', platform: 'Coursera', url: 'https://www.coursera.org/specializations/embedded-systems', why: 'ARM Cortex, RTOS, microcontroller programming in C' },
+    { title: 'Introduction to the Internet of Things', platform: 'Coursera', url: 'https://www.coursera.org/specializations/iot', why: 'IoT architecture, sensors, embedded Linux, cloud connectivity' },
+  ]},
+  // Default
+  'default':               { required: [], coursera: [
+    { title: 'Learning How to Learn — UC San Diego', platform: 'Coursera', url: 'https://www.coursera.org/learn/learning-how-to-learn', why: 'Evidence-based study techniques applicable to any goal' },
+  ]},
+};
+
+function getGoalProfile(goalStr) {
+  const lower = goalStr.toLowerCase();
+  for (const [key, profile] of Object.entries(GOAL_SKILL_MAP)) {
+    if (key === 'default') continue;
+    if (lower.includes(key) || key.split(' ').every(w => lower.includes(w))) {
+      return { key, ...profile };
+    }
+  }
+  // Partial match
+  for (const [key, profile] of Object.entries(GOAL_SKILL_MAP)) {
+    if (key === 'default') continue;
+    const words = key.split(' ');
+    if (words.some(w => w.length > 3 && lower.includes(w))) {
+      return { key, ...profile };
+    }
+  }
+  return { key: 'default', ...GOAL_SKILL_MAP['default'] };
+}
+
 // --- DYNAMIC GOAL-BASED ROADMAP ENGINE ---
 function generateGoalBasedRoadmap(department, currentSemester, goal) {
   const normDept = (department || 'CSE').toUpperCase().trim();
@@ -228,109 +318,121 @@ function generateGoalBasedRoadmap(department, currentSemester, goal) {
   const curriculum = DEPARTMENT_CURRICULA[deptKey] || DEPARTMENT_CURRICULA['CSE'];
   const curSem = Math.max(1, Math.min(8, parseInt(currentSemester, 10) || 1));
   const goalStr = (goal || 'Software Engineer').toLowerCase();
+  const goalProfile = getGoalProfile(goalStr);
+
+  // Score a subject against the goal
+  function scoreSubject(sub) {
+    let score = 0;
+    const subNameLow = sub.name.toLowerCase();
+    for (const tag of sub.tags) {
+      if (goalStr.includes(tag) || tag.split(' ').some(w => w.length > 3 && goalStr.includes(w))) score += 10;
+    }
+    // Check against goal required skills
+    for (const skill of (goalProfile.required || [])) {
+      if (subNameLow.includes(skill) || sub.tags.some(t => t.includes(skill))) score += 12;
+    }
+    if (goalStr.split(' ').some(w => w.length > 3 && subNameLow.includes(w))) score += 8;
+    score += (sub.credits || 3) * 0.5;
+    return score;
+  }
 
   const roadmapSteps = [];
+  // Track which required skills are covered by curriculum subjects
+  const coveredSkills = new Set();
 
-  // Iterate strictly through remaining semesters (curSem + 1 to 8)
   for (let sem = curSem + 1; sem <= 8; sem++) {
     const semSubjects = curriculum.semesters[sem] || [];
     if (semSubjects.length === 0) continue;
 
-    // Score subjects based on goal relevance
-    let bestSubject = semSubjects[0];
-    let highestScore = -1;
+    // Score all subjects, keep ones with score > 0 (relevant) sorted by score
+    const scored = semSubjects
+      .map(sub => ({ ...sub, score: scoreSubject(sub) }))
+      .filter(sub => sub.score > 3) // filter out completely irrelevant subjects
+      .sort((a, b) => b.score - a.score);
 
-    for (const sub of semSubjects) {
-      let score = 0;
+    // Take top 3 most relevant, minimum 1
+    const selected = scored.length > 0 ? scored.slice(0, 3) : [{ ...semSubjects[0], score: 0 }];
+
+    // Track covered skills
+    for (const sub of selected) {
+      for (const tag of sub.tags) coveredSkills.add(tag.toLowerCase());
+      coveredSkills.add(sub.name.toLowerCase());
+    }
+
+    // Build rationale per subject
+    const subjectsWithRationale = selected.map(sub => {
       const subNameLow = sub.name.toLowerCase();
-      
-      // Keyword matching
-      for (const tag of sub.tags) {
-        if (goalStr.includes(tag) || tag.split(' ').some(w => goalStr.includes(w))) {
-          score += 10;
-        }
-      }
-      if (goalStr.split(' ').some(w => w.length > 2 && subNameLow.includes(w))) {
-        score += 8;
-      }
-      score += (sub.credits || 3); // secondary factor
-
-      if (score > highestScore) {
-        highestScore = score;
-        bestSubject = sub;
-      }
-    }
-
-    // Generate goal-specific rationale
-    let rationale = `Builds fundamental competency directly applicable to ${goal}.`;
-    const subName = bestSubject.name.toLowerCase();
-    
-    if (subName.includes('database') || subName.includes('sql')) {
-      rationale = 'Essential for scalable backend architecture, data persistence, and enterprise data models.';
-    } else if (subName.includes('web') || subName.includes('full-stack')) {
-      rationale = 'Provides hands-on mastery in building end-to-end modern web applications and REST APIs.';
-    } else if (subName.includes('algorithms') || subName.includes('structures')) {
-      rationale = 'Core foundation for optimal problem-solving, computational efficiency, and technical interviews.';
-    } else if (subName.includes('operating systems') || subName.includes('kernel')) {
-      rationale = 'Deepens understanding of concurrency, memory management, process scheduling, and low-level execution.';
-    } else if (subName.includes('machine learning') || subName.includes('deep learning') || subName.includes('ai')) {
-      rationale = 'Critical core coursework for developing predictive intelligence, training neural networks, and deploying ML models.';
-    } else if (subName.includes('cloud') || subName.includes('devops') || subName.includes('distributed')) {
-      rationale = 'Helps with deploying, containerizing, and orchestrating highly available, scalable microservices.';
-    } else if (subName.includes('security') || subName.includes('crypto') || subName.includes('hacking')) {
-      rationale = 'Vital for threat modeling, hardening enterprise networks, and implementing zero-trust security.';
-    } else if (subName.includes('design of machine') || subName.includes('cad') || subName.includes('fea')) {
-      rationale = 'Key engineering milestone for computer-aided mechanical modeling, structural simulations, and stress analysis.';
-    } else if (subName.includes('structural analysis') || subName.includes('concrete') || subName.includes('steel')) {
-      rationale = 'Foundational for designing stable structural frameworks, calculating load distributions, and modern construction.';
-    } else if (subName.includes('analytics') || subName.includes('finance') || subName.includes('strategy')) {
-      rationale = 'Equips you with quantitative financial modeling, market analytics, and executive business strategy.';
-    }
+      let why = `Directly relevant to ${goal} — builds core competency.`;
+      if (subNameLow.includes('database') || subNameLow.includes('sql')) why = 'Data persistence and querying — critical for almost every modern application.';
+      else if (subNameLow.includes('web') || subNameLow.includes('framework')) why = 'Hands-on web development — essential for building user-facing products.';
+      else if (subNameLow.includes('algorithm') || subNameLow.includes('structure')) why = 'Problem-solving foundation — required for technical interviews and efficient code.';
+      else if (subNameLow.includes('machine learning') || subNameLow.includes('deep learning')) why = 'Core AI/ML theory — trains you to build intelligent systems.';
+      else if (subNameLow.includes('cloud') || subNameLow.includes('devops')) why = 'Deployment and scalability — turns code into production systems.';
+      else if (subNameLow.includes('security') || subNameLow.includes('crypto')) why = 'Security foundations — protects systems against real-world threats.';
+      else if (subNameLow.includes('network')) why = 'Networking fundamentals — backbone of distributed systems and cloud.';
+      else if (subNameLow.includes('os') || subNameLow.includes('operating')) why = 'OS internals — critical for systems programming, embedded, and cloud.';
+      else if (subNameLow.includes('python') || subNameLow.includes('programming')) why = 'Programming proficiency — the primary tool for your career path.';
+      else if (sub.score > 15) why = `High-priority subject for ${goal} — maps directly to required skills.`;
+      return { ...sub, why };
+    });
 
     roadmapSteps.push({
       semester: sem,
       semesterLabel: `Semester ${sem}`,
-      mainSubject: bestSubject.name,
-      code: bestSubject.code,
-      credits: bestSubject.credits,
-      why: rationale
+      subjects: subjectsWithRationale,
+      // Keep backward compat: primary subject = highest scored
+      mainSubject: subjectsWithRationale[0].name,
+      code: subjectsWithRationale[0].code,
+      credits: subjectsWithRationale[0].credits,
+      why: subjectsWithRationale[0].why,
     });
   }
 
-  // Capstone Project Milestone recommendation
+  // ── SKILL GAP ANALYSIS ──────────────────────────────────────────────────
+  // Find required skills not covered by any curriculum subject
+  const gapSkills = (goalProfile.required || []).filter(skill => {
+    return !Array.from(coveredSkills).some(covered =>
+      covered.includes(skill) || skill.includes(covered.split(' ')[0])
+    );
+  });
+
+  // Coursera recommendations from goal profile
+  const courseraRecs = goalProfile.coursera || [];
+
+  // ── CAPSTONE ─────────────────────────────────────────────────────────────
   let capstoneTitle = 'Enterprise Full-Stack Cloud Application & Scalable Microservices Architecture';
-  let capstoneRationale = `Comprehensive end-to-end capstone synthesizing your ${deptKey} coursework into production-ready industry credentials.`;
-
-  if (goalStr.includes('ai') || goalStr.includes('machine learning') || goalStr.includes('ml') || goalStr.includes('data scientist')) {
-    capstoneTitle = 'Autonomous End-to-End Multimodal Deep Learning & AI Agent System';
-    capstoneRationale = 'A complete AI/ML deployment showcasing custom neural architectures, real-time inferencing, and MLOps pipelines.';
-  } else if (goalStr.includes('cyber') || goalStr.includes('security')) {
-    capstoneTitle = 'Zero-Trust Automated Threat Detection & Security Operations Platform';
-    capstoneRationale = 'Industrial cybersecurity deployment integrating proactive vulnerability analysis and real-time incident mitigation.';
-  } else if (goalStr.includes('cloud') || goalStr.includes('devops')) {
-    capstoneTitle = 'Multi-Region Kubernetes Cloud Infrastructure & Automated GitOps CI/CD Platform';
-    capstoneRationale = 'Production cloud architecture demonstrating automated failover, load balancing, and infrastructure-as-code.';
-  } else if (deptKey === 'MECH' || goalStr.includes('mech') || goalStr.includes('robot')) {
-    capstoneTitle = 'Autonomous Robotic Manipulator CAD Modeling, FEA Simulation & Hardware Prototyping';
-    capstoneRationale = 'Complete mechanical design lifecycle validating kinematic motion, thermal durability, and automated mechatronic control.';
-  } else if (deptKey === 'CIVIL' || goalStr.includes('civil') || goalStr.includes('structur')) {
-    capstoneTitle = 'Sustainable Smart City Infrastructure Modeling & High-Rise Structural Analysis';
-    capstoneRationale = 'Integrated civil engineering project covering seismic resistance, reinforced concrete design, and smart drainage systems.';
-  } else if (deptKey === 'BBA' || goalStr.includes('business') || goalStr.includes('analyst') || goalStr.includes('finance')) {
-    capstoneTitle = 'Predictive Enterprise Business Analytics & FinTech Market Forecasting Engine';
-    capstoneRationale = 'Executive-level data-driven market strategy solving supply chain bottlenecks and optimizing financial capital allocation.';
+  let capstoneRationale = `Synthesises all ${deptKey} coursework into a production-ready portfolio project.`;
+  const g = goalStr;
+  if (g.includes('ai') || g.includes('machine learning') || g.includes('ml') || g.includes('data scien')) {
+    capstoneTitle = 'End-to-End ML Pipeline: Data Ingestion → Model Training → Production API';
+    capstoneRationale = 'Build, train, evaluate and serve a real ML model — the capstone every data/AI role expects to see.';
+  } else if (g.includes('cyber') || g.includes('security') || g.includes('hacker')) {
+    capstoneTitle = 'Red Team vs Blue Team: Penetration Testing Lab & Incident Response Simulation';
+    capstoneRationale = 'Hands-on attack and defence simulation — exactly what employers look for in security roles.';
+  } else if (g.includes('cloud') || g.includes('devops') || g.includes('sre')) {
+    capstoneTitle = 'Production Kubernetes Cluster: CI/CD, Auto-scaling, Observability & IaC';
+    capstoneRationale = 'Deploy a real multi-service application with GitOps, Terraform and monitoring — the cloud engineer portfolio piece.';
+  } else if (g.includes('fullstack') || g.includes('full stack') || g.includes('full-stack')) {
+    capstoneTitle = 'Full-Stack SaaS Product: Auth, Database, REST API, React UI & Cloud Deploy';
+    capstoneRationale = 'A complete product from DB schema to deployed frontend — the definitive fullstack portfolio project.';
+  } else if (g.includes('data') || g.includes('analyst')) {
+    capstoneTitle = 'End-to-End Data Analytics Dashboard: ETL Pipeline, SQL Warehouse & BI Visualisation';
+    capstoneRationale = 'Real dataset ingestion, transformation, storage and business insight presentation.';
+  } else if (deptKey === 'MECH' || g.includes('mech') || g.includes('robot')) {
+    capstoneTitle = 'Autonomous Robot: CAD Design, FEA Simulation & Embedded Control System';
+    capstoneRationale = 'Complete mechatronics project spanning design, simulation and real hardware control.';
+  } else if (deptKey === 'CIVIL' || g.includes('civil') || g.includes('structur')) {
+    capstoneTitle = 'Smart Building Design: Structural Analysis, BIM Model & Sustainability Report';
+    capstoneRationale = 'End-to-end civil project from site survey to BIM-based structural design.';
   }
-
-  const capstoneStep = {
-    projectTitle: capstoneTitle,
-    why: capstoneRationale
-  };
 
   return {
     roadmapSteps,
-    capstoneStep,
+    capstoneStep: { projectTitle: capstoneTitle, why: capstoneRationale },
+    courseraGaps: gapSkills,
+    courseraRecs,
     departmentName: curriculum.name,
-    regulation: curriculum.regulation
+    regulation: curriculum.regulation,
   };
 }
 
@@ -1516,30 +1618,86 @@ export default function App() {
                       </div>
                       
                       {roadmapData.roadmapSteps.map((step, i) => (
-                        <div 
-                          key={i} 
-                          className="flex flex-col items-center bg-white border-[6px] border-black p-5 w-full md:w-60 text-center shadow-[8px_8px_0_#000] transform transition-all duration-500 hover:-translate-y-4 hover:shadow-[12px_16px_0_#3b82f6] relative group"
+                        <div
+                          key={i}
+                          className="flex flex-col bg-white border-[6px] border-black p-4 w-full md:w-72 shadow-[8px_8px_0_#000] transform transition-all duration-500 hover:-translate-y-3 hover:shadow-[12px_16px_0_#3b82f6] relative group"
                           style={{ animation: `slideUp 0.5s ease-out ${i * 0.2}s both` }}
                         >
+                          {/* Semester label */}
                           <div className="absolute -top-6 bg-black text-white px-3 py-1 title-text text-sm border-2 border-white shadow-[2px_2px_0_#000] group-hover:bg-blue-600 transition-colors">
                             {step.semesterLabel.toUpperCase()}
                           </div>
-                          
-                          <div className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 border border-blue-300 mt-2 mb-2">
-                            {step.code} • {step.credits} CR
+
+                          {/* All relevant subjects for this semester */}
+                          <div className="flex flex-col gap-2 mt-2">
+                            {(step.subjects || [{ name: step.mainSubject, code: step.code, credits: step.credits, why: step.why }]).map((sub, si) => (
+                              <div key={si} className={`border-[3px] p-2.5 ${si === 0 ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}>
+                                <div className="flex items-start justify-between gap-1 mb-1">
+                                  <span className={`text-[10px] font-black px-1.5 py-0.5 border ${si === 0 ? 'bg-blue-600 text-white border-blue-700' : 'bg-gray-600 text-white border-gray-700'}`}>
+                                    {sub.code}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-gray-500">{sub.credits} CR</span>
+                                </div>
+                                <div className={`text-xs font-black leading-snug mb-1 ${si === 0 ? 'text-blue-900' : 'text-gray-800'}`}>
+                                  {si === 0 && <span className="text-red-500 mr-1">🎯</span>}{sub.name}
+                                </div>
+                                <div className="text-[10px] text-gray-600 leading-relaxed">
+                                  <strong>Why:</strong> {sub.why}
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          
-                          <div className="text-base md:text-lg font-black text-black leading-snug mb-2">
-                            <span className="text-red-500 mr-1">🎯</span>{step.mainSubject}
-                          </div>
-                          
-                          <div className="mt-auto text-xs text-gray-700 bg-yellow-50 p-2.5 border-2 border-black text-left w-full">
-                            <strong className="text-black">💡 Why:</strong> {step.why}
-                          </div>
-                          
-                          <div className="w-4 h-4 bg-blue-500 border-2 border-black rounded-full mt-4 animate-ping hidden md:block"></div>
+
+                          <div className="w-4 h-4 bg-blue-500 border-2 border-black rounded-full mt-3 animate-ping self-center hidden md:block"></div>
                         </div>
                       ))}
+
+                      {/* ── COURSERA BRIDGE — skill gaps not in curriculum ── */}
+                      {(roadmapData.courseraRecs && roadmapData.courseraRecs.length > 0) && (
+                        <div
+                          className="flex flex-col bg-orange-50 border-[6px] border-orange-500 p-4 w-full md:w-72 shadow-[8px_8px_0_#ea580c] relative"
+                          style={{ animation: `slideUp 0.5s ease-out ${roadmapData.roadmapSteps.length * 0.2}s both` }}
+                        >
+                          <div className="absolute -top-6 bg-orange-500 text-white px-3 py-1 title-text text-xs border-2 border-white shadow-[2px_2px_0_#000] whitespace-nowrap">
+                            📚 COURSERA BRIDGE
+                          </div>
+                          <div className="title-text text-xs bg-orange-500 text-white px-2 py-0.5 mb-3 inline-block self-start">
+                            SKILL GAPS → EXTERNAL COURSES
+                          </div>
+                          {/* Highlight skills missing from curriculum */}
+                          {roadmapData.courseraGaps && roadmapData.courseraGaps.length > 0 && (
+                            <div className="mb-3 p-2 bg-red-50 border-2 border-red-400">
+                              <div className="text-[10px] font-black text-red-700 mb-1 uppercase">Not in your curriculum:</div>
+                              <div className="flex flex-wrap gap-1">
+                                {roadmapData.courseraGaps.map((gap, gi) => (
+                                  <span key={gi} className="text-[10px] bg-red-100 border border-red-400 text-red-800 px-1.5 py-0.5 font-bold uppercase">
+                                    {gap}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {/* Recommended Coursera courses */}
+                          <div className="flex flex-col gap-2">
+                            {roadmapData.courseraRecs.map((course, ci) => (
+                              <a
+                                key={ci}
+                                href={course.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block border-[3px] border-orange-400 bg-white p-2.5 hover:bg-orange-50 transition-colors group/c shadow-[2px_2px_0_#000]"
+                              >
+                                <div className="flex items-center gap-1.5 mb-1">
+                                  <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 font-black">{course.platform}</span>
+                                  <span className="text-[9px] text-blue-600 group-hover/c:underline font-mono ml-auto">↗ Enrol Free</span>
+                                </div>
+                                <div className="text-xs font-black text-gray-900 leading-snug mb-1">{course.title}</div>
+                                <div className="text-[10px] text-gray-600">{course.why}</div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Dedicated Capstone Project Node After Semester 8 */}
                       {roadmapData.capstoneStep && (
