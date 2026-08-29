@@ -213,72 +213,28 @@ const DEPARTMENT_CURRICULA = {
 // --- GOAL SKILL REQUIREMENTS & COURSERA GAP ANALYSIS ---
 const GOAL_SKILL_MAP = {
   // Software / Fullstack
-  'software engineer':     { required: ['algorithms','data structures','web','database','system design','os','networking'], coursera: [
-    { title: 'Meta Back-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-back-end-developer', why: 'REST APIs, Django, databases — core backend skills' },
-    { title: 'Google UX Design', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/google-ux-design', why: 'Product thinking and design for full-stack engineers' },
-  ]},
-  'fullstack':             { required: ['react','node','database','api','web','devops','docker'], coursera: [
-    { title: 'IBM Full Stack Software Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-full-stack-cloud-developer', why: 'React, Node.js, cloud deployment end-to-end' },
-    { title: 'Meta Front-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-front-end-developer', why: 'React, JavaScript, responsive design mastery' },
-  ]},
-  'frontend':              { required: ['javascript','react','css','html','ux','accessibility','performance'], coursera: [
-    { title: 'Meta Front-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-front-end-developer', why: 'React, JavaScript, UI/UX from Meta engineers' },
-    { title: 'Google UX Design', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/google-ux-design', why: 'User research, wireframing, prototyping' },
-  ]},
-  'backend':               { required: ['api','microservices','database','sql','caching','messaging','authentication'], coursera: [
-    { title: 'Meta Back-End Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/meta-back-end-developer', why: 'APIs, databases, Django — production-grade backend' },
-    { title: 'IBM Back-End Development', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-backend-development', why: 'Node.js, Express, Docker, Kubernetes for backend' },
-  ]},
+  'software engineer':     { required: ['algorithms','data structures','web','database','system design','os','networking']}
+  'fullstack':             { required: ['react','node','database','api','web','devops','docker']}
+  'frontend':              { required: ['javascript','react','css','html','ux','accessibility','performance']}
+  'backend':               { required: ['api','microservices','database','sql','caching','messaging','authentication']}
   // Data / AI / ML
-  'data scientist':        { required: ['python','statistics','machine learning','sql','data visualisation','feature engineering','model deployment'], coursera: [
-    { title: 'IBM Data Science', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-data-science', why: 'Python, SQL, ML, data visualisation — complete data science path' },
-    { title: 'DeepLearning.AI TensorFlow Developer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/tensorflow-in-practice', why: 'Build and deploy DL models with TensorFlow' },
-  ]},
-  'machine learning':      { required: ['python','linear algebra','statistics','neural networks','tensorflow','mlops','feature engineering'], coursera: [
-    { title: 'Machine Learning Specialisation (Andrew Ng)', platform: 'Coursera', url: 'https://www.coursera.org/specializations/machine-learning-introduction', why: 'Foundational ML algorithms from the creator of ML education' },
-    { title: 'MLOps Specialisation — DeepLearning.AI', platform: 'Coursera', url: 'https://www.coursera.org/specializations/machine-learning-engineering-for-production-mlops', why: 'Production ML pipelines, monitoring, deployment' },
-  ]},
-  'ai':                    { required: ['python','neural networks','nlp','computer vision','reinforcement learning','llm','prompt engineering'], coursera: [
-    { title: 'Deep Learning Specialisation (Andrew Ng)', platform: 'Coursera', url: 'https://www.coursera.org/specializations/deep-learning', why: 'CNN, RNN, transformers — complete deep learning curriculum' },
-    { title: 'Generative AI with LLMs — DeepLearning.AI', platform: 'Coursera', url: 'https://www.coursera.org/learn/generative-ai-with-llms', why: 'LLMs, prompt engineering, fine-tuning, RLHF' },
-  ]},
+  'data scientist':        { required: ['python','statistics','machine learning','sql','data visualisation','feature engineering','model deployment']}
+  'machine learning':      { required: ['python','linear algebra','statistics','neural networks','tensorflow','mlops','feature engineering']}
+  'ai':                    { required: ['python','neural networks','nlp','computer vision','reinforcement learning','llm','prompt engineering']}
   // Cyber / Security
-  'cybersecurity':         { required: ['networking','ethical hacking','cryptography','forensics','penetration testing','incident response','siem'], coursera: [
-    { title: 'Google Cybersecurity', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/google-cybersecurity', why: 'SIEM, network security, Python for security automation' },
-    { title: 'IBM Cybersecurity Analyst', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-cybersecurity-analyst', why: 'Threat intelligence, vulnerability management, SIEM tools' },
-  ]},
-  'ethical hacker':        { required: ['networking','penetration testing','web app hacking','kali linux','oscp prep','reverse engineering'], coursera: [
-    { title: 'IBM Cybersecurity Analyst', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/ibm-cybersecurity-analyst', why: 'Hands-on security tools, incident response, threat intelligence' },
-    { title: 'Offensive Security Concepts — SANS', platform: 'Coursera', url: 'https://www.coursera.org/learn/cyber-threats-and-attack-vectors', why: 'Attack vectors, red teaming methodology' },
-  ]},
+  'cybersecurity':         { required: ['networking','ethical hacking','cryptography','forensics','penetration testing','incident response','siem']}
+  'ethical hacker':        { required: ['networking','penetration testing','web app hacking','kali linux','oscp prep','reverse engineering']}
   // Cloud / DevOps
-  'cloud engineer':        { required: ['aws','azure','gcp','kubernetes','docker','terraform','iac','networking','monitoring'], coursera: [
-    { title: 'Google Cloud Professional Data Engineer', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/gcp-data-engineering', why: 'GCP architecture, BigQuery, Dataflow at scale' },
-    { title: 'AWS Cloud Solutions Architect', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/aws-cloud-solutions-architect', why: 'AWS core services, architecture best practices, SAA-C03 prep' },
-  ]},
-  'devops':                { required: ['ci/cd','docker','kubernetes','linux','terraform','ansible','monitoring','git'], coursera: [
-    { title: 'IBM DevOps and Software Engineering', platform: 'Coursera', url: 'https://www.coursera.org/professional-certificates/devops-and-software-engineering', why: 'CI/CD, Docker, Kubernetes, Agile — complete DevOps path' },
-    { title: 'Site Reliability Engineering — Google', platform: 'Coursera', url: 'https://www.coursera.org/learn/site-reliability-engineering-slos', why: 'SLOs, error budgets, SRE practices from Google' },
-  ]},
+  'cloud engineer':        { required: ['aws','azure','gcp','kubernetes','docker','terraform','iac','networking','monitoring']}
+  'devops':                { required: ['ci/cd','docker','kubernetes','linux','terraform','ansible','monitoring','git']}
   // Mechanical
-  'mechanical engineer':   { required: ['cad','fea','thermodynamics','fluid mechanics','manufacturing','robotics'], coursera: [
-    { title: 'Digital Manufacturing & Design Technology', platform: 'Coursera', url: 'https://www.coursera.org/specializations/digital-manufacturing-design-technology', why: 'Industry 4.0, CAD/CAM, additive manufacturing' },
-    { title: 'Robotics Specialisation — Penn', platform: 'Coursera', url: 'https://www.coursera.org/specializations/robotics', why: 'Aerial robotics, estimation, perception, manipulation' },
-  ]},
+  'mechanical engineer':   { required: ['cad','fea','thermodynamics','fluid mechanics','manufacturing','robotics']}
   // Civil
-  'civil engineer':        { required: ['structural analysis','concrete design','surveying','gis','bim','project management'], coursera: [
-    { title: 'BIM Fundamentals for Engineers', platform: 'Coursera', url: 'https://www.coursera.org/learn/bim-fundamentals-for-engineers', why: 'BIM workflows, Revit, collaborative construction design' },
-    { title: 'Construction Project Management — Columbia', platform: 'Coursera', url: 'https://www.coursera.org/specializations/construction-project-management', why: 'Scheduling, cost control, contract management' },
-  ]},
+  'civil engineer':        { required: ['structural analysis','concrete design','surveying','gis','bim','project management']}
   // ECE
-  'embedded systems':      { required: ['microcontrollers','rtos','c programming','pcb design','iot','arm architecture'], coursera: [
-    { title: 'Embedded Systems — Colorado', platform: 'Coursera', url: 'https://www.coursera.org/specializations/embedded-systems', why: 'ARM Cortex, RTOS, microcontroller programming in C' },
-    { title: 'Introduction to the Internet of Things', platform: 'Coursera', url: 'https://www.coursera.org/specializations/iot', why: 'IoT architecture, sensors, embedded Linux, cloud connectivity' },
-  ]},
+  'embedded systems':      { required: ['microcontrollers','rtos','c programming','pcb design','iot','arm architecture']}
   // Default
-  'default':               { required: [], coursera: [
-    { title: 'Learning How to Learn — UC San Diego', platform: 'Coursera', url: 'https://www.coursera.org/learn/learning-how-to-learn', why: 'Evidence-based study techniques applicable to any goal' },
-  ]},
+  'default':               { required: []}
 };
 
 function getGoalProfile(goalStr) {
@@ -396,8 +352,8 @@ function generateGoalBasedRoadmap(department, currentSemester, goal) {
     );
   });
 
-  // Coursera recommendations from goal profile
-  const courseraRecs = goalProfile.coursera || [];
+  // Coursera recommendations — now fetched live from the backend
+  const courseraRecs: never[] = [];
 
   // ── CAPSTONE ─────────────────────────────────────────────────────────────
   let capstoneTitle = 'Enterprise Full-Stack Cloud Application & Scalable Microservices Architecture';
@@ -538,6 +494,8 @@ export default function App() {
   const [pipelineStep, setPipelineStep] = useState(-1);
   const [activeAgentIdx, setActiveAgentIdx] = useState(-1); // which agent spotlight is showing (-1 = none)
   const [pipelineData, setPipelineData] = useState(null); // Full Backend Response
+  const [courseraResults, setCourseraResults] = useState([]); // Live Coursera search results
+  const [courseraLoading, setCourseraLoading] = useState(false);
 
   // React Flow State
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -687,6 +645,15 @@ export default function App() {
             ...prev,
             { sender: 'NEXUS', text: `Career Goal Validated: "${userGoal}". Analyzing ${studentDetails.department} curriculum starting from Semester ${studentDetails.semester + 1} to synthesize your optimal single-subject roadmap...` }
           ]);
+
+          // Fetch live Coursera courses for this goal in the background
+          setCourseraLoading(true);
+          fetch(`${API_BASE}/api/external-courses/search?query=${encodeURIComponent(userGoal)}&limit=5`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data?.courses) setCourseraResults(data.courses); })
+            .catch(() => {})
+            .finally(() => setCourseraLoading(false));
+
           
           try {
             const response = await fetch(`${API_BASE}/api/orchestrator/advise`, {
@@ -1733,8 +1700,8 @@ export default function App() {
                         </div>
                       ))}
 
-                      {/* ── COURSERA BRIDGE — skill gaps not in curriculum ── */}
-                      {(roadmapData.courseraRecs && roadmapData.courseraRecs.length > 0) && (
+                      {/* ── COURSERA BRIDGE — live search results for skill gaps ── */}
+                      {(courseraLoading || courseraResults.length > 0 || (roadmapData.courseraGaps && roadmapData.courseraGaps.length > 0)) && (
                         <div
                           className="flex flex-col bg-orange-50 border-[6px] border-orange-500 p-4 w-full md:w-72 shadow-[8px_8px_0_#ea580c] relative"
                           style={{ animation: `slideUp 0.5s ease-out ${roadmapData.roadmapSteps.length * 0.2}s both` }}
@@ -1743,9 +1710,10 @@ export default function App() {
                             📚 COURSERA BRIDGE
                           </div>
                           <div className="title-text text-xs bg-orange-500 text-white px-2 py-0.5 mb-3 inline-block self-start">
-                            SKILL GAPS → EXTERNAL COURSES
+                            SKILL GAPS → LIVE COURSES
                           </div>
-                          {/* Highlight skills missing from curriculum */}
+
+                          {/* Skills missing from curriculum */}
                           {roadmapData.courseraGaps && roadmapData.courseraGaps.length > 0 && (
                             <div className="mb-3 p-2 bg-red-50 border-2 border-red-400">
                               <div className="text-[10px] font-black text-red-700 mb-1 uppercase">Not in your curriculum:</div>
@@ -1758,25 +1726,39 @@ export default function App() {
                               </div>
                             </div>
                           )}
-                          {/* Recommended Coursera courses */}
-                          <div className="flex flex-col gap-2">
-                            {roadmapData.courseraRecs.map((course, ci) => (
-                              <a
-                                key={ci}
-                                href={course.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block border-[3px] border-orange-400 bg-white p-2.5 hover:bg-orange-50 transition-colors group/c shadow-[2px_2px_0_#000]"
-                              >
-                                <div className="flex items-center gap-1.5 mb-1">
-                                  <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 font-black">{course.platform}</span>
-                                  <span className="text-[9px] text-blue-600 group-hover/c:underline font-mono ml-auto">↗ Enrol Free</span>
-                                </div>
-                                <div className="text-xs font-black text-gray-900 leading-snug mb-1">{course.title}</div>
-                                <div className="text-[10px] text-gray-600">{course.why}</div>
-                              </a>
-                            ))}
-                          </div>
+
+                          {/* Live Coursera search results */}
+                          {courseraLoading ? (
+                            <div className="flex items-center gap-2 py-4 justify-center">
+                              <div className="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"/>
+                              <span className="text-xs font-bold text-orange-700">Searching Coursera...</span>
+                            </div>
+                          ) : courseraResults.length > 0 ? (
+                            <div className="flex flex-col gap-2">
+                              {courseraResults.map((course, ci) => (
+                                <a
+                                  key={ci}
+                                  href={course.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block border-[3px] border-orange-400 bg-white p-2.5 hover:bg-orange-50 transition-colors group/c shadow-[2px_2px_0_#000]"
+                                >
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 font-black">COURSERA</span>
+                                    <span className="text-[9px] text-blue-600 group-hover/c:underline font-mono ml-auto">↗ View Course</span>
+                                  </div>
+                                  <div className="text-xs font-black text-gray-900 leading-snug mb-1">{course.title}</div>
+                                  {course.description && (
+                                    <div className="text-[10px] text-gray-600 line-clamp-2">{course.description}</div>
+                                  )}
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-orange-700 font-bold text-center py-2">
+                              No results yet — courses will appear when goal is set.
+                            </div>
+                          )}
                         </div>
                       )}
 
