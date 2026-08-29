@@ -515,7 +515,6 @@ export default function App() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('student');
   const [teacherData, setTeacherData] = useState([]);
-  const [showWhatIf, setShowWhatIf] = useState(false);
   const [authMode, setAuthMode] = useState('Student');
   const [isLoadingErp, setIsLoadingErp] = useState(false);
   const [erpStatusStep, setErpStatusStep] = useState('');
@@ -1769,28 +1768,7 @@ export default function App() {
                     <button onClick={openKnowledgeGraph} className="pixel-btn bg-black text-white text-xl flex items-center gap-4 py-4 px-8 border-[6px] border-white shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all">
                       <MapIcon size={24}/> OPEN TREASURE MAP
                     </button>
-                    <button onClick={() => alert("Pathway Exported to PDF/LinkedIn Profile!")} className="pixel-btn bg-blue-600 text-white text-xl flex items-center gap-4 py-4 px-8 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all">
-                      <Download size={24}/> EXPORT CREDENTIALS
-                    </button>
-                    <button onClick={() => setShowWhatIf(!showWhatIf)} className="pixel-btn bg-purple-600 text-white text-xl flex items-center gap-4 py-4 px-8 border-[6px] border-black shadow-[8px_8px_0_#000] hover:shadow-[4px_4px_0_#000] hover:translate-x-1 hover:translate-y-1 transition-all">
-                      <MonitorPlay size={24}/> WHAT-IF SIMULATOR
-                    </button>
                   </div>
-                  
-                  {showWhatIf && (
-                     <div className="mt-12 bg-white border-4 border-purple-600 p-8 shadow-[8px_8px_0_#000] animate-[slideUp_0.3s]">
-                        <h4 className="title-text text-2xl mb-4 text-purple-700 flex items-center gap-2"><MonitorPlay/> SCENARIO SIMULATOR (RAG)</h4>
-                        <p className="text-xl mb-4 text-gray-700">Inject variables into the Graph-RAG model to see alternate pathways.</p>
-                        <div className="flex gap-4">
-                           <select className="flex-1 pixel-input text-xl border-[4px] border-black py-2 px-4 bg-gray-100">
-                             <option>What if I fail Data Structures?</option>
-                             <option>What if I switch to Cybersecurity?</option>
-                             <option>What if I take a semester off?</option>
-                           </select>
-                           <button onClick={() => alert("Recomputing via Vector Agent...\\nPath updated: +1 Semester, added Coursera bridging course.")} className="pixel-btn bg-black text-white px-6 border-4 border-purple-600">SIMULATE</button>
-                        </div>
-                     </div>
-                  )}
                   
                   {/* Graph-RAG Infographics Mockup */}
                   <div className="mt-12 bg-gray-900 border-4 border-black p-8 shadow-[8px_8px_0_#000] animate-[slideUp_0.3s_ease-out_2s_both]">
